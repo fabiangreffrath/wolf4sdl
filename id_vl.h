@@ -11,10 +11,12 @@ void Quit (const char *error,...);
 
 //===========================================================================
 
+extern SDL_Window *window;
 extern SDL_Surface *screen, *screenBuffer, *curSurface;
 
 extern  boolean  fullscreen, usedoublebuffering;
-extern  unsigned screenWidth, screenHeight, screenBits, screenPitch, bufferPitch, curPitch;
+extern  unsigned screenWidth, screenHeight, screenPitch, bufferPitch, curPitch;
+extern  int screenBits;
 extern  unsigned scaleFactor;
 
 extern	boolean  screenfaded;
@@ -36,7 +38,6 @@ void VL_Shutdown (void);
 
 void VL_ConvertPalette(byte *srcpal, SDL_Color *destpal, int numColors);
 void VL_FillPalette (int red, int green, int blue);
-void VL_SetColor    (int color, int red, int green, int blue);
 void VL_GetColor    (int color, int *red, int *green, int *blue);
 void VL_SetPalette  (SDL_Color *palette, bool forceupdate);
 void VL_GetPalette  (SDL_Color *palette);

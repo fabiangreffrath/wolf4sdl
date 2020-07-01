@@ -1629,7 +1629,7 @@ void    ThreeDRefresh (void)
         }
 #endif
         SDL_BlitSurface(screenBuffer, NULL, screen, NULL);
-        SDL_Flip(screen);
+        VL_Flip();
     }
 
 #ifndef REMDEBUG

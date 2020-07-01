@@ -12,7 +12,7 @@ INSTALL_MAN     ?= $(INSTALL) -m 444
 INSTALL_DATA    ?= $(INSTALL) -m 444
 
 
-SDL_CONFIG  ?= sdl-config
+SDL_CONFIG  ?= pkg-config sdl2 SDL2_mixer
 CFLAGS_SDL  ?= $(shell $(SDL_CONFIG) --cflags)
 LDFLAGS_SDL ?= $(shell $(SDL_CONFIG) --libs)
 
@@ -26,9 +26,8 @@ CFLAGS += -Wreturn-type
 CFLAGS += -Wwrite-strings
 CFLAGS += -Wcast-align
 
-ifdef GPL
-    CFLAGS += -DUSE_GPL
-endif
+CFLAGS += -DUSE_GPL
+CFLAGS += -fno-toplevel-reorder
 
 
 CCFLAGS += $(CFLAGS)
@@ -40,17 +39,12 @@ CCFLAGS += -Wsequence-point
 CXXFLAGS += $(CFLAGS)
 
 LDFLAGS += $(LDFLAGS_SDL)
-LDFLAGS += -lSDL_mixer
 ifneq (,$(findstring MINGW,$(shell uname -s)))
 LDFLAGS += -static-libgcc
 endif
 
 SRCS :=
-ifndef GPL
-    SRCS += mame/fmopl.cpp
-else
-    SRCS += dosbox/dbopl.cpp
-endif
+SRCS += dosbox/dbopl.cpp
 SRCS += id_ca.cpp
 SRCS += id_in.cpp
 SRCS += id_pm.cpp

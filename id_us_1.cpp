@@ -89,6 +89,8 @@ void US_Startup()
 	if (US_Started)
 		return;
 
+	US_SetScanNames();
+
 	US_InitRndT(true);		// Initialize the random number generator
 
 	US_Started = true;
@@ -685,7 +687,7 @@ US_LineInput(int x,int y,char *buf,const char *def,boolean escok,
 					cursormoved = true;
 					break;
 
-				case SDLK_KP5: //0x4c:	// Keypad 5 // TODO: hmmm...
+				case SDLK_KP_5: //0x4c:	// Keypad 5 // TODO: hmmm...
 				case sc_UpArrow:
 				case sc_DownArrow:
 				case sc_PgUp:

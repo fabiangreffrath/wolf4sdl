@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <fcntl.h>
+#include <map>
 #include <math.h>
 #include <ctype.h>
 #include <stdio.h>

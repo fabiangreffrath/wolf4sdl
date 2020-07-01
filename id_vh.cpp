@@ -119,7 +119,7 @@ void VW_MeasurePropString (const char *string, word *width, word *height)
 void VH_UpdateScreen()
 {
 	SDL_BlitSurface(screenBuffer, NULL, screen, NULL);
-	SDL_Flip(screen);
+	VL_Flip();
 }
 
 
@@ -244,13 +244,16 @@ void LoadLatchMem (void)
 //
 // tile 8s
 //
-    surf = SDL_CreateRGBSurface(SDL_HWSURFACE, 8*8,
+    surf = SDL_CreateRGBSurface(0, 8*8,
         ((NUMTILE8 + 7) / 8) * 8, 8, 0, 0, 0, 0);
     if(surf == NULL)
     {
         Quit("Unable to create surface for tiles!");
     }
-    SDL_SetColors(surf, gamepal, 0, 256);
+    SDL_Palette *pal = SDL_AllocPalette(256);
+    SDL_SetPaletteColors(pal, gamepal, 0, 256);
+    SDL_SetSurfacePalette(surf, pal);
+    SDL_FreePalette(pal);
 
 	latchpics[0] = surf;
 	CA_CacheGrChunk (STARTTILE8);
@@ -275,12 +278,15 @@ void LoadLatchMem (void)
 	{
 		width = pictable[i-STARTPICS].width;
 		height = pictable[i-STARTPICS].height;
-		surf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 8, 0, 0, 0, 0);
+		surf = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
         if(surf == NULL)
         {
             Quit("Unable to create surface for picture!");
         }
-        SDL_SetColors(surf, gamepal, 0, 256);
+        SDL_Palette *pal = SDL_AllocPalette(256);
+        SDL_SetPaletteColors(pal, gamepal, 0, 256);
+        SDL_SetSurfacePalette(surf, pal);
+        SDL_FreePalette(pal);
 
 		latchpics[2+i-start] = surf;
 		CA_CacheGrChunk (i);
@@ -376,7 +382,7 @@ boolean FizzleFade (SDL_Surface *source, int x1, int y1,
         {
             VL_UnlockSurface(source);
             SDL_BlitSurface(source, NULL, screen, NULL);
-            SDL_Flip(screen);
+            VL_Flip();
             return true;
         }
 
@@ -441,7 +447,7 @@ boolean FizzleFade (SDL_Surface *source, int x1, int y1,
             if(usedoublebuffering) first = 0;
 
             VL_UnlockSurface(screen);
-            SDL_Flip(screen);
+            VL_Flip();
         }
         else
         {
@@ -465,6 +471,6 @@ finished:
     VL_UnlockSurface(source);
     VL_UnlockSurface(screen);
     SDL_BlitSurface(source, NULL, screen, NULL);
-    SDL_Flip(screen);
+    VL_Flip();
     return false;
 }
