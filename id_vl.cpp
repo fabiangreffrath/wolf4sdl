@@ -107,6 +107,8 @@ void	VL_SetVGAPlaneMode (void)
     title = "Wolfenstein 3D";
 #endif
 
+    // [FG] create rendering window
+
     window = SDL_CreateWindow(title,
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               screenWidth, screenHeight,
@@ -122,6 +124,8 @@ void	VL_SetVGAPlaneMode (void)
 
     int pixel_format = SDL_GetWindowPixelFormat(window);
 
+    // [FG] create renderer
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     if (!renderer)
     {
@@ -129,10 +133,13 @@ void	VL_SetVGAPlaneMode (void)
     }
     if (!renderer)
     {
-        printf("Unable to create renderer: %s\n", SDL_GetError());
+        printf("Unable to create renderer: %s\n",
+               SDL_GetError());
         exit(1);
     }
     SDL_RenderSetLogicalSize(renderer, screenWidth, screenHeight);
+
+    // [FG] create texture
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     texture = SDL_CreateTexture(renderer,
@@ -141,9 +148,12 @@ void	VL_SetVGAPlaneMode (void)
                                 screenWidth, screenHeight);
     if (!texture)
     {
-        printf("Unable to create texture: %s\n", SDL_GetError());
+        printf("Unable to create texture: %s\n",
+               SDL_GetError());
         exit(1);
     }
+
+   // [FG] create intermediate RGBA frame buffer
 
     unsigned int rmask, gmask, bmask, amask;
     SDL_PixelFormatEnumToMasks(pixel_format, &screenBits,
@@ -152,10 +162,10 @@ void	VL_SetVGAPlaneMode (void)
     screen = SDL_CreateRGBSurface(0,
                                   screenWidth, screenHeight, screenBits,
                                   rmask, gmask, bmask, amask);
-    if(!screen)
+    if (!screen)
     {
-        printf("Unable to set %ix%ix%i video mode: %s\n", screenWidth,
-            screenHeight, screenBits, SDL_GetError());
+        printf("Unable to set %ix%ix%i video mode: %s\n",
+               screenWidth, screenHeight, screenBits, SDL_GetError());
         exit(1);
     }
     SDL_FillRect(screen, NULL, 0);
@@ -164,24 +174,29 @@ void	VL_SetVGAPlaneMode (void)
 
     memcpy(curpal, gamepal, sizeof(SDL_Color) * 256);
 
+    // [FG] create paletted frame buffer
+
     screenBuffer = SDL_CreateRGBSurface(0,
                                         screenWidth, screenHeight, 8,
                                         0, 0, 0, 0);
-    if(!screenBuffer)
+    if (!screenBuffer)
     {
-        printf("Unable to create screen buffer surface: %s\n", SDL_GetError());
+        printf("Unable to create screen buffer surface: %s\n",
+               SDL_GetError());
         exit(1);
     }
 
     SDL_Palette *sdlpal = SDL_AllocPalette(256);
-    if(!sdlpal || SDL_SetPaletteColors(sdlpal, gamepal, 0, 256) < 0)
+    if (!sdlpal || SDL_SetPaletteColors(sdlpal, gamepal, 0, 256) < 0)
     {
-        printf("Unable to set palette colors: %s\n", SDL_GetError());
+        printf("Unable to set palette colors: %s\n",
+               SDL_GetError());
         exit(1);
     }
-    if(SDL_SetSurfacePalette(screenBuffer, sdlpal) < 0)
+    if (SDL_SetSurfacePalette(screenBuffer, sdlpal) < 0)
     {
-        printf("Unable to set surface palette: %s\n", SDL_GetError());
+        printf("Unable to set surface palette: %s\n",
+               SDL_GetError());
         exit(1);
     }
     SDL_FreePalette(sdlpal);

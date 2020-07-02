@@ -35,6 +35,11 @@
 boolean MousePresent;
 boolean forcegrabmouse;
 
+// There's no SDLK_LAST anymore. If your program had a lookup table of
+// SDLK_LAST elements, to map between SDL keys and whatever your
+// application wanted internally, that's no longer feasible. Use a hash
+// table instead. A std::map will do.
+// <https://wiki.libsdl.org/MigrationGuide>
 
 // 	Global variables
 std::map<ScanCode, boolean>	Keyboard;
