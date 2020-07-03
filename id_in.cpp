@@ -42,7 +42,7 @@ boolean forcegrabmouse;
 // <https://wiki.libsdl.org/MigrationGuide>
 
 // 	Global variables
-std::map<ScanCode, boolean>	Keyboard;
+std::unordered_map<ScanCode, boolean> Keyboard;
 volatile boolean	Paused;
 volatile char		LastASCII;
 ScanCode	LastScan;

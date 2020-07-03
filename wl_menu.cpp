@@ -339,7 +339,7 @@ static byte *ExtScanNames[] =   // Names corresponding to ExtScanCodes
                                         };*/
 
 #else
-static std::map<ScanCode, const char *> ScanNames;
+static std::unordered_map<ScanCode, const char *> ScanNames;
 void US_SetScanNames()
 {
     ScanNames[sc_Enter] = "Enter";
@@ -3974,7 +3974,7 @@ IN_GetScanName (ScanCode scan)
         if (*s == scan)
             return (*p);*/
 
-    std::map<ScanCode, const char*>::iterator it = ScanNames.find(scan);
+    std::unordered_map<ScanCode, const char*>::iterator it = ScanNames.find(scan);
     if (it == ScanNames.end())
     {
         return "?";

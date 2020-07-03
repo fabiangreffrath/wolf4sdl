@@ -6,11 +6,11 @@
 
 #include <assert.h>
 #include <fcntl.h>
-#include <map>
 #include <math.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unordered_map>
 #if defined(_arch_dreamcast)
 #	include <string.h>
 #	include "dc/dc_main.h"
