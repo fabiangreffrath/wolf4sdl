@@ -616,7 +616,7 @@ void SD_PrepareSound(int which)
     if(origsamples + size >= PM_GetEnd())
         Quit("SD_PrepareSound(%i): Sound reaches out of page file!\n", which);
 
-    int destsamples = (int) ((float) size * (float) param_samplerate
+    longword destsamples = (int) ((float) size * (float) param_samplerate
         / (float) ORIGSAMPLERATE);
 
     byte *wavebuffer = (byte *) malloc(sizeof(headchunk) + sizeof(wavechunk)
