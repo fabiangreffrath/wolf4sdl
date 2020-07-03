@@ -116,7 +116,7 @@ void	VL_SetVGAPlaneMode (void)
                               (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
     if (!window)
     {
-        printf("Unable to create %ix%i window: %s\n",
+        printf("Unable to create %ux%u window: %s\n",
                screenWidth, screenHeight, SDL_GetError());
         exit(1);
     }
@@ -164,7 +164,7 @@ void	VL_SetVGAPlaneMode (void)
                                   rmask, gmask, bmask, amask);
     if (!screen)
     {
-        printf("Unable to set %ix%ix%i video mode: %s\n",
+        printf("Unable to set %ux%ux%i screen surface: %s\n",
                screenWidth, screenHeight, screenBits, SDL_GetError());
         exit(1);
     }
