@@ -36,8 +36,6 @@
 
 #include "../version.h"
 
-#ifdef USE_GPL
-
 #define INLINE inline
 #define GCC_UNLIKELY(x) x
 
@@ -1522,5 +1520,3 @@ void Handler::Init( Bitu rate ) {
 
 
 };		//Namespace DBOPL
-
-#endif  // ifdef USE_GPL

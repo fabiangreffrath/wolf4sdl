@@ -32,11 +32,7 @@
 #if defined(GP2X_940)
 #include "gp2x/fmopl.h"
 #else
-#ifdef USE_GPL
 #include "dosbox/dbopl.h"
-#else
-#include "mame/fmopl.h"
-#endif
 #endif
 
 #define ORIGSAMPLERATE 7042
@@ -118,8 +114,6 @@ static  int                     sqHackLen;
 static  int                     sqHackSeqLen;
 static  longword                sqHackTime;
 
-#ifdef USE_GPL
-
 DBOPL::Chip oplChip;
 
 static inline bool YM3812Init(int numChips, int clock, int rate)
@@ -175,12 +169,6 @@ static inline void YM3812UpdateOne(DBOPL::Chip &which, int16_t *stream, int leng
 		}
 	}
 }
-
-#else
-
-static const int oplChip = 0;
-
-#endif
 
 static void SDL_SoundFinished(void)
 {

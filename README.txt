@@ -227,6 +227,4 @@ Licenses:
      - license-id.txt or
      - license-gpl.txt
  - The OPL2 emulator:
-     At your choice:
-     - license-mame.txt (fmopl.cpp)
-     - license-gpl.txt (dbopl.cpp, USE_GPL define in version.h or set GPL=1 for Makefile)
+     - license-gpl.txt (dbopl.cpp)

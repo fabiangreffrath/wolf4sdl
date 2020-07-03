@@ -26,8 +26,6 @@ CFLAGS += -Wreturn-type
 CFLAGS += -Wwrite-strings
 CFLAGS += -Wcast-align
 
-CFLAGS += -DUSE_GPL
-
 # In contrast to Doom, which has all its possible game states
 # enumerated and stored in a single huge info.c:states[] array, the
 # Wolf3d engine has them as global variables in wl_act2.cpp. The

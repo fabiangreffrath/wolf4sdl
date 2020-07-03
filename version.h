@@ -49,6 +49,5 @@
 #define PLAYDEMOLIKEORIGINAL  // When playing or recording demos, several bug fixes do not take
                               // effect to let the original demos work as in the original Wolf3D v1.4
                               // (actually better, as the second demo rarely worked)
-//#define USE_GPL             // Replaces the MAME OPL emulator by the DosBox one, which is under a GPL license
 
 #endif
