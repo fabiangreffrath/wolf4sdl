@@ -92,6 +92,7 @@ void    LatchDrawPicScaledCoord (unsigned scx, unsigned scy, unsigned picnum);
 void    LoadLatchMem (void);
 void    FreeLatchMem();
 
+void    VL_Flip();
 void    VH_Startup();
 boolean FizzleFade (SDL_Surface *source, int x1, int y1,
     unsigned width, unsigned height, unsigned frames, boolean abortable);

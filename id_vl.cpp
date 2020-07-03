@@ -21,22 +21,26 @@ boolean fullscreen = true;
 boolean usedoublebuffering = false;
 unsigned screenWidth = 320;
 unsigned screenHeight = 200;
-unsigned screenBits = 8;
+int screenBits = 8;
 #elif defined(GP2X)
 boolean usedoublebuffering = true;
 unsigned screenWidth = 320;
 unsigned screenHeight = 240;
 #if defined(GP2X_940)
-unsigned screenBits = 8;
+int screenBits = 8;
 #else
-unsigned screenBits = 16;
+int screenBits = 16;
 #endif
 #else
 boolean usedoublebuffering = true;
 unsigned screenWidth = 640;
 unsigned screenHeight = 400;
-unsigned screenBits = -1;      // use "best" color depth according to libSDL
+int screenBits = -1;      // use "best" color depth according to libSDL
 #endif
+
+SDL_Window *window;
+static SDL_Renderer *renderer;
+static SDL_Texture *texture;
 
 SDL_Surface *screen = NULL;
 unsigned screenPitch;
@@ -57,7 +61,7 @@ SDL_Color curpal[256];
 
 
 #define CASSERT(x) extern int ASSERT_COMPILE[((x) != 0) * 2 - 1];
-#define RGB(r, g, b) {(r)*255/63, (g)*255/63, (b)*255/63, 0}
+#define RGB(r, g, b) {(r)*255/63, (g)*255/63, (b)*255/63, 255}
 
 SDL_Color gamepal[]={
 #ifdef SPEAR
@@ -96,43 +100,106 @@ void	VL_Shutdown (void)
 
 void	VL_SetVGAPlaneMode (void)
 {
+    const char *title;
 #ifdef SPEAR
-    SDL_WM_SetCaption("Spear of Destiny", NULL);
+    title = "Spear of Destiny";
 #else
-    SDL_WM_SetCaption("Wolfenstein 3D", NULL);
+    title = "Wolfenstein 3D";
 #endif
 
-    if(screenBits == -1)
-    {
-        const SDL_VideoInfo *vidInfo = SDL_GetVideoInfo();
-        screenBits = vidInfo->vfmt->BitsPerPixel;
-    }
+    // [FG] create rendering window
 
-    screen = SDL_SetVideoMode(screenWidth, screenHeight, screenBits,
-          (usedoublebuffering ? SDL_HWSURFACE | SDL_DOUBLEBUF : 0)
-        | (screenBits == 8 ? SDL_HWPALETTE : 0)
-        | (fullscreen ? SDL_FULLSCREEN : 0));
-    if(!screen)
+    window = SDL_CreateWindow(title,
+                              SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              screenWidth, screenHeight,
+                              SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE |
+                              (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
+    if (!window)
     {
-        printf("Unable to set %ix%ix%i video mode: %s\n", screenWidth,
-            screenHeight, screenBits, SDL_GetError());
+        printf("Unable to create %ux%u window: %s\n",
+               screenWidth, screenHeight, SDL_GetError());
         exit(1);
     }
-    if((screen->flags & SDL_DOUBLEBUF) != SDL_DOUBLEBUF)
-        usedoublebuffering = false;
+    SDL_SetWindowMinimumSize(window, screenWidth, screenHeight);
+
+    int pixel_format = SDL_GetWindowPixelFormat(window);
+
+    // [FG] create renderer
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer)
+    {
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    }
+    if (!renderer)
+    {
+        printf("Unable to create renderer: %s\n",
+               SDL_GetError());
+        exit(1);
+    }
+    SDL_RenderSetLogicalSize(renderer, screenWidth, screenHeight);
+
+    // [FG] create texture
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+    texture = SDL_CreateTexture(renderer,
+                                pixel_format,
+                                SDL_TEXTUREACCESS_STREAMING,
+                                screenWidth, screenHeight);
+    if (!texture)
+    {
+        printf("Unable to create texture: %s\n",
+               SDL_GetError());
+        exit(1);
+    }
+
+   // [FG] create intermediate RGBA frame buffer
+
+    unsigned int rmask, gmask, bmask, amask;
+    SDL_PixelFormatEnumToMasks(pixel_format, &screenBits,
+                               &rmask, &gmask, &bmask, &amask);
+
+    screen = SDL_CreateRGBSurface(0,
+                                  screenWidth, screenHeight, screenBits,
+                                  rmask, gmask, bmask, amask);
+    if (!screen)
+    {
+        printf("Unable to set %ux%ux%i screen surface: %s\n",
+               screenWidth, screenHeight, screenBits, SDL_GetError());
+        exit(1);
+    }
+    SDL_FillRect(screen, NULL, 0);
+
     SDL_ShowCursor(SDL_DISABLE);
 
-    SDL_SetColors(screen, gamepal, 0, 256);
     memcpy(curpal, gamepal, sizeof(SDL_Color) * 256);
 
-    screenBuffer = SDL_CreateRGBSurface(SDL_SWSURFACE, screenWidth,
-        screenHeight, 8, 0, 0, 0, 0);
-    if(!screenBuffer)
+    // [FG] create paletted frame buffer
+
+    screenBuffer = SDL_CreateRGBSurface(0,
+                                        screenWidth, screenHeight, 8,
+                                        0, 0, 0, 0);
+    if (!screenBuffer)
     {
-        printf("Unable to create screen buffer surface: %s\n", SDL_GetError());
+        printf("Unable to create screen buffer surface: %s\n",
+               SDL_GetError());
         exit(1);
     }
-    SDL_SetColors(screenBuffer, gamepal, 0, 256);
+
+    SDL_Palette *sdlpal = SDL_AllocPalette(256);
+    if (!sdlpal || SDL_SetPaletteColors(sdlpal, gamepal, 0, 256) < 0)
+    {
+        printf("Unable to set palette colors: %s\n",
+               SDL_GetError());
+        exit(1);
+    }
+    if (SDL_SetSurfacePalette(screenBuffer, sdlpal) < 0)
+    {
+        printf("Unable to set surface palette: %s\n",
+               SDL_GetError());
+        exit(1);
+    }
+    SDL_FreePalette(sdlpal);
 
     screenPitch = screen->pitch;
     bufferPitch = screenBuffer->pitch;
@@ -205,31 +272,6 @@ void VL_FillPalette (int red, int green, int blue)
 /*
 =================
 =
-= VL_SetColor
-=
-=================
-*/
-
-void VL_SetColor	(int color, int red, int green, int blue)
-{
-    SDL_Color col = { red, green, blue };
-    curpal[color] = col;
-
-    if(screenBits == 8)
-        SDL_SetPalette(screen, SDL_PHYSPAL, &col, color, 1);
-    else
-    {
-        SDL_SetPalette(curSurface, SDL_LOGPAL, &col, color, 1);
-        SDL_BlitSurface(curSurface, NULL, screen, NULL);
-        SDL_Flip(screen);
-    }
-}
-
-//===========================================================================
-
-/*
-=================
-=
 = VL_GetColor
 =
 =================
@@ -246,6 +288,27 @@ void VL_GetColor	(int color, int *red, int *green, int *blue)
 //===========================================================================
 
 /*
+ =================
+ =
+ = VL_Flip
+ = For SDL2
+ =
+ =================
+ */
+
+// IOANCH: major thanks to http://sandervanderburg.blogspot.ro/2014/05/rendering-8-bit-palettized-surfaces-in.html
+void VL_Flip()
+{
+   SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+
+   SDL_RenderClear(renderer);
+   SDL_RenderCopy(renderer, texture, NULL, NULL);
+   SDL_RenderPresent(renderer);
+}
+
+//===========================================================================
+
+/*
 =================
 =
 = VL_SetPalette
@@ -257,16 +320,15 @@ void VL_SetPalette (SDL_Color *palette, bool forceupdate)
 {
     memcpy(curpal, palette, sizeof(SDL_Color) * 256);
 
-    if(screenBits == 8)
-        SDL_SetPalette(screen, SDL_PHYSPAL, palette, 0, 256);
-    else
+    SDL_Palette *pal = SDL_AllocPalette(256);
+    SDL_SetPaletteColors(pal, curpal, 0, 256);
+    SDL_SetSurfacePalette(curSurface, pal);
+    SDL_FreePalette(pal);
+
+    if(forceupdate)
     {
-        SDL_SetPalette(curSurface, SDL_LOGPAL, palette, 0, 256);
-        if(forceupdate)
-        {
-            SDL_BlitSurface(curSurface, NULL, screen, NULL);
-            SDL_Flip(screen);
-        }
+        SDL_BlitSurface(curSurface, NULL, screen, NULL);
+        VL_Flip();
     }
 }
 
@@ -702,45 +764,9 @@ void VL_LatchToScreenScaledCoord(SDL_Surface *source, int xsrc, int ysrc,
 
 	if(scaleFactor == 1)
     {
-        // HACK: If screenBits is not 8 and the screen is faded out, the
-        //       result will be black when using SDL_BlitSurface. The reason
-        //       is that the logical palette needed for the transformation
-        //       to the screen color depth is not equal to the logical
-        //       palette of the latch (the latch is not faded). Therefore,
-        //       SDL tries to map the colors...
-        //       The result: All colors are mapped to black.
-        //       So, we do the blit on our own...
-        if(screenBits != 8)
-        {
-            byte *src, *dest;
-            unsigned srcPitch;
-            int i, j;
-
-            src = VL_LockSurface(source);
-            if(src == NULL) return;
-
-            srcPitch = source->pitch;
-
-            dest = VL_LockSurface(curSurface);
-            if(dest == NULL) return;
-
-            for(j = 0; j < height; j++)
-            {
-                for(i = 0; i < width; i++)
-                {
-                    byte col = src[(ysrc + j)*srcPitch + xsrc + i];
-                    dest[(scydest + j) * curPitch + scxdest + i] = col;
-                }
-            }
-            VL_UnlockSurface(curSurface);
-            VL_UnlockSurface(source);
-        }
-        else
-        {
             SDL_Rect srcrect = { xsrc, ysrc, width, height };
             SDL_Rect destrect = { scxdest, scydest, 0, 0 }; // width and height are ignored
             SDL_BlitSurface(source, &srcrect, curSurface, &destrect);
-        }
     }
     else
     {

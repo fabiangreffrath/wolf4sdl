@@ -339,50 +339,117 @@ static byte *ExtScanNames[] =   // Names corresponding to ExtScanCodes
                                         };*/
 
 #else
-static const char* const ScanNames[SDLK_LAST] =
-    {
-        "?","?","?","?","?","?","?","?",                                //   0
-        "BkSp","Tab","?","?","?","Return","?","?",                      //   8
-        "?","?","?","Pause","?","?","?","?",                            //  16
-        "?","?","?","Esc","?","?","?","?",                              //  24
-        "Space","!","\"","#","$","?","&","'",                           //  32
-        "(",")","*","+",",","-",".","/",                                //  40
-        "0","1","2","3","4","5","6","7",                                //  48
-        "8","9",":",";","<","=",">","?",                                //  56
-        "@","A","B","C","D","E","F","G",                                //  64
-        "H","I","J","K","L","M","N","O",                                //  72
-        "P","Q","R","S","T","U","V","W",                                //  80
-        "X","Y","Z","[","\\","]","^","_",                               //  88
-        "`","a","b","c","d","e","f","h",                                //  96
-        "h","i","j","k","l","m","n","o",                                // 104
-        "p","q","r","s","t","u","v","w",                                // 112
-        "x","y","z","{","|","}","~","?",                                // 120
-        "?","?","?","?","?","?","?","?",                                // 128
-        "?","?","?","?","?","?","?","?",                                // 136
-        "?","?","?","?","?","?","?","?",                                // 144
-        "?","?","?","?","?","?","?","?",                                // 152
-        "?","?","?","?","?","?","?","?",                                // 160
-        "?","?","?","?","?","?","?","?",                                // 168
-        "?","?","?","?","?","?","?","?",                                // 176
-        "?","?","?","?","?","?","?","?",                                // 184
-        "?","?","?","?","?","?","?","?",                                // 192
-        "?","?","?","?","?","?","?","?",                                // 200
-        "?","?","?","?","?","?","?","?",                                // 208
-        "?","?","?","?","?","?","?","?",                                // 216
-        "?","?","?","?","?","?","?","?",                                // 224
-        "?","?","?","?","?","?","?","?",                                // 232
-        "?","?","?","?","?","?","?","?",                                // 240
-        "?","?","?","?","?","?","?","?",                                // 248
-        "?","?","?","?","?","?","?","?",                                // 256
-        "?","?","?","?","?","?","?","Enter",                            // 264
-        "?","Up","Down","Right","Left","Ins","Home","End",              // 272
-        "PgUp","PgDn","F1","F2","F3","F4","F5","F6",                    // 280
-        "F7","F8","F9","F10","F11","F12","?","?",                       // 288
-        "?","?","?","?","NumLk","CapsLk","ScrlLk","RShft",              // 296
-        "Shift","RCtrl","Ctrl","RAlt","Alt","?","?","?",                // 304
-        "?","?","?","?","PrtSc","?","?","?",                            // 312
-        "?","?"                                                         // 320
-    };
+static std::unordered_map<ScanCode, const char *> ScanNames;
+void US_SetScanNames()
+{
+    ScanNames[sc_Enter] = "Enter";
+    ScanNames[SDLK_UP] = "Up";
+    ScanNames[SDLK_DOWN] = "Down";
+    ScanNames[SDLK_RIGHT] = "Right";
+    ScanNames[SDLK_LEFT] = "Left";
+    ScanNames[SDLK_INSERT] = "Ins";
+    ScanNames[SDLK_HOME] = "Home";
+    ScanNames[SDLK_END] = "End";
+    ScanNames[SDLK_PAGEUP] = "PgUp";
+    ScanNames[SDLK_PAGEDOWN] = "PgDn";
+    ScanNames[SDLK_F1] = "F1";
+    ScanNames[SDLK_F2] = "F2";
+    ScanNames[SDLK_F3] = "F3";
+    ScanNames[SDLK_F4] = "F4";
+    ScanNames[SDLK_F5] = "F5";
+    ScanNames[SDLK_F6] = "F6";
+    ScanNames[SDLK_F7] = "F7";
+    ScanNames[SDLK_F8] = "F8";
+    ScanNames[SDLK_F9] = "F9";
+    ScanNames[SDLK_F10] = "F10";
+    ScanNames[SDLK_F11] = "F11";
+    ScanNames[SDLK_F12] = "F12";
+    ScanNames[SDLK_F13] = "F13";
+    ScanNames[SDLK_F14] = "F14";
+    ScanNames[SDLK_F15] = "F15";
+    ScanNames[SDLK_F16] = "F16";
+    ScanNames[SDLK_F17] = "F17";
+    ScanNames[SDLK_F18] = "F18";
+    ScanNames[SDLK_F19] = "F19";
+    ScanNames[SDLK_NUMLOCKCLEAR] = "NumLk";
+    ScanNames[SDLK_CAPSLOCK] = "CapsLk";
+    ScanNames[SDLK_SCROLLLOCK] = "ScrlLk";
+    ScanNames[SDLK_RSHIFT] = "RShft";
+    ScanNames[SDLK_LSHIFT] = "Shift";
+    ScanNames[SDLK_RCTRL] = "RCtrl";
+    ScanNames[SDLK_LCTRL] = "LCtrl";
+    ScanNames[SDLK_RALT] = "RAlt";
+    ScanNames[SDLK_LALT] = "Alt";
+    ScanNames[SDLK_RGUI] = "RMeta";
+    ScanNames[SDLK_LGUI] = "LMeta";
+    ScanNames[SDLK_PRINTSCREEN] = "PrtSc";
+    ScanNames[sc_BackSpace] = "BkSp";
+    ScanNames[sc_Tab] = "Tab";
+    ScanNames[sc_Return] = "Return";
+    ScanNames[SDLK_PAUSE] = "Pause";
+    ScanNames[sc_Escape] = "Esc";
+    ScanNames[sc_Space] = "Space";
+    ScanNames[SDLK_EXCLAIM] = "!";
+    ScanNames[SDLK_QUOTEDBL] = "\"";
+    ScanNames[SDLK_HASH] = "#";
+    ScanNames[SDLK_DOLLAR] = "$";
+    ScanNames[SDLK_QUESTION] = "?";
+    ScanNames[SDLK_AMPERSAND] = "&";
+    ScanNames[SDLK_QUOTE] = "'";
+    ScanNames[SDLK_LEFTPAREN] = "(";
+    ScanNames[SDLK_RIGHTPAREN] = ")";
+    ScanNames[SDLK_ASTERISK] = "*";
+    ScanNames[SDLK_PLUS] = "+";
+    ScanNames[SDLK_COMMA] = ",";
+    ScanNames[SDLK_MINUS] = "-";
+    ScanNames[SDLK_PERIOD] = ".";
+    ScanNames[SDLK_SLASH] = "/";
+    ScanNames[SDLK_0] = "0";
+    ScanNames[SDLK_1] = "1";
+    ScanNames[SDLK_2] = "2";
+    ScanNames[SDLK_3] = "3";
+    ScanNames[SDLK_4] = "4";
+    ScanNames[SDLK_5] = "5";
+    ScanNames[SDLK_6] = "6";
+    ScanNames[SDLK_7] = "7";
+    ScanNames[SDLK_8] = "8";
+    ScanNames[SDLK_9] = "9";
+    ScanNames[SDLK_COLON] = ":";
+    ScanNames[SDLK_SEMICOLON] = ";";
+    ScanNames[SDLK_LESS] = "<";
+    ScanNames[SDLK_EQUALS] = "=";
+    ScanNames[SDLK_GREATER] = ">";
+    ScanNames[SDLK_AT] = "@";
+    ScanNames[SDLK_a] = "A";
+    ScanNames[SDLK_b] = "B";
+    ScanNames[SDLK_c] = "C";
+    ScanNames[SDLK_d] = "D";
+    ScanNames[SDLK_e] = "E";
+    ScanNames[SDLK_f] = "F";
+    ScanNames[SDLK_g] = "G";
+    ScanNames[SDLK_h] = "H";
+    ScanNames[SDLK_i] = "I";
+    ScanNames[SDLK_j] = "J";
+    ScanNames[SDLK_k] = "K";
+    ScanNames[SDLK_l] = "L";
+    ScanNames[SDLK_m] = "M";
+    ScanNames[SDLK_n] = "N";
+    ScanNames[SDLK_o] = "O";
+    ScanNames[SDLK_p] = "P";
+    ScanNames[SDLK_q] = "Q";
+    ScanNames[SDLK_r] = "R";
+    ScanNames[SDLK_s] = "S";
+    ScanNames[SDLK_t] = "T";
+    ScanNames[SDLK_u] = "U";
+    ScanNames[SDLK_v] = "V";
+    ScanNames[SDLK_w] = "W";
+    ScanNames[SDLK_x] = "X";
+    ScanNames[SDLK_y] = "Y";
+    ScanNames[SDLK_z] = "Z";
+    ScanNames[SDLK_LEFTBRACKET] = "[";
+    ScanNames[SDLK_BACKSLASH] = "\\";
+    ScanNames[SDLK_RIGHTBRACKET] = "]";
+}
 
 #endif
 
@@ -3907,7 +3974,12 @@ IN_GetScanName (ScanCode scan)
         if (*s == scan)
             return (*p);*/
 
-    return (ScanNames[scan]);
+    std::unordered_map<ScanCode, const char*>::iterator it = ScanNames.find(scan);
+    if (it == ScanNames.end())
+    {
+        return "?";
+    }
+    return it->second;
 }
 
 

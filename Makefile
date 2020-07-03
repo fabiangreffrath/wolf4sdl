@@ -12,7 +12,7 @@ INSTALL_MAN     ?= $(INSTALL) -m 444
 INSTALL_DATA    ?= $(INSTALL) -m 444
 
 
-SDL_CONFIG  ?= sdl-config
+SDL_CONFIG  ?= pkg-config sdl2 SDL2_mixer
 CFLAGS_SDL  ?= $(shell $(SDL_CONFIG) --cflags)
 LDFLAGS_SDL ?= $(shell $(SDL_CONFIG) --libs)
 
@@ -26,9 +26,20 @@ CFLAGS += -Wreturn-type
 CFLAGS += -Wwrite-strings
 CFLAGS += -Wcast-align
 
-ifdef GPL
-    CFLAGS += -DUSE_GPL
-endif
+CFLAGS += -DUSE_GPL
+
+# In contrast to Doom, which has all its possible game states
+# enumerated and stored in a single huge info.c:states[] array, the
+# Wolf3d engine has them as global variables in wl_act2.cpp. The
+# savegame code relies on the order of these variables remaining
+# constant in the executable and the difference of these variables'
+# addresses relative to a certain reference as well. This should be a
+# valid assumption for a given executable, but might change when the
+# code is compiled again - turning the savegames saved wit the prior
+# compilate useless. This compiler flag prevents the reordering of the
+# global variables and thus keeps savegames functional across engine
+# rebuilds.
+CFLAGS += -fno-toplevel-reorder
 
 
 CCFLAGS += $(CFLAGS)
@@ -40,17 +51,12 @@ CCFLAGS += -Wsequence-point
 CXXFLAGS += $(CFLAGS)
 
 LDFLAGS += $(LDFLAGS_SDL)
-LDFLAGS += -lSDL_mixer
 ifneq (,$(findstring MINGW,$(shell uname -s)))
 LDFLAGS += -static-libgcc
 endif
 
 SRCS :=
-ifndef GPL
-    SRCS += mame/fmopl.cpp
-else
-    SRCS += dosbox/dbopl.cpp
-endif
+SRCS += dosbox/dbopl.cpp
 SRCS += id_ca.cpp
 SRCS += id_in.cpp
 SRCS += id_pm.cpp

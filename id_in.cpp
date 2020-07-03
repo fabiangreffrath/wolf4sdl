@@ -35,12 +35,17 @@
 boolean MousePresent;
 boolean forcegrabmouse;
 
+// There's no SDLK_LAST anymore. If your program had a lookup table of
+// SDLK_LAST elements, to map between SDL keys and whatever your
+// application wanted internally, that's no longer feasible. Use a hash
+// table instead. A std::map will do.
+// <https://wiki.libsdl.org/MigrationGuide>
 
 // 	Global variables
-volatile boolean    Keyboard[SDLK_LAST];
+std::unordered_map<ScanCode, boolean> Keyboard;
 volatile boolean	Paused;
 volatile char		LastASCII;
-volatile ScanCode	LastScan;
+ScanCode	LastScan;
 
 //KeyboardDef	KbdDefs = {0x1d,0x38,0x47,0x48,0x49,0x4b,0x4d,0x4f,0x50,0x51};
 static KeyboardDef KbdDefs = {
@@ -248,15 +253,15 @@ static void processEvent(SDL_Event *event)
         // check for keypresses
         case SDL_KEYDOWN:
         {
-            if(event->key.keysym.sym==SDLK_SCROLLOCK || event->key.keysym.sym==SDLK_F12)
+            if(event->key.keysym.sym==SDLK_SCROLLLOCK || event->key.keysym.sym==SDLK_F12)
             {
                 GrabInput = !GrabInput;
-                SDL_WM_GrabInput(GrabInput ? SDL_GRAB_ON : SDL_GRAB_OFF);
+                SDL_SetWindowGrab(window, GrabInput ? SDL_TRUE : SDL_FALSE);
                 return;
             }
 
             LastScan = event->key.keysym.sym;
-            SDLMod mod = SDL_GetModState();
+            SDL_Keymod mod = SDL_GetModState();
             if(Keyboard[sc_Alt])
             {
                 if(LastScan==SDLK_F4)
@@ -273,10 +278,10 @@ static void processEvent(SDL_Event *event)
                 {
                     switch(LastScan)
                     {
-                        case SDLK_KP2: LastScan = SDLK_DOWN; break;
-                        case SDLK_KP4: LastScan = SDLK_LEFT; break;
-                        case SDLK_KP6: LastScan = SDLK_RIGHT; break;
-                        case SDLK_KP8: LastScan = SDLK_UP; break;
+                        case SDLK_KP_2: LastScan = SDLK_DOWN; break;
+                        case SDLK_KP_4: LastScan = SDLK_LEFT; break;
+                        case SDLK_KP_6: LastScan = SDLK_RIGHT; break;
+                        case SDLK_KP_8: LastScan = SDLK_UP; break;
                     }
                 }
             }
@@ -295,8 +300,7 @@ static void processEvent(SDL_Event *event)
                 if(sym < lengthof(ASCIINames) && ASCIINames[sym])
                     LastASCII = ASCIINames[sym];
             }
-            if(LastScan<SDLK_LAST)
-                Keyboard[LastScan] = 1;
+            Keyboard[LastScan] = 1;
             if(LastScan == SDLK_PAUSE)
                 Paused = true;
             break;
@@ -315,24 +319,23 @@ static void processEvent(SDL_Event *event)
                 {
                     switch(key)
                     {
-                        case SDLK_KP2: key = SDLK_DOWN; break;
-                        case SDLK_KP4: key = SDLK_LEFT; break;
-                        case SDLK_KP6: key = SDLK_RIGHT; break;
-                        case SDLK_KP8: key = SDLK_UP; break;
+                        case SDLK_KP_2: key = SDLK_DOWN; break;
+                        case SDLK_KP_4: key = SDLK_LEFT; break;
+                        case SDLK_KP_6: key = SDLK_RIGHT; break;
+                        case SDLK_KP_8: key = SDLK_UP; break;
                     }
                 }
             }
 
-            if(key<SDLK_LAST)
-                Keyboard[key] = 0;
+            Keyboard[key] = 0;
             break;
         }
 
-        case SDL_ACTIVEEVENT:
+        case SDL_WINDOWEVENT:
         {
-            if(fullscreen && (event->active.state & SDL_APPACTIVE) != 0)
+            if(fullscreen)
             {
-                if(event->active.gain)
+                if(event->window.event == SDL_WINDOWEVENT_RESTORED)
                 {
                     if(NeedRestore)
                     {
@@ -342,7 +345,11 @@ static void processEvent(SDL_Event *event)
 
                     NeedRestore = false;
                 }
-                else NeedRestore = true;
+                else
+                if(event->window.event == SDL_WINDOWEVENT_MINIMIZED)
+                {
+                    NeedRestore = true;
+                }
             }
         }
 
@@ -411,7 +418,7 @@ IN_Startup(void)
     if(fullscreen || forcegrabmouse)
     {
         GrabInput = true;
-        SDL_WM_GrabInput(SDL_GRAB_ON);
+        SDL_SetWindowGrab(window, SDL_TRUE);
     }
 
     // I didn't find a way to ask libSDL whether a mouse is present, yet...
@@ -453,7 +460,7 @@ IN_ClearKeysDown(void)
 {
 	LastScan = sc_None;
 	LastASCII = key_None;
-	memset ((void *) Keyboard,0,sizeof(Keyboard));
+	Keyboard.clear();
 }
 
 
@@ -679,5 +686,5 @@ bool IN_IsInputGrabbed()
 
 void IN_CenterMouse()
 {
-    SDL_WarpMouse(screenWidth / 2, screenHeight / 2);
+    SDL_WarpMouseInWindow(window, screenWidth / 2, screenHeight / 2);
 }
