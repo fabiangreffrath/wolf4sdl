@@ -26,19 +26,6 @@ CFLAGS += -Wreturn-type
 CFLAGS += -Wwrite-strings
 CFLAGS += -Wcast-align
 
-# In contrast to Doom, which has all its possible game states
-# enumerated and stored in a single huge info.c:states[] array, the
-# Wolf3d engine has them as global variables in wl_act2.cpp. The
-# savegame code relies on the order of these variables remaining
-# constant in the executable and the difference of these variables'
-# addresses relative to a certain reference as well. This should be a
-# valid assumption for a given executable, but might change when the
-# code is compiled again - turning the savegames saved wit the prior
-# compilate useless. This compiler flag prevents the reordering of the
-# global variables and thus keeps savegames functional across engine
-# rebuilds.
-CFLAGS += -fno-toplevel-reorder
-
 
 CCFLAGS += $(CFLAGS)
 CCFLAGS += -std=gnu99
@@ -79,6 +66,7 @@ SRCS += wl_parallax.cpp
 SRCS += wl_play.cpp
 SRCS += wl_state.cpp
 SRCS += wl_text.cpp
+SRCS += states.cpp
 
 DEPS = $(filter %.d, $(SRCS:.c=.d) $(SRCS:.cpp=.d))
 OBJS = $(filter %.o, $(SRCS:.c=.o) $(SRCS:.cpp=.o))

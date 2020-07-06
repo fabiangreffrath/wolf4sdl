@@ -51,9 +51,6 @@ objtype        *LastAttacker;
 void    T_Player (objtype *ob);
 void    T_Attack (objtype *ob);
 
-statetype   s_player = {false,0,0,(statefunc) T_Player,NULL,NULL};
-statetype   s_attack = {false,0,0,(statefunc) T_Attack,NULL,NULL};
-
 struct atkinf
 {
     int8_t    tics,attack,frame;              // attack is 1 for gun, 2 for knife
@@ -1076,7 +1073,7 @@ void Cmd_Fire (void)
 
     gamestate.weaponframe = 0;
 
-    player->state = &s_attack;
+    player->state = &states[s_attack];
 
     gamestate.attackframe = 0;
     gamestate.attackcount =
@@ -1193,7 +1190,7 @@ void SpawnPlayer (int tilex, int tiley, int dir)
     player->areanumber = (byte) *(mapsegs[0]+(player->tiley<<mapshift)+player->tilex);
     player->x = ((int32_t)tilex<<TILESHIFT)+TILEGLOBAL/2;
     player->y = ((int32_t)tiley<<TILESHIFT)+TILEGLOBAL/2;
-    player->state = &s_player;
+    player->state = &states[s_player];
     player->angle = (1-dir)*90;
     if (player->angle<0)
         player->angle += ANGLES;
@@ -1409,7 +1406,7 @@ void    T_Attack (objtype *ob)
         switch (cur->attack)
         {
             case -1:
-                ob->state = &s_player;
+                ob->state = &states[s_player];
                 if (!gamestate.ammo)
                 {
                     gamestate.weapon = wp_knife;

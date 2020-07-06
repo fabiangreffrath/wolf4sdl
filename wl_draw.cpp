@@ -1036,7 +1036,7 @@ void DrawPlayerWeapon (void)
     if (gamestate.victoryflag)
     {
 #ifndef APOGEE_1_0
-        if (player->state == &s_deathcam && (GetTimeCount()&32) )
+        if (player->state == &states[s_deathcam] && (GetTimeCount()&32) )
             SimpleScaleShape(viewwidth/2,SPR_DEATHCAM,viewheight+1);
 #endif
         return;
