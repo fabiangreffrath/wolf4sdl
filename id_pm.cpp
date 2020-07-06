@@ -40,7 +40,7 @@ void PM_Startup()
 
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
-    long pageDataSize = fileSize - pageOffsets[0];
+    size_t pageDataSize = fileSize - pageOffsets[0];
     if(pageDataSize > (size_t) -1)
         Quit("The page file \"%s\" is too large!", fname);
 
@@ -82,7 +82,7 @@ void PM_Startup()
     uint8_t *ptr = (uint8_t *) PMPageData;
     for(i = 0; i < ChunksInFile; i++)
     {
-        if(i >= PMSpriteStart && i < PMSoundStart || i == ChunksInFile - 1)
+        if((i >= PMSpriteStart && i < PMSoundStart) || i == ChunksInFile - 1)
         {
             size_t offs = ptr - (uint8_t *) PMPageData;
 
