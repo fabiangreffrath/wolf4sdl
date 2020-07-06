@@ -362,7 +362,7 @@ boolean FizzleFade (SDL_Surface *source, int x1, int y1,
     unsigned width, unsigned height, unsigned frames, boolean abortable)
 {
     unsigned x, y, frame, pixperframe;
-    int32_t  rndval, lastrndval;
+    int32_t  rndval = 0, lastrndval;
     int      first = 1;
 
     lastrndval = 0;

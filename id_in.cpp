@@ -286,7 +286,7 @@ static void processEvent(SDL_Event *event)
                 }
             }
 
-            int sym = LastScan;
+            unsigned int sym = LastScan;
             if(sym >= 'a' && sym <= 'z')
                 sym -= 32;  // convert to uppercase
 
@@ -445,7 +445,9 @@ IN_Shutdown(void)
 		return;
 
     if(Joystick)
+    {
         SDL_JoystickClose(Joystick);
+    }
 
 	IN_Started = false;
 }
@@ -505,7 +507,9 @@ IN_ReadControl(int player,ControlInfo *info)
     if (Keyboard[KbdDefs.button0])
         buttons += 1 << 0;
     if (Keyboard[KbdDefs.button1])
+    {
         buttons += 1 << 1;
+    }
 
 	dx = mx * 127;
 	dy = my * 127;
