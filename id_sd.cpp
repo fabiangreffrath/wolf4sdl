@@ -454,28 +454,29 @@ SDL_PCStopSampleInIRQ(void)
         _asm    and     al,0xfd                 // ~2
         _asm    out     0x61,al
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 //
 //      SDL_PCPlaySound() - Plays the specified sound on the PC speaker
 //
 ///////////////////////////////////////////////////////////////////////////
-#ifdef  _MUSE_
-void
-#else
 static void
-#endif
 SDL_PCPlaySound(PCSound *sound)
 {
+/*
 //      _asm    pushfd
         _asm    cli
+*/
 
         pcLastSample = -1;
         pcLengthLeft = sound->common.length;
         pcSound = sound->data;
 
+/*
 //      _asm    popfd
         _asm    sti
+*/
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -483,24 +484,24 @@ SDL_PCPlaySound(PCSound *sound)
 //      SDL_PCStopSound() - Stops the current sound playing on the PC Speaker
 //
 ///////////////////////////////////////////////////////////////////////////
-#ifdef  _MUSE_
-void
-#else
 static void
-#endif
 SDL_PCStopSound(void)
 {
+/*
 //      _asm    pushfd
         _asm    cli
+*/
 
         pcSound = 0;
 
+/*
         _asm    in      al,0x61                 // Turn the speaker off
         _asm    and     al,0xfd                 // ~2
         _asm    out     0x61,al
 
 //      _asm    popfd
         _asm    sti
+*/
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -511,20 +512,141 @@ SDL_PCStopSound(void)
 static void
 SDL_ShutPC(void)
 {
+/*
 //      _asm    pushfd
         _asm    cli
+*/
 
         pcSound = 0;
 
+/*
         _asm    in      al,0x61                 // Turn the speaker & gate off
         _asm    and     al,0xfc                 // ~3
         _asm    out     0x61,al
 
 //      _asm    popfd
         _asm    sti
+*/
 }
 
-#endif
+// Adapted from Chocolate Doom (chocolate-doom/pcsound/pcsound_sdl.c)
+#define SQUARE_WAVE_AMP 0x2000
+
+static void SDL_PCMixCallback(void *udata, Uint8 *stream, int len)
+{
+    static int current_remaining = 0;
+    static int current_freq = 0;
+    static int phase_offset = 0;
+
+    Sint16 *leftptr;
+    Sint16 *rightptr;
+    Sint16 this_value;
+    int oldfreq;
+    int i;
+    int nsamples;
+
+    // Number of samples is quadrupled, because of 16-bit and stereo
+
+    nsamples = len / 4;
+
+    leftptr = (Sint16 *) stream;
+    rightptr = ((Sint16 *) stream) + 1;
+
+    // Fill the output buffer
+
+    for (i=0; i<nsamples; ++i)
+    {
+        // Has this sound expired? If so, retrieve the next frequency
+
+        while (current_remaining == 0)
+        {
+            oldfreq = current_freq;
+
+            // Get the next frequency to play
+
+            if(pcSound)
+            {
+                if(*pcSound!=pcLastSample)
+                {
+                    pcLastSample=*pcSound;
+
+                    if(pcLastSample)
+                        // The PC PIC counts down at 1.193180MHz
+                        // So pwm_freq = counter_freq / reload_value
+                        // reload_value = pcLastSample * 60 (see SDL_DoFX)
+                        current_freq = 1193180 / (pcLastSample * 60);
+                    else
+                        current_freq = 0;
+
+                    // The PC speaker sample rate is 140Hz (see SDL_t0SlowAsmService)
+                    current_remaining = param_samplerate / 140;
+                }
+                pcSound++;
+                pcLengthLeft--;
+                if(!pcLengthLeft)
+                {
+                    pcSound=0;
+                    SoundNumber=(soundnames)0;
+                    SoundPriority=0;
+                }
+            }
+            else
+            {
+                current_freq = 0;
+                current_remaining = 1;
+            }
+
+            if (current_freq != 0)
+            {
+                // Adjust phase to match to the new frequency.
+                // This gives us a smooth transition between different tones,
+                // with no impulse changes.
+
+                phase_offset = (phase_offset * oldfreq) / current_freq;
+            }
+        }
+
+        // Set the value for this sample.
+
+        if (current_freq == 0)
+        {
+            // Silence
+
+            this_value = 0;
+        }
+        else
+        {
+            int frac;
+
+            // Determine whether we are at a peak or trough in the current
+            // sound.  Multiply by 2 so that frac % 2 will give 0 or 1
+            // depending on whether we are at a peak or trough.
+
+            frac = (phase_offset * current_freq * 2) / param_samplerate;
+
+            if ((frac % 2) == 0)
+            {
+                this_value = SQUARE_WAVE_AMP;
+            }
+            else
+            {
+                this_value = -SQUARE_WAVE_AMP;
+            }
+
+            ++phase_offset;
+        }
+
+        --current_remaining;
+
+        // Use the same value for the left and right channels.
+
+        *leftptr += this_value;
+        *rightptr += this_value;
+
+        leftptr += 2;
+        rightptr += 2;
+    }
+}
 
 void
 SD_StopDigitized(void)
@@ -540,6 +662,7 @@ SD_StopDigitized(void)
     {
         case sds_PC:
 //            SDL_PCStopSampleInIRQ();
+            SDL_PCStopSound();
             break;
         case sds_SoundBlaster:
 //            SDL_SBStopSampleInIRQ();
@@ -888,7 +1011,7 @@ SDL_ShutDevice(void)
     switch (SoundMode)
     {
         case sdm_PC:
-//            SDL_ShutPC();
+            SDL_ShutPC();
             break;
         case sdm_AdLib:
             SDL_ShutAL();
@@ -1136,6 +1259,9 @@ SD_Startup(void)
 
     alTimeCount = 0;
 
+    // Add PC speaker sound mixer
+    Mix_SetPostMix(SDL_PCMixCallback, NULL);
+
     SD_SetSoundMode(sdm_Off);
     SD_SetMusicMode(smm_Off);
 
@@ -1216,7 +1342,6 @@ SD_PlaySound(soundnames sound)
     {
         if ((DigiMode == sds_PC) && (SoundMode == sdm_PC))
         {
-#ifdef NOTYET
             if (s->priority < SoundPriority)
                 return 0;
 
@@ -1226,9 +1351,6 @@ SD_PlaySound(soundnames sound)
             SoundPositioned = ispos;
             SoundNumber = sound;
             SoundPriority = s->priority;
-#else
-            return 0;
-#endif
         }
         else
         {
@@ -1258,7 +1380,7 @@ SD_PlaySound(soundnames sound)
     switch (SoundMode)
     {
         case sdm_PC:
-//            SDL_PCPlaySound((PCSound *)s);
+            SDL_PCPlaySound((PCSound *)s);
             break;
         case sdm_AdLib:
             SDL_ALPlaySound((AdLibSound *)s);
@@ -1312,7 +1434,7 @@ SD_StopSound(void)
     switch (SoundMode)
     {
         case sdm_PC:
-//            SDL_PCStopSound();
+            SDL_PCStopSound();
             break;
         case sdm_AdLib:
             SDL_ALStopSound();
