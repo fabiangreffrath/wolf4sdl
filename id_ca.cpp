@@ -759,8 +759,9 @@ void CA_CacheAdlibSoundChunk (int chunk)
     lseek(audiohandle, pos, SEEK_SET);
     read(audiohandle, bufferseg, ORIG_ADLIBSOUND_SIZE - 1);   // without data[1]
 
-    AdLibSound *sound = (AdLibSound *) malloc(size + sizeof(AdLibSound) - ORIG_ADLIBSOUND_SIZE);
-    CHECKMALLOCRESULT(sound);
+    audiosegs[chunk] = malloc(size + sizeof(AdLibSound) - ORIG_ADLIBSOUND_SIZE);
+    CHECKMALLOCRESULT(audiosegs[chunk]);
+    AdLibSound *sound = (AdLibSound *) audiosegs[chunk];
 
     byte *ptr = (byte *) bufferseg;
     sound->common.length = READLONGWORD(ptr);
