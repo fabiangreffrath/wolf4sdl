@@ -1968,6 +1968,7 @@ moveok:
     yh = (ob->y+MINDIST) >> TILESHIFT;
 
     for (y=yl ; y<=yh ; y++)
+    {
         for (x=xl ; x<=xh ; x++)
         {
             tile = (uintptr_t)actorat[x][y];
@@ -1978,6 +1979,7 @@ moveok:
             if (((objtype *)tile)->flags&FL_SHOOTABLE)
                 return;
         }
+    }
 
         ob->flags |= FL_AMBUSH | FL_SHOOTABLE;
         ob->flags &= ~FL_ATTACKMODE;

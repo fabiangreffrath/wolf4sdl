@@ -1633,7 +1633,7 @@ static void DemoLoop()
             #ifndef SPEARDEMO
             PlayDemo (LastDemo++%4);
             #else
-            PlayDemo (0);
+            PlayDemo (LastDemo);
             #endif
 
             if (playstate == ex_abort)
