@@ -138,7 +138,10 @@ static int32_t GRFILEPOS(const size_t idx)
 void CAL_GetGrChunkLength (int chunk)
 {
     lseek(grhandle,GRFILEPOS(chunk),SEEK_SET);
-    read(grhandle,&chunkexplen,sizeof(chunkexplen));
+    if (read(grhandle,&chunkexplen,sizeof(chunkexplen)) < 0)
+    {
+        return;
+    }
     chunkcomplen = GRFILEPOS(chunk+1)-GRFILEPOS(chunk)-4;
 }
 
@@ -466,7 +469,11 @@ void CAL_SetupGrFile (void)
     if (handle == -1)
         CA_CannotOpen(fname);
 
-    read(handle, grhuffman, sizeof(grhuffman));
+    if (read(handle, grhuffman, sizeof(grhuffman)) < 0)
+    {
+        close(handle);
+        return;
+    }
     close(handle);
 
     // load the data offsets from ???head.ext
@@ -494,7 +501,11 @@ void CAL_SetupGrFile (void)
             fname, headersize / 3, expectedsize);
 
     byte data[lengthof(grstarts) * 3];
-    read(handle, data, sizeof(data));
+    if (read(handle, data, sizeof(data)) < 0)
+    {
+        close(handle);
+        return;
+    }
     close(handle);
 
     const byte* d = data;
@@ -561,7 +572,12 @@ void CAL_SetupMapFile (void)
     length = NUMMAPS*4+2; // used to be "filelength(handle);"
     mapfiletype *tinf=(mapfiletype *) malloc(sizeof(mapfiletype));
     CHECKMALLOCRESULT(tinf);
-    read(handle, tinf, length);
+    if (read(handle, tinf, length) < 0)
+    {
+        close(handle);
+        free(mapfiletype);
+        return;
+    }
     close(handle);
 
     RLEWtag=tinf->RLEWtag;
@@ -743,7 +759,12 @@ int32_t CA_CacheAudioChunk (int chunk)
     CHECKMALLOCRESULT(audiosegs[chunk]);
 
     lseek(audiohandle,pos,SEEK_SET);
-    read(audiohandle,audiosegs[chunk],size);
+    if (read(audiohandle,audiosegs[chunk],size) < 0)
+    {
+        free(audiosegs[chunk]);
+        audiosegs[chunk] = NULL;
+        return 0;
+    }
 
     return size;
 }
@@ -757,7 +778,10 @@ void CA_CacheAdlibSoundChunk (int chunk)
         return;                        // already in memory
 
     lseek(audiohandle, pos, SEEK_SET);
-    read(audiohandle, bufferseg, ORIG_ADLIBSOUND_SIZE - 1);   // without data[1]
+    if (read(audiohandle, bufferseg, ORIG_ADLIBSOUND_SIZE - 1) < 0) // without data[1]
+    {
+        return;
+    }
 
     audiosegs[chunk] = (byte *) malloc(size + sizeof(AdLibSound) - ORIG_ADLIBSOUND_SIZE);
     CHECKMALLOCRESULT(audiosegs[chunk]);
@@ -784,7 +808,12 @@ void CA_CacheAdlibSoundChunk (int chunk)
     sound->inst.unused[2] = *ptr++;
     sound->block = *ptr++;
 
-    read(audiohandle, sound->data, size - ORIG_ADLIBSOUND_SIZE + 1);  // + 1 because of byte data[1]
+    if (read(audiohandle, sound->data, size - ORIG_ADLIBSOUND_SIZE + 1) < 0) // + 1 because of byte data[1]
+    {
+        free(audiosegs[chunk]);
+        audiosegs[chunk] = NULL;
+        return;
+    }
 
     audiosegs[chunk]=(byte *) sound;
 }
@@ -943,14 +972,21 @@ void CA_CacheGrChunk (int chunk)
 
     if (compressed<=BUFFERSIZE)
     {
-        read(grhandle,bufferseg,compressed);
+        if (read(grhandle,bufferseg,compressed) < 0)
+        {
+            return;
+        }
         source = bufferseg;
     }
     else
     {
         source = (int32_t *) malloc(compressed);
         CHECKMALLOCRESULT(source);
-        read(grhandle,source,compressed);
+        if (read(grhandle,source,compressed) < 0)
+        {
+            free(source);
+            return;
+        }
     }
 
     CAL_ExpandGrChunk (chunk,source);
@@ -996,7 +1032,11 @@ void CA_CacheScreen (int chunk)
 
     bigbufferseg=malloc(compressed);
     CHECKMALLOCRESULT(bigbufferseg);
-    read(grhandle,bigbufferseg,compressed);
+    if (read(grhandle,bigbufferseg,compressed) < 0)
+    {
+        free(bigbufferseg);
+        return;
+    }
     source = (int32_t *) bigbufferseg;
 
     expanded = *source++;
@@ -1045,7 +1085,7 @@ void CA_CacheMap (int mapnum)
     int32_t   pos,compressed;
     int       plane;
     word     *dest;
-    memptr    bigbufferseg;
+    memptr    bigbufferseg = NULL;
     unsigned  size;
     word     *source;
 #ifdef CARMACIZED
@@ -1077,7 +1117,14 @@ void CA_CacheMap (int mapnum)
             source = (word *) bigbufferseg;
         }
 
-        read(maphandle,source,compressed);
+        if (read(maphandle,source,compressed) < 0)
+        {
+            if (bigbufferseg)
+            {
+                free(bigbufferseg);
+            }
+            return;
+        }
 #ifdef CARMACIZED
         //
         // unhuffman, then unRLEW
