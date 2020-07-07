@@ -3,7 +3,6 @@
 #include <math.h>
 #include "wl_def.h"
 #include <SDL_mixer.h>
-#pragma hdrstop
 
 #ifdef MYPROFILE
 #include <TIME.H>
@@ -1178,7 +1177,8 @@ void PlayDemo (int demonumber)
     NewGame (1,0);
     gamestate.mapon = *demoptr++;
     gamestate.difficulty = gd_hard;
-    length = READWORD(*(uint8_t **)&demoptr);
+    length = demoptr[0] | demoptr[1] << 8;
+    demoptr += 2;
     // TODO: Seems like the original demo format supports 16 MB demos
     //       But T_DEM00 and T_DEM01 of Wolf have a 0xd8 as third length size...
     demoptr++;

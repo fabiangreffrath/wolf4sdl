@@ -1,7 +1,6 @@
 // WL_INTER.C
 
 #include "wl_def.h"
-#pragma hdrstop
 
 LRstruct LevelRatios[LRpack];
 int32_t lastBreathTime = 0;
@@ -341,7 +340,7 @@ Write (int x, int y, const char *string)
     };
 
     int i, ox, nx, ny, len = (int) strlen(string);
-    char ch;
+    unsigned char ch;
 
     ox = nx = x * 8;
     ny = y * 8;

@@ -1,7 +1,6 @@
 // WL_TEXT.C
 
 #include "wl_def.h"
-#pragma hdrstop
 
 /*
 =============================================================================
@@ -727,6 +726,9 @@ void ShowArticle (char *article)
 #endif
                 }
                 TicDelay(20);
+                break;
+
+            default:
                 break;
         }
     } while (LastScan != sc_Escape && !ci.button1);

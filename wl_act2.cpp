@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "wl_def.h"
-#pragma hdrstop
 
 /*
 =============================================================================
@@ -218,12 +217,14 @@ boolean ProjectileTryMove (objtype *ob)
     // check for solid walls
     //
     for (y=yl;y<=yh;y++)
+    {
         for (x=xl;x<=xh;x++)
         {
             check = actorat[x][y];
             if (check && !ISPOINTER(check))
                 return false;
         }
+    }
 
         return true;
 }
@@ -241,7 +242,7 @@ boolean ProjectileTryMove (objtype *ob)
 void T_Projectile (objtype *ob)
 {
     int32_t deltax,deltay;
-    int     damage;
+    int     damage = 0;
     int32_t speed;
 
     speed = (int32_t)ob->speed*tics;
@@ -297,6 +298,8 @@ void T_Projectile (objtype *ob)
         case fireobj:
             damage = (US_RndT() >>3);
             break;
+        default:
+            break;
         }
 
         TakeDamage (damage,ob);
@@ -350,6 +353,9 @@ void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
             newobj->speed = SPDPATROL;
             if (!loadedgame)
                 gamestate.killtotal++;
+            break;
+
+        default:
             break;
     }
 
@@ -493,6 +499,9 @@ void SpawnPatrol (enemy_t which, int tilex, int tiley, int dir)
             if (!loadedgame)
                 gamestate.killtotal++;
             break;
+
+        default:
+            break;
     }
 
     newobj->obclass = (classtype)(guardobj+which);
@@ -551,6 +560,8 @@ void A_DeathScream (objtype *ob)
             case dogobj:
                 PlaySoundLocActor(DEATHSCREAM6SND,ob);
                 return;
+            default:
+                break;
         }
     }
 #endif
@@ -638,6 +649,8 @@ void A_DeathScream (objtype *ob)
             SD_PlaySound(KNIGHTDEATHSND);
             break;
 #endif
+        default:
+            break;
     }
 }
 
@@ -1939,6 +1952,8 @@ void T_Chase (objtype *ob)
                     NewState (ob,&states[s_deathshoot1]);
                     break;
 #endif
+                default:
+                    break;
             }
             return;
         }
@@ -2636,6 +2651,8 @@ void    A_StartDeathCam (objtype *ob)
             break;
         case fatobj:
             NewState (ob,&states[s_fatdeathcam]);
+            break;
+        default:
             break;
 #endif
     }
