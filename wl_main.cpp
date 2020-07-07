@@ -438,7 +438,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     ob = player;
     DiskFlopAnim(x,y);
     memcpy(&nullobj,ob,sizeof(nullobj));
-    nullobj.state=(statetype *) ((uintptr_t)nullobj.state-(uintptr_t)states);
+    nullobj.state=(statetype *) (nullobj.state-states);
     fwrite(&nullobj,sizeof(nullobj),1,file);
     ob = ob->next;
 
@@ -446,7 +446,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     for (; ob ; ob=ob->next)
     {
         memcpy(&nullobj,ob,sizeof(nullobj));
-        nullobj.state=(statetype *) ((uintptr_t)nullobj.state-(uintptr_t)states);
+        nullobj.state=(statetype *) (nullobj.state-states);
         fwrite(&nullobj,sizeof(nullobj),1,file);
     }
     nullobj.active = ac_badobject;          // end of file marker
@@ -553,7 +553,7 @@ boolean LoadTheGame(FILE *file,int x,int y)
     InitActorList ();
     DiskFlopAnim(x,y);
     fread (player,sizeof(*player),1,file);
-    player->state=(statetype *) ((uintptr_t)player->state+(uintptr_t)states);
+    player->state=&states[(size_t)player->state];
 
     while (1)
     {
@@ -562,7 +562,7 @@ boolean LoadTheGame(FILE *file,int x,int y)
         if (nullobj.active == ac_badobject)
             break;
         GetNewActor ();
-        nullobj.state=(statetype *) ((uintptr_t)nullobj.state+(uintptr_t)states);
+        nullobj.state=&states[(size_t)nullobj.state];
         // don't copy over the links
         memcpy (newobj,&nullobj,sizeof(nullobj)-8);
     }
