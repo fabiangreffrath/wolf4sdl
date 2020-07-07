@@ -626,7 +626,7 @@ void ShowArticle (char *article)
 #endif
     };
 #endif
-    unsigned    oldfontnumber;
+    unsigned    oldfontnumber = 0;
     boolean     newpage,firstpage;
     ControlInfo ci;
 
