@@ -117,7 +117,7 @@ Victory (void)
 #ifndef SPEARDEMO
     int32_t sec;
     int i, min, kr, sr, tr, x;
-    char tempstr[8];
+    char tempstr[16];
 
 #define RATIOX  6
 #define RATIOY  14
@@ -442,7 +442,7 @@ LevelCompleted (void)
     } times;
 
     int x, i, min, sec, ratio, kr, sr, tr;
-    char tempstr[10];
+    char tempstr[16];
     int32_t bonus, timeleft = 0;
     times parTimes[] = {
 #ifndef SPEAR
@@ -1020,7 +1020,7 @@ DrawHighScores (void)
 #ifndef SPEAR
     char *str;
 #ifndef UPLOAD
-    char buffer1[5];
+    char buffer1[8];
 #endif
 #endif
     word i, w, h;
