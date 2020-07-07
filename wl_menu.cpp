@@ -15,7 +15,6 @@
 #endif
 
 #include "wl_def.h"
-#pragma hdrstop
 
 extern int lastgamemusicoffset;
 extern int numEpisodesMissing;
@@ -987,7 +986,7 @@ CP_CheckQuick (ScanCode scancode)
 #ifdef SPANISH
             if (Confirm (ENDGAMESTR))
 #else
-            if (Confirm (endStrings[US_RndT () & 0x7 + (US_RndT () & 1)]))
+            if (Confirm (endStrings[US_RndT () & (0x7 + (US_RndT () & 1))]))
 #endif
 #endif
             {
@@ -2056,6 +2055,9 @@ MouseSensitivity (int)
                     TicDelay(20);
                 }
                 break;
+
+            default:
+                break;
         }
 
         if (ci.button0 || Keyboard[sc_Space] || Keyboard[sc_Enter])
@@ -2257,7 +2259,7 @@ void
 EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*PrintRtn) (int),
                int type)
 {
-    int j, exit, tick, redraw, which, x, picked, lastFlashTime;
+    int j, exit, tick, redraw, which = 0, x, picked, lastFlashTime;
     ControlInfo ci;
 
 
@@ -2308,7 +2310,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
         //
         // CHANGE BUTTON VALUE?
         //
-        if ((type != KEYBOARDBTNS && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3) ||
+        if (((type != KEYBOARDBTNS && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3)) ||
             ((type == KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_Enter))
         {
             lastFlashTime = GetTimeCount();
@@ -2429,7 +2431,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                 //
                 // EXIT INPUT?
                 //
-                if (IN_KeyDown (sc_Escape) || type != JOYSTICK && ci.button1)
+                if (IN_KeyDown (sc_Escape) || (type != JOYSTICK && ci.button1))
                 {
                     picked = 1;
                     SD_PlaySound (ESCPRESSEDSND);
@@ -2484,6 +2486,8 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
             case dir_North:
             case dir_South:
                 exit = 1;
+            default:
+                break;
         }
     }
     while (!exit);
@@ -2933,6 +2937,9 @@ CP_ChangeView (int)
                 SD_PlaySound (HITWALLSND);
                 TicDelay (10);
                 break;
+
+            default:
+                break;
         }
 
         if (ci.button0 || Keyboard[sc_Enter])
@@ -3009,7 +3016,7 @@ CP_Quit (int)
 #ifdef SPANISH
     if (Confirm (ENDGAMESTR))
 #else
-    if (Confirm (endStrings[US_RndT () & 0x7 + (US_RndT () & 1)]))
+    if (Confirm (endStrings[US_RndT () & (0x7 + (US_RndT () & 1))]))
 #endif
 
 #endif
@@ -3468,12 +3475,15 @@ HandleMenu (CP_iteminfo * item_i, CP_itemtype * items, void (*routine) (int w))
                 //
                 TicDelay (20);
                 break;
+
+            default:
+                break;
         }
 
         if (ci.button0 || Keyboard[sc_Space] || Keyboard[sc_Enter])
             exit = 1;
 
-        if (ci.button1 && !Keyboard[sc_Alt] || Keyboard[sc_Escape])
+        if ((ci.button1 && !Keyboard[sc_Alt]) || Keyboard[sc_Escape])
             exit = 2;
 
     }
@@ -3915,7 +3925,7 @@ Message (const char *string)
             h += font->height;
         }
         else
-            w += font->width[string[i]];
+            w += font->width[(size_t)string[i]];
     }
 
     if (w + 10 > mw)
