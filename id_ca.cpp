@@ -536,7 +536,10 @@ void CAL_SetupGrFile (void)
     CAL_GetGrChunkLength(STRUCTPIC);                // position file pointer
     compseg=(byte *) malloc(chunkcomplen);
     CHECKMALLOCRESULT(compseg);
-    read (grhandle,compseg,chunkcomplen);
+    if (read (grhandle,compseg,chunkcomplen) < 0)
+    {
+        free(compseg);
+    }
     CAL_HuffExpand(compseg, (byte*)pictable, NUMPICS * sizeof(pictabletype), grhuffman);
     free(compseg);
 }
@@ -575,7 +578,7 @@ void CAL_SetupMapFile (void)
     if (read(handle, tinf, length) < 0)
     {
         close(handle);
-        free(mapfiletype);
+        free(tinf);
         return;
     }
     close(handle);
@@ -613,7 +616,11 @@ void CAL_SetupMapFile (void)
         mapheaderseg[i]=(maptype *) malloc(sizeof(maptype));
         CHECKMALLOCRESULT(mapheaderseg[i]);
         lseek(maphandle,pos,SEEK_SET);
-        read (maphandle,(memptr)mapheaderseg[i],sizeof(maptype));
+        if (read (maphandle,(memptr)mapheaderseg[i],sizeof(maptype)) < 0)
+        {
+            free(tinf);
+            return;
+        }
     }
 
     free(tinf);
