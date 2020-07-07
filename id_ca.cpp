@@ -539,6 +539,7 @@ void CAL_SetupGrFile (void)
     if (read (grhandle,compseg,chunkcomplen) < 0)
     {
         free(compseg);
+        return;
     }
     CAL_HuffExpand(compseg, (byte*)pictable, NUMPICS * sizeof(pictabletype), grhuffman);
     free(compseg);

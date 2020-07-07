@@ -24,19 +24,42 @@ void PM_Startup()
         CA_CannotOpen(fname);
 
     ChunksInFile = 0;
-    fread(&ChunksInFile, sizeof(word), 1, file);
+    if (!fread(&ChunksInFile, sizeof(word), 1, file))
+    {
+        fclose(file);
+        return;
+    }
     PMSpriteStart = 0;
-    fread(&PMSpriteStart, sizeof(word), 1, file);
+    if (!fread(&PMSpriteStart, sizeof(word), 1, file))
+    {
+        fclose(file);
+        return;
+    }
     PMSoundStart = 0;
-    fread(&PMSoundStart, sizeof(word), 1, file);
+    if (!fread(&PMSoundStart, sizeof(word), 1, file))
+    {
+        fclose(file);
+        return;
+    }
 
     uint32_t* pageOffsets = (uint32_t *) malloc((ChunksInFile + 1) * sizeof(int32_t));
     CHECKMALLOCRESULT(pageOffsets);
-    fread(pageOffsets, sizeof(uint32_t), ChunksInFile, file);
+    if (!fread(pageOffsets, sizeof(uint32_t), ChunksInFile, file))
+    {
+        free(pageOffsets);
+        fclose(file);
+        return;
+    }
 
     word *pageLengths = (word *) malloc(ChunksInFile * sizeof(word));
     CHECKMALLOCRESULT(pageLengths);
-    fread(pageLengths, sizeof(word), ChunksInFile, file);
+    if (!fread(pageLengths, sizeof(word), ChunksInFile, file))
+    {
+        free(pageLengths);
+        free(pageOffsets);
+        fclose(file);
+        return;
+    }
 
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
@@ -106,7 +129,13 @@ void PM_Startup()
         else size = pageOffsets[i + 1] - pageOffsets[i];
 
         fseek(file, pageOffsets[i], SEEK_SET);
-        fread(ptr, 1, size, file);
+        if (!fread(ptr, 1, size, file))
+        {
+            free(pageLengths);
+            free(pageOffsets);
+            fclose(file);
+            return;
+        }
         ptr += size;
     }
 
