@@ -553,6 +553,7 @@ boolean LoadTheGame(FILE *file,int x,int y)
     InitActorList ();
     DiskFlopAnim(x,y);
     fread (player,sizeof(*player),1,file);
+    if ((size_t)player->state > numstates) goto fail;
     player->state=&states[(size_t)player->state];
 
     while (1)
@@ -562,6 +563,7 @@ boolean LoadTheGame(FILE *file,int x,int y)
         if (nullobj.active == ac_badobject)
             break;
         GetNewActor ();
+        if ((size_t)nullobj.state > numstates) goto fail;
         nullobj.state=&states[(size_t)nullobj.state];
         // don't copy over the links
         memcpy (newobj,&nullobj,sizeof(nullobj)-8);
@@ -655,6 +657,16 @@ boolean LoadTheGame(FILE *file,int x,int y)
     }
 
     return true;
+
+fail:
+	Message("Unsupported savegame format!");
+
+	IN_ClearKeysDown();
+	IN_Ack();
+
+	Quit(0);
+
+	return false;
 }
 
 //===========================================================================
