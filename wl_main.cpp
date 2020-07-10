@@ -659,12 +659,12 @@ boolean LoadTheGame(FILE *file,int x,int y)
     return true;
 
 fail:
-	Message("Unsupported savegame format!");
+	Message("Unsupported savegame\nformat detected!");
 
 	IN_ClearKeysDown();
 	IN_Ack();
 
-	Quit(0);
+	loadedgame = false;
 
 	return false;
 }
