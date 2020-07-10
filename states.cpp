@@ -1,4 +1,27 @@
-#include "wl_def.h"
+//
+// Copyright(C) 1992 Id Software, Inc.
+// Copyright(C) 2007-2011 Moritz "Ripper" Kroll
+// Copyright(C) 2020 Fabian Greffrath
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// DESCRIPTION:
+//	Organize all available statetype variables in a states[] array.
+//
+//	This replaces the current relying on a specific order in which
+//	global variables are stored in the executable for e.g. saving
+//	and restoring of savegames and thus does not require the
+//	-fno-toplevel-reorder compiler flag anymore.
+//
+
 #include "wl_def.h"
 
 extern void A_Breathing (objtype *);
