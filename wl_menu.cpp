@@ -3263,7 +3263,12 @@ void SetupSaveGames()
                 char temp[32];
 
                 SaveGamesAvail[i] = 1;
-                read(handle, temp, 32);
+                if (read(handle, temp, 32) < 0)
+                {
+                    SaveGamesAvail[i] = 0;
+                    close(handle);
+                    return;
+                }
                 close(handle);
                 strcpy(&SaveGameNames[i][0], temp);
             }
