@@ -438,7 +438,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     ob = player;
     DiskFlopAnim(x,y);
     memcpy(&nullobj,ob,sizeof(nullobj));
-    nullobj.state=(statetype *) (nullobj.state-states);
+    nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
     fwrite(&nullobj,sizeof(nullobj),1,file);
     ob = ob->next;
 
@@ -446,7 +446,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     for (; ob ; ob=ob->next)
     {
         memcpy(&nullobj,ob,sizeof(nullobj));
-        nullobj.state=(statetype *) (nullobj.state-states);
+        nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
         fwrite(&nullobj,sizeof(nullobj),1,file);
     }
     nullobj.active = ac_badobject;          // end of file marker
@@ -553,8 +553,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
     InitActorList ();
     DiskFlopAnim(x,y);
     fread (player,sizeof(*player),1,file);
-    if ((size_t)player->state > numstates) goto fail;
-    player->state=&states[(size_t)player->state];
+    if ((size_t)player->state > numstates) goto fail; // [FG] detect unsupported savegame format
+    player->state=&states[(size_t)player->state]; // [FG] statetype states[] array
 
     while (1)
     {
@@ -563,8 +563,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
         if (nullobj.active == ac_badobject)
             break;
         GetNewActor ();
-        if ((size_t)nullobj.state > numstates) goto fail;
-        nullobj.state=&states[(size_t)nullobj.state];
+        if ((size_t)nullobj.state > numstates) goto fail; // [FG] detect unsupported savegame format
+        nullobj.state=&states[(size_t)nullobj.state]; // [FG] statetype states[] array
         // don't copy over the links
         memcpy (newobj,&nullobj,sizeof(nullobj)-8);
     }
@@ -658,6 +658,7 @@ boolean LoadTheGame(FILE *file,int x,int y)
 
     return true;
 
+// [FG] detect unsupported savegame format
 fail:
 	Message("Unsupported savegame\nformat detected!");
 

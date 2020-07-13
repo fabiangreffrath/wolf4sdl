@@ -722,7 +722,7 @@ typedef enum {
 
 typedef void (* statefunc) (void *);
 
-#include "states.h"
+#include "states.h" // [FG] statetype states[] array
 
 typedef struct statestruct
 {
@@ -730,10 +730,10 @@ typedef struct statestruct
     short   shapenum;           // a shapenum of -1 means get from ob->temp1
     short   tictime;
     void    (*think) (void *),(*action) (void *);
-    statenum_t next;
+    statenum_t next; // [FG] statetype states[] array
 } statetype;
 
-extern statetype states[numstates];
+extern statetype states[numstates]; // [FG] statetype states[] array
 
 //---------------------
 //
