@@ -664,6 +664,7 @@ fail:
 	IN_ClearKeysDown();
 	IN_Ack();
 
+	memset(objlist, 0, sizeof(objlist));
 	loadedgame = false;
 
 	return false;
