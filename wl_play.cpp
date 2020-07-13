@@ -1205,7 +1205,7 @@ void DoActor (objtype * ob)
             }
         }
 
-        ob->state = ob->state->next;
+        ob->state = &states[ob->state->next];
 
         if (!ob->state)
         {

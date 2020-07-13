@@ -722,15 +722,18 @@ typedef enum {
 
 typedef void (* statefunc) (void *);
 
+#include "states.h" // [FG] statetype states[] array
+
 typedef struct statestruct
 {
     boolean rotate;
     short   shapenum;           // a shapenum of -1 means get from ob->temp1
     short   tictime;
     void    (*think) (void *),(*action) (void *);
-    struct  statestruct *next;
+    statenum_t next; // [FG] statetype states[] array
 } statetype;
 
+extern statetype states[numstates]; // [FG] statetype states[] array
 
 //---------------------
 //
@@ -1249,67 +1252,6 @@ void InitAreas (void);
 */
 
 #define s_nakedbody s_static10
-
-extern  statetype s_grddie1;
-extern  statetype s_dogdie1;
-extern  statetype s_ofcdie1;
-extern  statetype s_mutdie1;
-extern  statetype s_ssdie1;
-extern  statetype s_bossdie1;
-extern  statetype s_schabbdie1;
-extern  statetype s_fakedie1;
-extern  statetype s_mechadie1;
-extern  statetype s_hitlerdie1;
-extern  statetype s_greteldie1;
-extern  statetype s_giftdie1;
-extern  statetype s_fatdie1;
-
-extern  statetype s_spectredie1;
-extern  statetype s_angeldie1;
-extern  statetype s_transdie0;
-extern  statetype s_uberdie0;
-extern  statetype s_willdie1;
-extern  statetype s_deathdie1;
-
-
-extern  statetype s_grdchase1;
-extern  statetype s_dogchase1;
-extern  statetype s_ofcchase1;
-extern  statetype s_sschase1;
-extern  statetype s_mutchase1;
-extern  statetype s_bosschase1;
-extern  statetype s_schabbchase1;
-extern  statetype s_fakechase1;
-extern  statetype s_mechachase1;
-extern  statetype s_gretelchase1;
-extern  statetype s_giftchase1;
-extern  statetype s_fatchase1;
-
-extern  statetype s_spectrechase1;
-extern  statetype s_angelchase1;
-extern  statetype s_transchase1;
-extern  statetype s_uberchase1;
-extern  statetype s_willchase1;
-extern  statetype s_deathchase1;
-
-extern  statetype s_blinkychase1;
-extern  statetype s_hitlerchase1;
-
-extern  statetype s_grdpain;
-extern  statetype s_grdpain1;
-extern  statetype s_ofcpain;
-extern  statetype s_ofcpain1;
-extern  statetype s_sspain;
-extern  statetype s_sspain1;
-extern  statetype s_mutpain;
-extern  statetype s_mutpain1;
-
-extern  statetype s_deathcam;
-
-extern  statetype s_schabbdeathcam2;
-extern  statetype s_hitlerdeathcam2;
-extern  statetype s_giftdeathcam2;
-extern  statetype s_fatdeathcam2;
 
 void SpawnStand (enemy_t which, int tilex, int tiley, int dir);
 void SpawnPatrol (enemy_t which, int tilex, int tiley, int dir);

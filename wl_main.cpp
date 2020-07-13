@@ -357,9 +357,6 @@ int32_t DoChecksum(byte *source,unsigned size,int32_t checksum)
 ==================
 */
 
-extern statetype s_grdstand;
-extern statetype s_player;
-
 boolean SaveTheGame(FILE *file,int x,int y)
 {
 //    struct diskfree_t dfree;
@@ -441,7 +438,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     ob = player;
     DiskFlopAnim(x,y);
     memcpy(&nullobj,ob,sizeof(nullobj));
-    nullobj.state=(statetype *) ((uintptr_t)nullobj.state-(uintptr_t)&s_player);
+    nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
     fwrite(&nullobj,sizeof(nullobj),1,file);
     ob = ob->next;
 
@@ -449,7 +446,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     for (; ob ; ob=ob->next)
     {
         memcpy(&nullobj,ob,sizeof(nullobj));
-        nullobj.state=(statetype *) ((uintptr_t)nullobj.state-(uintptr_t)&s_grdstand);
+        nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
         fwrite(&nullobj,sizeof(nullobj),1,file);
     }
     nullobj.active = ac_badobject;          // end of file marker
@@ -556,7 +553,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
     InitActorList ();
     DiskFlopAnim(x,y);
     fread (player,sizeof(*player),1,file);
-    player->state=(statetype *) ((uintptr_t)player->state+(uintptr_t)&s_player);
+    if ((size_t)player->state > numstates) goto fail; // [FG] detect unsupported savegame format
+    player->state=&states[(size_t)player->state]; // [FG] statetype states[] array
 
     while (1)
     {
@@ -565,7 +563,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
         if (nullobj.active == ac_badobject)
             break;
         GetNewActor ();
-        nullobj.state=(statetype *) ((uintptr_t)nullobj.state+(uintptr_t)&s_grdstand);
+        if ((size_t)nullobj.state > numstates) goto fail; // [FG] detect unsupported savegame format
+        nullobj.state=&states[(size_t)nullobj.state]; // [FG] statetype states[] array
         // don't copy over the links
         memcpy (newobj,&nullobj,sizeof(nullobj)-8);
     }
@@ -658,6 +657,18 @@ boolean LoadTheGame(FILE *file,int x,int y)
     }
 
     return true;
+
+// [FG] detect unsupported savegame format
+fail:
+	Message("Unsupported savegame\nformat detected!");
+
+	IN_ClearKeysDown();
+	IN_Ack();
+
+	memset(objlist, 0, sizeof(objlist));
+	loadedgame = false;
+
+	return false;
 }
 
 //===========================================================================
