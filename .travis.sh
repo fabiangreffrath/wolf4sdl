@@ -15,28 +15,28 @@ else
 	set -e
 	export Q=""
 	export CFLAGS="-Werror"
-	# Wolf3d Full v1.4 GT/ID/Activision
+	echo "Wolf3d Full v1.4 GT/ID/Activision"
 	make
-	# Wolf3d Full v1.4 Apogee (with ReadThis)
+	echo "Wolf3d Full v1.4 Apogee (with ReadThis)"
 	make clean
 	sed -e "s|^\(//\)\?\(#define GOODTIMES\)|//\2|" -i version.h
 	make
-	# Wolf3d Full v1.1 Apogee (with ReadThis)
+	echo "Wolf3d Full v1.1 Apogee (with ReadThis)"
 	make clean
 	sed -e "s|^\(//\)\?\(#define APOGEE_1_1\)|\2|" -i version.h
 	make
-	# Wolf3d Shareware v1.4
+	echo "Wolf3d Shareware v1.4"
 	make clean
 	sed -e "s|^\(//\)\?\(#define APOGEE_1_1\)|//\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define UPLOAD\)|\2|" -i version.h
 	make
-	# Spear of Destiny Full and Mission Disks (and GOODTIMES for no FormGen quiz)
+	echo "Spear of Destiny Full and Mission Disks (and GOODTIMES for no FormGen quiz)"
 	make clean
 	sed -e "s|^\(//\)\?\(#define UPLOAD\)|//\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define SPEAR\)|\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define GOODTIMES\)|\2|" -i version.h
 	make
-	# Spear of Destiny Demo
+	echo "Spear of Destiny Demo"
 	make clean
 	sed -e "s|^\(//\)\?\(#define GOODTIMES\)|//\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define SPEARDEMO\)|\2|" -i version.h
