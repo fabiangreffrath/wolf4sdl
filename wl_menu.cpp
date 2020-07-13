@@ -3267,7 +3267,7 @@ void SetupSaveGames()
                 {
                     SaveGamesAvail[i] = 0;
                     close(handle);
-                    return;
+                    continue;
                 }
                 close(handle);
                 strcpy(&SaveGameNames[i][0], temp);

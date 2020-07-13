@@ -160,6 +160,7 @@ short starthitpoints[4][NUMENEMIES] =
     }
 };
 
+void    T_Shoot (objtype *ob);
 
 /*
 =================
@@ -680,7 +681,7 @@ void SpawnTrans (int tilex, int tiley)
     //        word tile;
 
     if (SoundBlasterPresent && DigiMode != sds_Off)
-        s_transdie01.tictime = 105;
+        states[s_transdie01].tictime = 105;
 
     SpawnNewObj (tilex,tiley,&states[s_transstand]);
     newobj->obclass = transobj;
@@ -702,7 +703,7 @@ void SpawnTrans (int tilex, int tiley)
 void SpawnUber (int tilex, int tiley)
 {
     if (SoundBlasterPresent && DigiMode != sds_Off)
-        s_uberdie01.tictime = 70;
+        states[s_uberdie01].tictime = 70;
 
     SpawnNewObj (tilex,tiley,&states[s_uberstand]);
     newobj->obclass = uberobj;
@@ -746,7 +747,7 @@ void T_UShoot (objtype *ob)
 void SpawnWill (int tilex, int tiley)
 {
     if (SoundBlasterPresent && DigiMode != sds_Off)
-        s_willdie2.tictime = 70;
+        states[s_willdie2].tictime = 70;
 
     SpawnNewObj (tilex,tiley,&states[s_willstand]);
     newobj->obclass = willobj;
@@ -866,7 +867,7 @@ void T_Will (objtype *ob)
 void SpawnDeath (int tilex, int tiley)
 {
     if (SoundBlasterPresent && DigiMode != sds_Off)
-        s_deathdie2.tictime = 105;
+        states[s_deathdie2].tictime = 105;
 
     SpawnNewObj (tilex,tiley,&states[s_deathstand]);
     newobj->obclass = deathobj;
@@ -972,9 +973,9 @@ void A_Breathing (objtype *)
 void SpawnAngel (int tilex, int tiley)
 {
     if (SoundBlasterPresent && DigiMode != sds_Off)
-        s_angeldie11.tictime = 105;
+        states[s_angeldie11].tictime = 105;
 
-    SpawnNewObj (tilex,tiley,&[s_angelstand]);
+    SpawnNewObj (tilex,tiley,&states[s_angelstand]);
     newobj->obclass = angelobj;
     newobj->hitpoints = starthitpoints[gamestate.difficulty][en_angel];
     newobj->flags |= FL_SHOOTABLE|FL_AMBUSH;
