@@ -2656,8 +2656,6 @@ void    A_StartDeathCam (objtype *ob)
             break;
         default:
             break;
-        default:
-            break;
 #endif
     }
 }
