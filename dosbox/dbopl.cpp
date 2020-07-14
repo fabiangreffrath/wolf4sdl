@@ -43,12 +43,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma pack(push,1)
+#include "../wl_def.h"
 
 //#include "dosbox.h"
 #include "dbopl.h"
-
-#pragma pack(pop)
 
 #ifndef PI
 #define PI 3.14159265358979323846
