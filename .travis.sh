@@ -13,32 +13,44 @@ if [ "$ANALYZE" = "true" ] ; then
 	exit $RET
 else
 	set -e
+
 	export Q=""
 	export CFLAGS="-Werror"
+
 	echo "Wolf3d Full v1.4 GT/ID/Activision"
-	make
+	make BINARY=wolf4sdl-wl6
+	make clean
+
 	echo "Wolf3d Full v1.4 Apogee (with ReadThis)"
-	make clean
 	sed -e "s|^\(//\)\?\(#define GOODTIMES\)|//\2|" -i version.h
-	make
+	make BINARY=wolf4sdl-wl6a
+	make clean
+
 	echo "Wolf3d Full v1.1 Apogee (with ReadThis)"
-	make clean
 	sed -e "s|^\(//\)\?\(#define APOGEE_1_1\)|\2|" -i version.h
-	make
-	echo "Wolf3d Shareware v1.4"
+	make BINARY=wolf4sdl-wl6a1
 	make clean
+
+	echo "Wolf3d Shareware v1.4"
 	sed -e "s|^\(//\)\?\(#define APOGEE_1_1\)|//\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define UPLOAD\)|\2|" -i version.h
-	make
-	echo "Spear of Destiny Full and Mission Disks (and GOODTIMES for no FormGen quiz)"
+	make BINARY=wolf4sdl-wl1
 	make clean
+
+	echo "Spear of Destiny Full and Mission Disks (and GOODTIMES for no FormGen quiz)"
 	sed -e "s|^\(//\)\?\(#define UPLOAD\)|//\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define SPEAR\)|\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define GOODTIMES\)|\2|" -i version.h
-	make
-	echo "Spear of Destiny Demo"
+	make BINARY=wolf4sdl-sod
 	make clean
+
+	echo "Spear of Destiny Demo"
 	sed -e "s|^\(//\)\?\(#define GOODTIMES\)|//\2|" -i version.h
 	sed -e "s|^\(//\)\?\(#define SPEARDEMO\)|\2|" -i version.h
-	make
+	make BINARY=wolf4sdl-sdm
+	make clean
+
+	sed -e "s|^\(//\)\?\(#define SPEAR\)|//\2|" -i version.h
+	sed -e "s|^\(//\)\?\(#define SPEARDEMO\)|//\2|" -i version.h
+	sed -e "s|^\(//\)\?\(#define GOODTIMES\)|\2|" -i version.h
 fi
