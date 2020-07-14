@@ -36,17 +36,17 @@ loaded into the data segment
 =============================================================================
 */
 
-typedef struct
+typedef PACKED_STRUCT(
 {
     word bit0,bit1;       // 0-255 is a character, > is a pointer to a node
-} huffnode;
+}) huffnode;
 
 
-typedef struct
+typedef PACKED_STRUCT(
 {
     word RLEWtag;
     int32_t headeroffsets[100];
-} mapfiletype;
+}) mapfiletype;
 
 
 /*
