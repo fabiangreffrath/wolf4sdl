@@ -82,7 +82,7 @@ enum {
 	SHIFT_KEYCODE = 24,
 };
 
-struct Operator {
+PACKED_STRUCT( Operator {
 public:
 	//Masks for operator 20 values
 	enum {
@@ -171,9 +171,9 @@ public:
 	Bits GetWave( Bitu index, Bitu vol );
 public:
 	Operator();
-};
+});
 
-struct Channel {
+PACKED_STRUCT( Channel {
 	Operator op[2];
 	inline Operator* Op( Bitu index ) {
 		return &( ( this + (index >> 1) )->op[ index & 1 ]);
@@ -207,9 +207,9 @@ struct Channel {
 	template<SynthMode mode>
 	Channel* BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output );
 	Channel();
-};
+});
 
-struct Chip {
+PACKED_STRUCT( Chip {
 	//This is used as the base counter for vibrato and tremolo
 	Bit32u lfoCounter;
 	Bit32u lfoAdd;
@@ -261,7 +261,7 @@ struct Chip {
 	void Setup( Bit32u r );
 
 	Chip();
-};
+});
 
 /*struct Handler : public Adlib::Handler {
 	DBOPL::Chip chip;
