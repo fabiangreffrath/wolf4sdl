@@ -43,7 +43,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../wl_def.h"
+#if defined(_MSC_VER)
+__pragma(pack(push,1))
+#endif
 
 //#include "dosbox.h"
 #include "dbopl.h"
@@ -1522,5 +1524,8 @@ void Handler::Init( Bitu rate ) {
 	chip.Setup( rate );
 }*/
 
+#if defined(_MSC_VER)
+__pragma(pack(pop))
+#endif
 
 };		//Namespace DBOPL

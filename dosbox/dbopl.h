@@ -82,7 +82,17 @@ enum {
 	SHIFT_KEYCODE = 24,
 };
 
-PACKED_STRUCT( Operator {
+#if defined(__GNUC__)
+# if defined(_WIN32) && !defined(__clang__)
+#  define PACKEDSUFFIX __attribute__((packed,gcc_struct))
+# else
+#  define PACKEDSUFFIX __attribute__((packed))
+# endif
+#else
+# define PACKEDSUFFIX
+#endif
+
+struct Operator {
 public:
 	//Masks for operator 20 values
 	enum {
@@ -171,9 +181,9 @@ public:
 	Bits GetWave( Bitu index, Bitu vol );
 public:
 	Operator();
-});
+} PACKEDSUFFIX;
 
-PACKED_STRUCT( Channel {
+struct Channel {
 	Operator op[2];
 	inline Operator* Op( Bitu index ) {
 		return &( ( this + (index >> 1) )->op[ index & 1 ]);
@@ -207,9 +217,9 @@ PACKED_STRUCT( Channel {
 	template<SynthMode mode>
 	Channel* BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output );
 	Channel();
-});
+} PACKEDSUFFIX;
 
-PACKED_STRUCT( Chip {
+struct Chip {
 	//This is used as the base counter for vibrato and tremolo
 	Bit32u lfoCounter;
 	Bit32u lfoAdd;
@@ -261,7 +271,7 @@ PACKED_STRUCT( Chip {
 	void Setup( Bit32u r );
 
 	Chip();
-});
+} PACKEDSUFFIX;
 
 /*struct Handler : public Adlib::Handler {
 	DBOPL::Chip chip;
