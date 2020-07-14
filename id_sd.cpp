@@ -538,6 +538,7 @@ static void SDL_PCMixCallback(void *udata, Uint8 *stream, int len)
     static int current_freq = 0;
     static int phase_offset = 0;
 
+    void *streamp = stream;
     Sint16 *leftptr;
     Sint16 *rightptr;
     Sint16 this_value;
@@ -549,8 +550,8 @@ static void SDL_PCMixCallback(void *udata, Uint8 *stream, int len)
 
     nsamples = len / 4;
 
-    leftptr = (Sint16 *) stream;
-    rightptr = ((Sint16 *) stream) + 1;
+    leftptr = (Sint16 *) streamp;
+    rightptr = ((Sint16 *) streamp) + 1;
 
     // Fill the output buffer
 
@@ -1295,7 +1296,7 @@ SD_PlaySound(soundnames sound)
     ispos = nextsoundpos;
     nextsoundpos = false;
 
-    if (sound == -1 || (DigiMode == sds_Off && SoundMode == sdm_Off))
+    if (sound == (soundnames)-1 || (DigiMode == sds_Off && SoundMode == sdm_Off))
         return 0;
 
     s = (SoundCommon *) SoundTable[sound];
