@@ -761,14 +761,14 @@ extern statetype states[numstates]; // [FG] statetype states[] array
 //
 //---------------------
 
-typedef struct statstruct
+typedef PACKED_STRUCT( statstruct
 {
     byte      tilex,tiley;
     short     shapenum;           // if shapenum == -1 the obj has been removed
     byte      *visspot;
     uint32_t  flags;
     byte      itemnumber;
-} statobj_t;
+}) statobj_t;
 
 
 //---------------------
@@ -782,14 +782,14 @@ typedef enum
     dr_open,dr_closed,dr_opening,dr_closing
 } doortype;
 
-typedef struct doorstruct
+typedef PACKED_STRUCT( doorstruct
 {
     byte     tilex,tiley;
     boolean  vertical;
     byte     lock;
     doortype action;
     short    ticcount;
-} doorobj_t;
+}) doorobj_t;
 
 
 //--------------------
@@ -798,7 +798,7 @@ typedef struct doorstruct
 //
 //--------------------
 
-typedef struct objstruct
+typedef PACKED_STRUCT( objstruct
 {
     activetype  active;
     short       ticcount;
@@ -824,7 +824,7 @@ typedef struct objstruct
 
     short       temp1,temp2,hidden;
     struct objstruct *next,*prev;
-} objtype;
+}) objtype;
 
 enum
 {
@@ -875,7 +875,7 @@ enum
 //
 //---------------
 
-typedef struct
+typedef PACKED_STRUCT(
 {
     short       difficulty;
     short       mapon;
@@ -894,7 +894,7 @@ typedef struct
     int32_t     TimeCount;
     int32_t     killx,killy;
     boolean     victoryflag;            // set during victory animations
-} gametype;
+}) gametype;
 
 
 typedef enum

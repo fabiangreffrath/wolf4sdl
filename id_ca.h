@@ -15,13 +15,13 @@
 
 //===========================================================================
 
-typedef struct
+typedef PACKED_STRUCT(
 {
     int32_t planestart[3];
     word    planelength[3];
     word    width,height;
     char    name[16];
-} maptype;
+}) maptype;
 
 //===========================================================================
 
