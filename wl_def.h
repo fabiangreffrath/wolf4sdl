@@ -25,7 +25,27 @@
 #	define O_BINARY 0
 #endif
 
-#pragma pack(1)
+#ifdef __WATCOMC__
+ #define PACKEDPREFIX _Packed
+#elif defined(_MSC_VER)
+ #define PACKEDPREFIX __pragma(pack(push,1))
+#else
+ #define PACKEDPREFIX
+#endif
+
+#ifdef __GNUC__
+ #if defined(_WIN32) && !defined(__clang__)
+  #define PACKEDSUFFIX __attribute__((packed,gcc_struct))
+ #else
+  #define PACKEDSUFFIX __attribute__((packed))
+ #endif
+#elif defined(_MSC_VER)
+  #define PACKEDSUFFIX __pragma(pack(pop))
+#else
+  #define PACKEDSUFFIX
+#endif
+
+#define PACKED_STRUCT(...) PACKEDPREFIX struct __VA_ARGS__ PACKEDSUFFIX
 
 #if defined(_arch_dreamcast)
 #define YESBUTTONNAME "A"
