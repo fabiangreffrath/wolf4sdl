@@ -3,7 +3,7 @@ if [ "$ANALYZE" = "true" ] ; then
 	cppcheck -DO_BINARY=0 -DDEBUGKEYS -DARTSEXTERN -DDEMOSEXTERN -DPLAYDEMOLIKEORIGINAL \
 	         -UUSE_FEATUREFLAGS -UUSE_SHADING -UUSE_DIR3DSPR -UUSE_FLOORCEILINGTEX -UUSE_HIRES \
 	         -UUSE_PARALLAX -UUSE_CLOUDSKY -UUSE_STARSKY -UUSE_RAIN -UUSE_SNOW -UFIXRAINSNOWLEAKS \
-	         -UGP2X -UGP2X_940 -U_arch_dreamcast -USPANISH -UNOTYET \
+	         -UGP2X -UGP2X_940 -U_arch_dreamcast -USPANISH -UNOTYET -U_MSC_VER -U__WATCOMC__ \
 	         --error-exitcode=1 --force -Idosbox . 2> stderr.txt
 	RET=$?
 	if [ -s stderr.txt ]
