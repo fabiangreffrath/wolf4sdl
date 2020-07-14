@@ -43,11 +43,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma pack(1)
+#include "../wl_def.h"
 
 //#include "dosbox.h"
 #include "dbopl.h"
-
 
 #ifndef PI
 #define PI 3.14159265358979323846
@@ -891,6 +890,8 @@ Channel* Channel::BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output ) {
 			return (this + 2);
 		}
 		break;
+	default:
+		break;
 	}
 	//Init the operators with the the current vibrato and tremolo values
 	Op( 0 )->Prepare( chip );
@@ -955,6 +956,8 @@ Channel* Channel::BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output ) {
 		case sm3AMAM:
 			output[ i * 2 + 0 ] += sample & maskLeft;
 			output[ i * 2 + 1 ] += sample & maskRight;
+			break;
+		default:
 			break;
 		}
 	}

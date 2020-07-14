@@ -24,23 +24,46 @@ void PM_Startup()
         CA_CannotOpen(fname);
 
     ChunksInFile = 0;
-    fread(&ChunksInFile, sizeof(word), 1, file);
+    if (!fread(&ChunksInFile, sizeof(word), 1, file))
+    {
+        fclose(file);
+        return;
+    }
     PMSpriteStart = 0;
-    fread(&PMSpriteStart, sizeof(word), 1, file);
+    if (!fread(&PMSpriteStart, sizeof(word), 1, file))
+    {
+        fclose(file);
+        return;
+    }
     PMSoundStart = 0;
-    fread(&PMSoundStart, sizeof(word), 1, file);
+    if (!fread(&PMSoundStart, sizeof(word), 1, file))
+    {
+        fclose(file);
+        return;
+    }
 
     uint32_t* pageOffsets = (uint32_t *) malloc((ChunksInFile + 1) * sizeof(int32_t));
     CHECKMALLOCRESULT(pageOffsets);
-    fread(pageOffsets, sizeof(uint32_t), ChunksInFile, file);
+    if (!fread(pageOffsets, sizeof(uint32_t), ChunksInFile, file))
+    {
+        free(pageOffsets);
+        fclose(file);
+        return;
+    }
 
     word *pageLengths = (word *) malloc(ChunksInFile * sizeof(word));
     CHECKMALLOCRESULT(pageLengths);
-    fread(pageLengths, sizeof(word), ChunksInFile, file);
+    if (!fread(pageLengths, sizeof(word), ChunksInFile, file))
+    {
+        free(pageLengths);
+        free(pageOffsets);
+        fclose(file);
+        return;
+    }
 
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
-    long pageDataSize = fileSize - pageOffsets[0];
+    size_t pageDataSize = fileSize - pageOffsets[0];
     if(pageDataSize > (size_t) -1)
         Quit("The page file \"%s\" is too large!", fname);
 
@@ -82,7 +105,7 @@ void PM_Startup()
     uint8_t *ptr = (uint8_t *) PMPageData;
     for(i = 0; i < ChunksInFile; i++)
     {
-        if(i >= PMSpriteStart && i < PMSoundStart || i == ChunksInFile - 1)
+        if((i >= PMSpriteStart && i < PMSoundStart) || i == ChunksInFile - 1)
         {
             size_t offs = ptr - (uint8_t *) PMPageData;
 
@@ -106,7 +129,13 @@ void PM_Startup()
         else size = pageOffsets[i + 1] - pageOffsets[i];
 
         fseek(file, pageOffsets[i], SEEK_SET);
-        fread(ptr, 1, size, file);
+        if (!fread(ptr, 1, size, file))
+        {
+            free(pageLengths);
+            free(pageOffsets);
+            fclose(file);
+            return;
+        }
         ptr += size;
     }
 

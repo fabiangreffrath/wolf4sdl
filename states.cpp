@@ -500,7 +500,6 @@ statetype states[numstates] = {
 	{false,SPR_HITLER_SHOOT2,10,NULL,(statefunc)T_Shoot,s_hitlershoot5},	// s_hitlershoot4
 	{false,SPR_HITLER_SHOOT3,10,NULL,(statefunc)T_Shoot,s_hitlershoot6},	// s_hitlershoot5
 	{false,SPR_HITLER_SHOOT2,10,NULL,(statefunc)T_Shoot,s_hitlerchase1},	// s_hitlershoot6
-#endif
 	{false,SPR_BJ_W1,12,(statefunc)T_BJRun,NULL,s_bjrun1s},	// s_bjrun1
 	{false,SPR_BJ_W1,3,NULL,NULL,s_bjrun2},	// s_bjrun1s
 	{false,SPR_BJ_W2,8,(statefunc)T_BJRun,NULL,s_bjrun3},	// s_bjrun2
@@ -512,4 +511,5 @@ statetype states[numstates] = {
 	{false,SPR_BJ_JUMP3,14,(statefunc)T_BJJump,NULL,s_bjjump4},	// s_bjjump3
 	{false,SPR_BJ_JUMP4,300,NULL,(statefunc)T_BJDone,s_bjjump4},	// s_bjjump4
 	{false,0,0,NULL,NULL,s_null},	// s_deathcam
+#endif
 };

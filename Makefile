@@ -19,7 +19,7 @@ LDFLAGS_SDL ?= $(shell $(SDL_CONFIG) --libs)
 
 CFLAGS += $(CFLAGS_SDL)
 
-#CFLAGS += -Wall
+CFLAGS += -Wall
 #CFLAGS += -W
 CFLAGS += -Wpointer-arith
 CFLAGS += -Wreturn-type

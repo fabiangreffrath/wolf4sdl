@@ -1,7 +1,6 @@
 // WL_AGENT.C
 
 #include "wl_def.h"
-#pragma hdrstop
 
 /*
 =============================================================================
@@ -160,14 +159,10 @@ void CheckWeaponChange (void)
 
 void ControlMovement (objtype *ob)
 {
-    int32_t oldx,oldy;
     int     angle;
     int     angleunits;
 
     thrustspeed = 0;
-
-    oldx = player->x;
-    oldy = player->y;
 
     if(buttonstate[bt_strafeleft])
     {
@@ -1264,6 +1259,8 @@ void    GunAttack (objtype *ob)
             break;
         case wp_chaingun:
             SD_PlaySound (ATKGATLINGSND);
+            break;
+        default:
             break;
     }
 

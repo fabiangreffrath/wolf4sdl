@@ -1,7 +1,6 @@
 // WL_PLAY.C
 
 #include "wl_def.h"
-#pragma hdrstop
 
 #include "wl_cloudsky.h"
 #include "wl_shade.h"
@@ -688,8 +687,6 @@ void CheckKeys (void)
 #endif
            scan == sc_F9 || scan == sc_F7 || scan == sc_F8)     // pop up quit dialog
     {
-        short oldmapon = gamestate.mapon;
-        short oldepisode = gamestate.episode;
         ClearMemory ();
         ClearSplitVWB ();
         US_ControlPanel (scan);

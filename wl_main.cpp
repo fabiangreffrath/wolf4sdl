@@ -7,7 +7,6 @@
 #endif
 
 #include "wl_def.h"
-#pragma hdrstop
 #include "wl_atmos.h"
 #include <SDL_syswm.h>
 
@@ -137,6 +136,7 @@ void ReadConfig(void)
     else
         strcpy(configpath, configname);
 
+#define read2(a,b,c) if(read(a,b,c)<0){close(file);goto noconfig;}
     const int file = open(configpath, O_RDONLY | O_BINARY);
     if (file != -1)
     {
@@ -144,36 +144,37 @@ void ReadConfig(void)
         // valid config file
         //
         word tmp;
-        read(file,&tmp,sizeof(tmp));
+        read2(file,&tmp,sizeof(tmp));
         if(tmp!=0xfefa)
         {
             close(file);
             goto noconfig;
         }
-        read(file,Scores,sizeof(HighScore) * MaxScores);
+        read2(file,Scores,sizeof(HighScore) * MaxScores);
 
-        read(file,&sd,sizeof(sd));
-        read(file,&sm,sizeof(sm));
-        read(file,&sds,sizeof(sds));
+        read2(file,&sd,sizeof(sd));
+        read2(file,&sm,sizeof(sm));
+        read2(file,&sds,sizeof(sds));
 
-        read(file,&mouseenabled,sizeof(mouseenabled));
-        read(file,&joystickenabled,sizeof(joystickenabled));
+        read2(file,&mouseenabled,sizeof(mouseenabled));
+        read2(file,&joystickenabled,sizeof(joystickenabled));
         boolean dummyJoypadEnabled;
-        read(file,&dummyJoypadEnabled,sizeof(dummyJoypadEnabled));
+        read2(file,&dummyJoypadEnabled,sizeof(dummyJoypadEnabled));
         boolean dummyJoystickProgressive;
-        read(file,&dummyJoystickProgressive,sizeof(dummyJoystickProgressive));
+        read2(file,&dummyJoystickProgressive,sizeof(dummyJoystickProgressive));
         int dummyJoystickPort = 0;
-        read(file,&dummyJoystickPort,sizeof(dummyJoystickPort));
+        read2(file,&dummyJoystickPort,sizeof(dummyJoystickPort));
 
-        read(file,dirscan,sizeof(dirscan));
-        read(file,buttonscan,sizeof(buttonscan));
-        read(file,buttonmouse,sizeof(buttonmouse));
-        read(file,buttonjoy,sizeof(buttonjoy));
+        read2(file,dirscan,sizeof(dirscan));
+        read2(file,buttonscan,sizeof(buttonscan));
+        read2(file,buttonmouse,sizeof(buttonmouse));
+        read2(file,buttonjoy,sizeof(buttonjoy));
 
-        read(file,&viewsize,sizeof(viewsize));
-        read(file,&mouseadjustment,sizeof(mouseadjustment));
+        read2(file,&viewsize,sizeof(viewsize));
+        read2(file,&mouseadjustment,sizeof(mouseadjustment));
 
         close(file);
+#undef read2
 
         if ((sd == sdm_AdLib || sm == smm_AdLib) && !AdLibPresent
                 && !SoundBlasterPresent)
@@ -262,35 +263,37 @@ void WriteConfig(void)
     else
         strcpy(configpath, configname);
 
+#define write2(a,b,c) if(write(a,b,c)<0){close(file);return;}
     const int file = open(configpath, O_CREAT | O_WRONLY | O_BINARY, 0644);
     if (file != -1)
     {
         word tmp=0xfefa;
-        write(file,&tmp,sizeof(tmp));
-        write(file,Scores,sizeof(HighScore) * MaxScores);
+        write2(file,&tmp,sizeof(tmp));
+        write2(file,Scores,sizeof(HighScore) * MaxScores);
 
-        write(file,&SoundMode,sizeof(SoundMode));
-        write(file,&MusicMode,sizeof(MusicMode));
-        write(file,&DigiMode,sizeof(DigiMode));
+        write2(file,&SoundMode,sizeof(SoundMode));
+        write2(file,&MusicMode,sizeof(MusicMode));
+        write2(file,&DigiMode,sizeof(DigiMode));
 
-        write(file,&mouseenabled,sizeof(mouseenabled));
-        write(file,&joystickenabled,sizeof(joystickenabled));
+        write2(file,&mouseenabled,sizeof(mouseenabled));
+        write2(file,&joystickenabled,sizeof(joystickenabled));
         boolean dummyJoypadEnabled = false;
-        write(file,&dummyJoypadEnabled,sizeof(dummyJoypadEnabled));
+        write2(file,&dummyJoypadEnabled,sizeof(dummyJoypadEnabled));
         boolean dummyJoystickProgressive = false;
-        write(file,&dummyJoystickProgressive,sizeof(dummyJoystickProgressive));
+        write2(file,&dummyJoystickProgressive,sizeof(dummyJoystickProgressive));
         int dummyJoystickPort = 0;
-        write(file,&dummyJoystickPort,sizeof(dummyJoystickPort));
+        write2(file,&dummyJoystickPort,sizeof(dummyJoystickPort));
 
-        write(file,dirscan,sizeof(dirscan));
-        write(file,buttonscan,sizeof(buttonscan));
-        write(file,buttonmouse,sizeof(buttonmouse));
-        write(file,buttonjoy,sizeof(buttonjoy));
+        write2(file,dirscan,sizeof(dirscan));
+        write2(file,buttonscan,sizeof(buttonscan));
+        write2(file,buttonmouse,sizeof(buttonmouse));
+        write2(file,buttonjoy,sizeof(buttonjoy));
 
-        write(file,&viewsize,sizeof(viewsize));
-        write(file,&mouseadjustment,sizeof(mouseadjustment));
+        write2(file,&viewsize,sizeof(viewsize));
+        write2(file,&mouseadjustment,sizeof(mouseadjustment));
 
         close(file);
+#undef write2
     }
 #ifdef _arch_dreamcast
     DC_SaveToVMU(configname, NULL);
@@ -513,32 +516,33 @@ boolean LoadTheGame(FILE *file,int x,int y)
     int32_t checksum,oldchecksum;
     objtype nullobj;
     statobj_t nullstat;
+    int actnum=0, i;
 
     checksum = 0;
 
+#define fread2(a,b,c,d) if(!fread(a,b,c,d)){goto fail;}
     DiskFlopAnim(x,y);
-    fread (&gamestate,sizeof(gamestate),1,file);
+    fread2 (&gamestate,sizeof(gamestate),1,file);
     checksum = DoChecksum((byte *)&gamestate,sizeof(gamestate),checksum);
 
     DiskFlopAnim(x,y);
-    fread (&LevelRatios[0],sizeof(LRstruct)*LRpack,1,file);
+    fread2 (&LevelRatios[0],sizeof(LRstruct)*LRpack,1,file);
     checksum = DoChecksum((byte *)&LevelRatios[0],sizeof(LRstruct)*LRpack,checksum);
 
     DiskFlopAnim(x,y);
     SetupGameLevel ();
 
     DiskFlopAnim(x,y);
-    fread (tilemap,sizeof(tilemap),1,file);
+    fread2 (tilemap,sizeof(tilemap),1,file);
     checksum = DoChecksum((byte *)tilemap,sizeof(tilemap),checksum);
 
     DiskFlopAnim(x,y);
 
-    int actnum=0, i;
     for(i=0;i<MAPSIZE;i++)
     {
         for(int j=0;j<MAPSIZE;j++)
         {
-            fread (&actnum,sizeof(word),1,file);
+            fread2 (&actnum,sizeof(word),1,file);
             checksum = DoChecksum((byte *) &actnum,sizeof(word),checksum);
             if(actnum&0x8000)
                 actorat[i][j]=objlist+(actnum&0x7fff);
@@ -547,19 +551,19 @@ boolean LoadTheGame(FILE *file,int x,int y)
         }
     }
 
-    fread (areaconnect,sizeof(areaconnect),1,file);
-    fread (areabyplayer,sizeof(areabyplayer),1,file);
+    fread2 (areaconnect,sizeof(areaconnect),1,file);
+    fread2 (areabyplayer,sizeof(areabyplayer),1,file);
 
     InitActorList ();
     DiskFlopAnim(x,y);
-    fread (player,sizeof(*player),1,file);
+    fread2 (player,sizeof(*player),1,file);
     if ((size_t)player->state > numstates) goto fail; // [FG] detect unsupported savegame format
     player->state=&states[(size_t)player->state]; // [FG] statetype states[] array
 
     while (1)
     {
         DiskFlopAnim(x,y);
-        fread (&nullobj,sizeof(nullobj),1,file);
+        fread2 (&nullobj,sizeof(nullobj),1,file);
         if (nullobj.active == ac_badobject)
             break;
         GetNewActor ();
@@ -571,38 +575,38 @@ boolean LoadTheGame(FILE *file,int x,int y)
 
     DiskFlopAnim(x,y);
     word laststatobjnum;
-    fread (&laststatobjnum,sizeof(laststatobjnum),1,file);
+    fread2 (&laststatobjnum,sizeof(laststatobjnum),1,file);
     laststatobj=statobjlist+laststatobjnum;
     checksum = DoChecksum((byte *)&laststatobjnum,sizeof(laststatobjnum),checksum);
 
     DiskFlopAnim(x,y);
     for(i=0;i<MAXSTATS;i++)
     {
-        fread(&nullstat,sizeof(nullstat),1,file);
+        fread2(&nullstat,sizeof(nullstat),1,file);
         checksum = DoChecksum((byte *)&nullstat,sizeof(nullstat),checksum);
         nullstat.visspot=(byte *) ((uintptr_t)nullstat.visspot+(uintptr_t)spotvis);
         memcpy(statobjlist+i,&nullstat,sizeof(nullstat));
     }
 
     DiskFlopAnim(x,y);
-    fread (doorposition,sizeof(doorposition),1,file);
+    fread2 (doorposition,sizeof(doorposition),1,file);
     checksum = DoChecksum((byte *)doorposition,sizeof(doorposition),checksum);
     DiskFlopAnim(x,y);
-    fread (doorobjlist,sizeof(doorobjlist),1,file);
+    fread2 (doorobjlist,sizeof(doorobjlist),1,file);
     checksum = DoChecksum((byte *)doorobjlist,sizeof(doorobjlist),checksum);
 
     DiskFlopAnim(x,y);
-    fread (&pwallstate,sizeof(pwallstate),1,file);
+    fread2 (&pwallstate,sizeof(pwallstate),1,file);
     checksum = DoChecksum((byte *)&pwallstate,sizeof(pwallstate),checksum);
-    fread (&pwalltile,sizeof(pwalltile),1,file);
+    fread2 (&pwalltile,sizeof(pwalltile),1,file);
     checksum = DoChecksum((byte *)&pwalltile,sizeof(pwalltile),checksum);
-    fread (&pwallx,sizeof(pwallx),1,file);
+    fread2 (&pwallx,sizeof(pwallx),1,file);
     checksum = DoChecksum((byte *)&pwallx,sizeof(pwallx),checksum);
-    fread (&pwally,sizeof(pwally),1,file);
+    fread2 (&pwally,sizeof(pwally),1,file);
     checksum = DoChecksum((byte *)&pwally,sizeof(pwally),checksum);
-    fread (&pwalldir,sizeof(pwalldir),1,file);
+    fread2 (&pwalldir,sizeof(pwalldir),1,file);
     checksum = DoChecksum((byte *)&pwalldir,sizeof(pwalldir),checksum);
-    fread (&pwallpos,sizeof(pwallpos),1,file);
+    fread2 (&pwallpos,sizeof(pwallpos),1,file);
     checksum = DoChecksum((byte *)&pwallpos,sizeof(pwallpos),checksum);
 
     if (gamestate.secretcount)      // assign valid floorcodes under moved pushwalls
@@ -632,10 +636,11 @@ boolean LoadTheGame(FILE *file,int x,int y)
 
     Thrust(0,0);    // set player->areanumber to the floortile you're standing on
 
-    fread (&oldchecksum,sizeof(oldchecksum),1,file);
+    fread2 (&oldchecksum,sizeof(oldchecksum),1,file);
 
-    fread (&lastgamemusicoffset,sizeof(lastgamemusicoffset),1,file);
+    fread2 (&lastgamemusicoffset,sizeof(lastgamemusicoffset),1,file);
     if(lastgamemusicoffset<0) lastgamemusicoffset=0;
+#undef fread2
 
 
     if (oldchecksum != checksum)
@@ -1645,7 +1650,7 @@ static void DemoLoop()
             #ifndef SPEARDEMO
             PlayDemo (LastDemo++%4);
             #else
-            PlayDemo (0);
+            PlayDemo (LastDemo);
             #endif
 
             if (playstate == ex_abort)
@@ -1737,7 +1742,7 @@ void CheckParameters(int argc, char *argv[])
                 screenWidth = atoi(argv[++i]);
                 screenHeight = atoi(argv[++i]);
                 unsigned factor = screenWidth / 320;
-                if(screenWidth % 320 || screenHeight != 200 * factor && screenHeight != 240 * factor)
+                if(screenWidth % 320 || (screenHeight != 200 * factor && screenHeight != 240 * factor))
                     printf("Screen size must be a multiple of 320x200 or 320x240!\n"), hasError = true;
             }
         }
