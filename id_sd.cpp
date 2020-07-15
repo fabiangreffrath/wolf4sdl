@@ -1299,7 +1299,8 @@ SD_PlaySound(soundnames sound)
     if (sound == (soundnames)-1 || (DigiMode == sds_Off && SoundMode == sdm_Off))
         return 0;
 
-    s = (SoundCommon *) SoundTable[sound];
+    void *p = SoundTable[sound];
+    s = (SoundCommon *) p;
 
     if ((SoundMode != sdm_Off) && !s)
             Quit("SD_PlaySound() - Uncached sound");

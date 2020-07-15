@@ -22,7 +22,8 @@ void VWB_DrawPropString(const char* string)
 	byte *vbuf = VL_LockSurface(curSurface);
 	if(vbuf == NULL) return;
 
-	font = (fontstruct *) grsegs[STARTFONT+fontnumber];
+	void *p = grsegs[STARTFONT+fontnumber];
+	font = (fontstruct *) p;
 	height = font->height;
 	dest = vbuf + scaleFactor * (py * curPitch + px);
 
@@ -105,7 +106,8 @@ void VWL_MeasureString (const char *string, word *width, word *height, fontstruc
 
 void VW_MeasurePropString (const char *string, word *width, word *height)
 {
-	VWL_MeasureString(string,width,height,(fontstruct *)grsegs[STARTFONT+fontnumber]);
+	void *p = grsegs[STARTFONT+fontnumber];
+	VWL_MeasureString(string,width,height,(fontstruct *)p);
 }
 
 /*

@@ -3918,7 +3918,8 @@ Message (const char *string)
 
     CA_CacheGrChunk (STARTFONT + 1);
     fontnumber = 1;
-    font = (fontstruct *) grsegs[STARTFONT + fontnumber];
+    void *p = grsegs[STARTFONT + fontnumber];
+    font = (fontstruct *) p;
     h = font->height;
     for (i = 0; i < len; i++)
     {

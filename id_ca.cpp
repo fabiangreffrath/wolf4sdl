@@ -792,7 +792,8 @@ void CA_CacheAdlibSoundChunk (int chunk)
 
     audiosegs[chunk] = (byte *) malloc(size + sizeof(AdLibSound) - ORIG_ADLIBSOUND_SIZE);
     CHECKMALLOCRESULT(audiosegs[chunk]);
-    AdLibSound *sound = (AdLibSound *) audiosegs[chunk];
+    void *p = audiosegs[chunk];
+    AdLibSound *sound = (AdLibSound *) p;
 
     byte *ptr = (byte *) bufferseg;
     sound->common.length = READLONGWORD(ptr);
