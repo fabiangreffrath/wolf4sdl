@@ -346,8 +346,10 @@ void PollMouseMove (void)
     mousexmove -= screenWidth / 2;
     mouseymove -= screenHeight / 2;
 
-    controlx += mousexmove * 10 / (13 - mouseadjustment);
-    controly += mouseymove * 20 / (13 - mouseadjustment);
+    if (mouseadjustment[0])
+    controlx += mousexmove * 10 / (13 - mouseadjustment[0]);
+    if (mouseadjustment[1])
+    controly += mouseymove * 20 / (13 - mouseadjustment[1]);
 }
 
 

@@ -70,7 +70,7 @@ void    Quit (const char *error,...);
 
 boolean startgame;
 boolean loadedgame;
-int     mouseadjustment;
+int     mouseadjustment[2];
 
 char    configdir[256] = "";
 char    configname[13] = "config.";
@@ -171,7 +171,12 @@ void ReadConfig(void)
         read2(file,buttonjoy,sizeof(buttonjoy));
 
         read2(file,&viewsize,sizeof(viewsize));
-        read2(file,&mouseadjustment,sizeof(mouseadjustment));
+        read2(file,&mouseadjustment[0],sizeof(mouseadjustment[0]));
+
+        if (read(file,&mouseadjustment[1],sizeof(mouseadjustment[1])) < 0)
+        {
+            mouseadjustment[1] = mouseadjustment[0];
+        }
 
         close(file);
 #undef read2
@@ -196,8 +201,10 @@ void ReadConfig(void)
         if (!IN_JoyPresent())
             joystickenabled = false;
 
-        if(mouseadjustment<0) mouseadjustment=0;
-        else if(mouseadjustment>9) mouseadjustment=9;
+        if(mouseadjustment[0]<0) mouseadjustment[0]=0;
+        else if(mouseadjustment[0]>9) mouseadjustment[0]=9;
+        if(mouseadjustment[1]<0) mouseadjustment[1]=0;
+        else if(mouseadjustment[1]>9) mouseadjustment[1]=9;
 
         if(viewsize<4) viewsize=4;
         else if(viewsize>21) viewsize=21;
@@ -234,7 +241,7 @@ noconfig:
             joystickenabled = true;
 
         viewsize = 19;                          // start with a good size
-        mouseadjustment=5;
+        mouseadjustment[0]=mouseadjustment[1]=5;
     }
 
     SD_SetMusicMode (sm);
@@ -290,7 +297,12 @@ void WriteConfig(void)
         write2(file,buttonjoy,sizeof(buttonjoy));
 
         write2(file,&viewsize,sizeof(viewsize));
-        write2(file,&mouseadjustment,sizeof(mouseadjustment));
+        write2(file,&mouseadjustment[0],sizeof(mouseadjustment[0]));
+
+        if (mouseadjustment[1] != mouseadjustment[0])
+        {
+            write2(file,&mouseadjustment[1],sizeof(mouseadjustment[1]));
+        }
 
         close(file);
 #undef write2
