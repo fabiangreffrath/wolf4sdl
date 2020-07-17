@@ -346,8 +346,11 @@ void PollMouseMove (void)
     mousexmove -= screenWidth / 2;
     mouseymove -= screenHeight / 2;
 
+    // [FG] no sensitivity means no movement
+    if (mouseadjustment)
     controlx += mousexmove * 10 / (13 - mouseadjustment);
-    controly += mouseymove * 20 / (13 - mouseadjustment);
+    if (mouseadjustment_v)
+    controly += mouseymove * 20 / (13 - mouseadjustment_v);
 }
 
 
