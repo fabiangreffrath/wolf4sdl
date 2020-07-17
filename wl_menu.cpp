@@ -1957,6 +1957,9 @@ CP_Control (int)
 }
 
 
+// [FG] vertical mouse sensitivity menu offset
+static const int offset = 3 * 13;
+
 ////////////////////////////////
 //
 // DRAW MOUSE SENSITIVITY SCREEN
@@ -1972,7 +1975,7 @@ DrawMouseSens (void)
 #ifdef SPANISH
     DrawWindow (10, 80, 300, 43, BKGDCOLOR);
 #else
-    DrawWindow (10, 80, 300, 30+40, BKGDCOLOR);
+    DrawWindow (10, 80, 300, 30 + offset, BKGDCOLOR);
 #endif
 
     WindowX = 0;
@@ -1980,7 +1983,7 @@ DrawMouseSens (void)
     PrintY = 82;
     SETFONTCOLOR (READCOLOR, BKGDCOLOR);
     US_CPrint ("Horizontal Sensitivity");
-    PrintY = 82+40;
+    PrintY = 82 + offset;
     SETFONTCOLOR (READCOLOR, BKGDCOLOR);
     US_CPrint ("Vertical Sensitivity");
 
@@ -1998,7 +2001,7 @@ DrawMouseSens (void)
     PrintX = 269;
     US_Print (STR_FAST);
     PrintX = 14;
-    PrintY = 95+40;
+    PrintY = 95 + offset;
     US_Print (STR_SLOW);
     PrintX = 269;
     US_Print (STR_FAST);
@@ -2010,10 +2013,11 @@ DrawMouseSens (void)
     DrawOutline (60 + 20 * mouseadjustment, 97, 20, 10, 0, READCOLOR);
     VWB_Bar (61 + 20 * mouseadjustment, 98, 19, 9, READHCOLOR);
 
-    VWB_Bar (60, 97+40, 200, 10, TEXTCOLOR);
-    DrawOutline (60, 97+40, 200, 10, 0, HIGHLIGHT);
-    DrawOutline (60 + 20 * mouseadjustment_v, 97+40, 20, 10, 0, READCOLOR);
-    VWB_Bar (61 + 20 * mouseadjustment_v, 98+40, 19, 9, READHCOLOR);
+    // [FG] vertical mouse sensitivity
+    VWB_Bar (60, 97 + offset, 200, 10, TEXTCOLOR);
+    DrawOutline (60, 97 + offset, 200, 10, 0, HIGHLIGHT);
+    DrawOutline (60 + 20 * mouseadjustment_v, 97 + offset, 20, 10, 0, READCOLOR);
+    VWB_Bar (61 + 20 * mouseadjustment_v, 98 + offset, 19, 9, READHCOLOR);
 
     VW_UpdateScreen ();
     MenuFadeIn ();
@@ -2031,14 +2035,32 @@ MouseSensitivity (int)
     int exit = 0, oldMA, oldMA_v;
     int *ma = &mouseadjustment;
 
+    // [FG] change gun shape
+    int shape = C_CURSOR1PIC;
+    int32_t lastBlinkTime = GetTimeCount(), timer = 8;
 
     oldMA = mouseadjustment;
     oldMA_v = mouseadjustment_v;
     DrawMouseSens ();
     do
     {
-        VWB_Bar (30, 81 + (ma == &mouseadjustment_v ? 0 : 40), 25, 16, BKGDCOLOR);
-        VWB_DrawPic (33, 81 + (ma == &mouseadjustment ? 0 : 40), C_CURSOR1PIC);
+        // [FG] change gun shape
+        if ((int32_t)GetTimeCount() - lastBlinkTime > timer)
+        {
+            lastBlinkTime = GetTimeCount();
+            if (shape == C_CURSOR1PIC)
+            {
+                shape = C_CURSOR2PIC;
+                timer = 8;
+            }
+            else
+            {
+                shape = C_CURSOR1PIC;
+                timer = 70;
+            }
+        }
+        VWB_Bar (30, 81 + (ma == &mouseadjustment_v ? 0 : offset), 25, 16, BKGDCOLOR);
+        VWB_DrawPic (33, 81 + (ma == &mouseadjustment ? 0 : offset), shape);
         VW_UpdateScreen ();
 
         SDL_Delay(5);
@@ -2058,10 +2080,11 @@ MouseSensitivity (int)
                     DrawOutline (60 + 20 * mouseadjustment, 97, 20, 10, 0, READCOLOR);
                     VWB_Bar (61 + 20 * mouseadjustment, 98, 19, 9, READHCOLOR);
 
-                    VWB_Bar (60, 97+40, 200, 10, TEXTCOLOR);
-                    DrawOutline (60, 97+40, 200, 10, 0, HIGHLIGHT);
-                    DrawOutline (60 + 20 * mouseadjustment_v, 97+40, 20, 10, 0, READCOLOR);
-                    VWB_Bar (61 + 20 * mouseadjustment_v, 98+40, 19, 9, READHCOLOR);
+                    // [FG] vertical mouse sensitivity
+                    VWB_Bar (60, 97 + offset, 200, 10, TEXTCOLOR);
+                    DrawOutline (60, 97 + offset, 200, 10, 0, HIGHLIGHT);
+                    DrawOutline (60 + 20 * mouseadjustment_v, 97 + offset, 20, 10, 0, READCOLOR);
+                    VWB_Bar (61 + 20 * mouseadjustment_v, 98 + offset, 19, 9, READHCOLOR);
                     VW_UpdateScreen ();
                     SD_PlaySound (MOVEGUN1SND);
                     TicDelay(20);
@@ -2081,10 +2104,11 @@ MouseSensitivity (int)
                     DrawOutline (60 + 20 * mouseadjustment, 97, 20, 10, 0, READCOLOR);
                     VWB_Bar (61 + 20 * mouseadjustment, 98, 19, 9, READHCOLOR);
 
-                    VWB_Bar (60, 97+40, 200, 10, TEXTCOLOR);
-                    DrawOutline (60, 97+40, 200, 10, 0, HIGHLIGHT);
-                    DrawOutline (60 + 20 * mouseadjustment_v, 97+40, 20, 10, 0, READCOLOR);
-                    VWB_Bar (61 + 20 * mouseadjustment_v, 98+40, 19, 9, READHCOLOR);
+                    // [FG] vertical mouse sensitivity
+                    VWB_Bar (60, 97 + offset, 200, 10, TEXTCOLOR);
+                    DrawOutline (60, 97 + offset, 200, 10, 0, HIGHLIGHT);
+                    DrawOutline (60 + 20 * mouseadjustment_v, 97 + offset, 20, 10, 0, READCOLOR);
+                    VWB_Bar (61 + 20 * mouseadjustment_v, 98 + offset, 19, 9, READHCOLOR);
                     VW_UpdateScreen ();
                     SD_PlaySound (MOVEGUN1SND);
                     TicDelay(20);
