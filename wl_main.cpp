@@ -70,7 +70,7 @@ void    Quit (const char *error,...);
 
 boolean startgame;
 boolean loadedgame;
-int     mouseadjustment[2];
+int     mouseadjustment, mouseadjustment_v;
 
 char    configdir[256] = "";
 char    configname[13] = "config.";
@@ -171,12 +171,13 @@ void ReadConfig(void)
         read2(file,buttonjoy,sizeof(buttonjoy));
 
         read2(file,&viewsize,sizeof(viewsize));
-        read2(file,&mouseadjustment[0],sizeof(mouseadjustment[0]));
+        read2(file,&mouseadjustment,sizeof(mouseadjustment));
 
-        if (read(file,&mouseadjustment[1],sizeof(mouseadjustment[1])) < 0)
-        {
-            mouseadjustment[1] = mouseadjustment[0];
-        }
+        // [FG] sneak vertical mouse sensitivity into the mouseadjustment config value
+        mouseadjustment_v = ((mouseadjustment >> 8) & 0xff) - 1;
+        mouseadjustment = mouseadjustment & 0xff;
+        if (mouseadjustment_v == -1)
+            mouseadjustment_v = mouseadjustment;
 
         close(file);
 #undef read2
@@ -201,10 +202,10 @@ void ReadConfig(void)
         if (!IN_JoyPresent())
             joystickenabled = false;
 
-        if(mouseadjustment[0]<0) mouseadjustment[0]=0;
-        else if(mouseadjustment[0]>9) mouseadjustment[0]=9;
-        if(mouseadjustment[1]<0) mouseadjustment[1]=0;
-        else if(mouseadjustment[1]>9) mouseadjustment[1]=9;
+        if(mouseadjustment<0) mouseadjustment=0;
+        else if(mouseadjustment>9) mouseadjustment=9;
+        if(mouseadjustment_v<0) mouseadjustment_v=0;
+        else if(mouseadjustment_v>9) mouseadjustment_v=9;
 
         if(viewsize<4) viewsize=4;
         else if(viewsize>21) viewsize=21;
@@ -241,7 +242,7 @@ noconfig:
             joystickenabled = true;
 
         viewsize = 19;                          // start with a good size
-        mouseadjustment[0]=mouseadjustment[1]=5;
+        mouseadjustment_v=mouseadjustment=5;
     }
 
     SD_SetMusicMode (sm);
@@ -297,12 +298,10 @@ void WriteConfig(void)
         write2(file,buttonjoy,sizeof(buttonjoy));
 
         write2(file,&viewsize,sizeof(viewsize));
-        write2(file,&mouseadjustment[0],sizeof(mouseadjustment[0]));
-
-        if (mouseadjustment[1] != mouseadjustment[0])
-        {
-            write2(file,&mouseadjustment[1],sizeof(mouseadjustment[1]));
-        }
+        // [FG] sneak vertical mouse sensitivity into the mouseadjustment config value
+        mouseadjustment = mouseadjustment | ((mouseadjustment_v + 1) << 8);
+        write2(file,&mouseadjustment,sizeof(mouseadjustment));
+        mouseadjustment = mouseadjustment & 0xff;
 
         close(file);
 #undef write2

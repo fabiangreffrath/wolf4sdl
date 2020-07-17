@@ -2007,13 +2007,13 @@ DrawMouseSens (void)
 
     VWB_Bar (60, 97, 200, 10, TEXTCOLOR);
     DrawOutline (60, 97, 200, 10, 0, HIGHLIGHT);
-    DrawOutline (60 + 20 * mouseadjustment[0], 97, 20, 10, 0, READCOLOR);
-    VWB_Bar (61 + 20 * mouseadjustment[0], 98, 19, 9, READHCOLOR);
+    DrawOutline (60 + 20 * mouseadjustment, 97, 20, 10, 0, READCOLOR);
+    VWB_Bar (61 + 20 * mouseadjustment, 98, 19, 9, READHCOLOR);
 
     VWB_Bar (60, 97+40, 200, 10, TEXTCOLOR);
     DrawOutline (60, 97+40, 200, 10, 0, HIGHLIGHT);
-    DrawOutline (60 + 20 * mouseadjustment[1], 97+40, 20, 10, 0, READCOLOR);
-    VWB_Bar (61 + 20 * mouseadjustment[1], 98+40, 19, 9, READHCOLOR);
+    DrawOutline (60 + 20 * mouseadjustment_v, 97+40, 20, 10, 0, READCOLOR);
+    VWB_Bar (61 + 20 * mouseadjustment_v, 98+40, 19, 9, READHCOLOR);
 
     VW_UpdateScreen ();
     MenuFadeIn ();
@@ -2028,17 +2028,17 @@ int
 MouseSensitivity (int)
 {
     ControlInfo ci;
-    int exit = 0, oldMA[2];
-    int *ma = &mouseadjustment[0];
+    int exit = 0, oldMA, oldMA_v;
+    int *ma = &mouseadjustment;
 
 
-    oldMA[0] = mouseadjustment[0];
-    oldMA[1] = mouseadjustment[1];
+    oldMA = mouseadjustment;
+    oldMA_v = mouseadjustment_v;
     DrawMouseSens ();
     do
     {
-        VWB_Bar (30, 81 + (ma == &mouseadjustment[1] ? 0 : 40), 25, 16, BKGDCOLOR);
-        VWB_DrawPic (33, 81 + (ma == &mouseadjustment[0] ? 0 : 40), C_CURSOR1PIC);
+        VWB_Bar (30, 81 + (ma == &mouseadjustment_v ? 0 : 40), 25, 16, BKGDCOLOR);
+        VWB_DrawPic (33, 81 + (ma == &mouseadjustment ? 0 : 40), C_CURSOR1PIC);
         VW_UpdateScreen ();
 
         SDL_Delay(5);
@@ -2046,7 +2046,7 @@ MouseSensitivity (int)
         switch (ci.dir)
         {
             case dir_North:
-                ma = &mouseadjustment[0];
+                ma = &mouseadjustment;
                 SD_PlaySound (MOVEGUN1SND);
                 break;
             case dir_West:
@@ -2055,13 +2055,13 @@ MouseSensitivity (int)
                     *ma -= 1;
                     VWB_Bar (60, 97, 200, 10, TEXTCOLOR);
                     DrawOutline (60, 97, 200, 10, 0, HIGHLIGHT);
-                    DrawOutline (60 + 20 * mouseadjustment[0], 97, 20, 10, 0, READCOLOR);
-                    VWB_Bar (61 + 20 * mouseadjustment[0], 98, 19, 9, READHCOLOR);
+                    DrawOutline (60 + 20 * mouseadjustment, 97, 20, 10, 0, READCOLOR);
+                    VWB_Bar (61 + 20 * mouseadjustment, 98, 19, 9, READHCOLOR);
 
                     VWB_Bar (60, 97+40, 200, 10, TEXTCOLOR);
                     DrawOutline (60, 97+40, 200, 10, 0, HIGHLIGHT);
-                    DrawOutline (60 + 20 * mouseadjustment[1], 97+40, 20, 10, 0, READCOLOR);
-                    VWB_Bar (61 + 20 * mouseadjustment[1], 98+40, 19, 9, READHCOLOR);
+                    DrawOutline (60 + 20 * mouseadjustment_v, 97+40, 20, 10, 0, READCOLOR);
+                    VWB_Bar (61 + 20 * mouseadjustment_v, 98+40, 19, 9, READHCOLOR);
                     VW_UpdateScreen ();
                     SD_PlaySound (MOVEGUN1SND);
                     TicDelay(20);
@@ -2069,7 +2069,7 @@ MouseSensitivity (int)
                 break;
 
             case dir_South:
-                ma = &mouseadjustment[1];
+                ma = &mouseadjustment_v;
                 SD_PlaySound (MOVEGUN1SND);
                 break;
             case dir_East:
@@ -2078,13 +2078,13 @@ MouseSensitivity (int)
                     *ma += 1;
                     VWB_Bar (60, 97, 200, 10, TEXTCOLOR);
                     DrawOutline (60, 97, 200, 10, 0, HIGHLIGHT);
-                    DrawOutline (60 + 20 * mouseadjustment[0], 97, 20, 10, 0, READCOLOR);
-                    VWB_Bar (61 + 20 * mouseadjustment[0], 98, 19, 9, READHCOLOR);
+                    DrawOutline (60 + 20 * mouseadjustment, 97, 20, 10, 0, READCOLOR);
+                    VWB_Bar (61 + 20 * mouseadjustment, 98, 19, 9, READHCOLOR);
 
                     VWB_Bar (60, 97+40, 200, 10, TEXTCOLOR);
                     DrawOutline (60, 97+40, 200, 10, 0, HIGHLIGHT);
-                    DrawOutline (60 + 20 * mouseadjustment[1], 97+40, 20, 10, 0, READCOLOR);
-                    VWB_Bar (61 + 20 * mouseadjustment[1], 98+40, 19, 9, READHCOLOR);
+                    DrawOutline (60 + 20 * mouseadjustment_v, 97+40, 20, 10, 0, READCOLOR);
+                    VWB_Bar (61 + 20 * mouseadjustment_v, 98+40, 19, 9, READHCOLOR);
                     VW_UpdateScreen ();
                     SD_PlaySound (MOVEGUN1SND);
                     TicDelay(20);
@@ -2105,8 +2105,8 @@ MouseSensitivity (int)
 
     if (exit == 2)
     {
-        mouseadjustment[0] = oldMA[0];
-        mouseadjustment[1] = oldMA[1];
+        mouseadjustment = oldMA;
+        mouseadjustment_v = oldMA_v;
         SD_PlaySound (ESCPRESSEDSND);
     }
     else
