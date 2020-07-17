@@ -739,7 +739,6 @@ CP_ReadThis (int)
 #endif
 
 
-#ifdef GOODTIMES
 ////////////////////////////////////////////////////////////////////
 //
 // BOSS KEY
@@ -748,59 +747,39 @@ CP_ReadThis (int)
 void
 BossKey (void)
 {
-#ifdef NOTYET
-    byte palette1[256][3];
-    SD_MusicOff ();
-/*       _AX = 3;
-        geninterrupt(0x10); */
-    _asm
+    const char *prompt[] = {"C:\\>_", "C:\\> "};
+    int i = 0;
+    ControlInfo ci;
+
+    SD_MusicOff();
+
+    VWB_Bar(0, 0, 320, 200, 0);
+    VL_FadeIn(0, 255, gamepal, 1);
+
+    fontnumber = 0;
+    SETFONTCOLOR(15, 0);
+
+    int32_t lastBlinkTime = GetTimeCount();
+    do
     {
-    mov eax, 3 int 0x10}
-    puts ("C>");
-    SetTextCursor (2, 0);
-//      while (!Keyboard[sc_Escape])
-    IN_Ack ();
+        VWB_Bar (0, 0, 320, 200, 0);
+        if ((int32_t)GetTimeCount() - lastBlinkTime > 35)
+        {
+            lastBlinkTime = GetTimeCount();
+            i ^= 1;
+        }
+        px = py = 0;
+        USL_DrawString(prompt[i]);
+        VW_UpdateScreen();
+
+        SDL_Delay(5);
+        ReadAnyControl (&ci);
+    } while (!(ci.button0 | ci.button1 | ci.button2 | ci.button3));
+
     IN_ClearKeysDown ();
 
     SD_MusicOn ();
-    VL_SetVGAPlaneMode ();
-    for (int i = 0; i < 768; i++)
-        palette1[0][i] = 0;
-
-    VL_SetPalette (&palette1[0][0]);
-    LoadLatchMem ();
-#endif
 }
-#else
-#ifdef SPEAR
-void
-BossKey (void)
-{
-#ifdef NOTYET
-    byte palette1[256][3];
-    SD_MusicOff ();
-/*       _AX = 3;
-        geninterrupt(0x10); */
-    _asm
-    {
-    mov eax, 3 int 0x10}
-    puts ("C>");
-    SetTextCursor (2, 0);
-//      while (!Keyboard[sc_Escape])
-    IN_Ack ();
-    IN_ClearKeysDown ();
-
-    SD_MusicOn ();
-    VL_SetVGAPlaneMode ();
-    for (int i = 0; i < 768; i++)
-        palette1[0][i] = 0;
-
-    VL_SetPalette (&palette1[0][0]);
-    LoadLatchMem ();
-#endif
-}
-#endif
-#endif
 
 
 ////////////////////////////////////////////////////////////////////
