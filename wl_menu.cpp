@@ -2035,7 +2035,7 @@ MouseSensitivity (int)
     int exit = 0, oldMA, oldMA_v;
     int *ma = &mouseadjustment;
 
-    // [FG] change gun shape
+    // [FG] animate gun cursor
     int shape = C_CURSOR1PIC;
     int32_t lastBlinkTime = GetTimeCount(), timer = 8;
 
@@ -2044,7 +2044,9 @@ MouseSensitivity (int)
     DrawMouseSens ();
     do
     {
-        // [FG] change gun shape
+        // [FG] draw gun background
+        VWB_Bar (30, 81 + (ma == &mouseadjustment ? offset : 0), 25, 16, BKGDCOLOR);
+        // [FG] animate gun cursor
         if ((int32_t)GetTimeCount() - lastBlinkTime > timer)
         {
             lastBlinkTime = GetTimeCount();
@@ -2059,7 +2061,6 @@ MouseSensitivity (int)
                 timer = 70;
             }
         }
-        VWB_Bar (30, 81 + (ma == &mouseadjustment_v ? 0 : offset), 25, 16, BKGDCOLOR);
         VWB_DrawPic (33, 81 + (ma == &mouseadjustment ? 0 : offset), shape);
         VW_UpdateScreen ();
 
@@ -2068,6 +2069,7 @@ MouseSensitivity (int)
         switch (ci.dir)
         {
             case dir_North:
+                // [FG] horizontal mouse sensitivity
                 ma = &mouseadjustment;
                 SD_PlaySound (MOVEGUN1SND);
                 break;
@@ -2092,6 +2094,7 @@ MouseSensitivity (int)
                 break;
 
             case dir_South:
+                // [FG] vertical mouse sensitivity
                 ma = &mouseadjustment_v;
                 SD_PlaySound (MOVEGUN1SND);
                 break;
