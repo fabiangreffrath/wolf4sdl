@@ -705,7 +705,11 @@ void CheckKeys (void)
     {
         int lastoffs = StopMusic ();
         ClearMemory ();
+        // [FG] suppress fading when the "Boss Key" is pressed
+        if (scan != sc_F1)
+        {
         VW_FadeOut ();
+        }
 
         US_ControlPanel (buttonstate[bt_esc] ? sc_Escape : scan);
 
