@@ -747,11 +747,11 @@ CP_ReadThis (int)
 void
 BossKey (void)
 {
-    const char *prompt[] = {"C:\\>_", "C:\\> "};
-    int i = 0;
+    const char *prompt[] = {"C:\\>", "C:\\>_", "C:\\>\n"};
+    int i = 0, j = 0;
     ControlInfo ci;
 
-    SD_MusicOff();
+    int lastoffs = StopMusic();
 
     VWB_Bar(0, 0, 320, 200, 0);
     VL_FadeIn(0, 255, gamepal, 1);
@@ -763,22 +763,33 @@ BossKey (void)
     do
     {
         VWB_Bar (0, 0, 320, 200, 0);
-        if ((int32_t)GetTimeCount() - lastBlinkTime > 35)
+        PrintX = PrintY = 0;
+        for (int k = 0; k < j; k++)
+        {
+            US_Print(prompt[2]);
+            PrintX = 0;
+        }
+        if ((int32_t)GetTimeCount() - lastBlinkTime > 15)
         {
             lastBlinkTime = GetTimeCount();
             i ^= 1;
         }
-        px = py = 0;
-        USL_DrawString(prompt[i]);
+        US_Print(prompt[i]);
         VW_UpdateScreen();
 
         SDL_Delay(5);
-        ReadAnyControl (&ci);
-    } while (!(ci.button0 | ci.button1 | ci.button2 | ci.button3));
+        ReadAnyControl(&ci);
+
+        if (Keyboard[sc_Enter])
+        {
+            if (j < 18) j++;
+            Keyboard[sc_Enter] = 0;
+        }
+    } while (!(ci.button0 | ci.button1 | Keyboard[sc_Escape]));
 
     IN_ClearKeysDown ();
 
-    SD_MusicOn ();
+    ContinueMusic(lastoffs);
 }
 
 
