@@ -242,6 +242,39 @@ boolean IN_JoyPresent()
     return Joystick != NULL;
 }
 
+static boolean ToggleFullScreenKeyShortcut(SDL_Keysym *sym)
+{
+    Uint16 flags = (KMOD_LALT | KMOD_RALT);
+#if defined(__MACOSX__)
+    flags |= (KMOD_LGUI | KMOD_RGUI);
+#endif
+    return (sym->scancode == SDL_SCANCODE_RETURN ||
+            sym->scancode == SDL_SCANCODE_KP_ENTER) && (sym->mod & flags) != 0;
+}
+
+static void I_ToggleFullScreen(void)
+{
+    unsigned int flags = 0;
+
+    fullscreen = !fullscreen;
+
+    if (fullscreen)
+    {
+        SDL_GetWindowSize(window, (int *) &screenWidth, (int *) &screenHeight);
+        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        GrabInput = true;
+        SDL_SetWindowGrab(window, SDL_TRUE);
+    }
+
+    SDL_SetWindowFullscreen(window, flags);
+
+    if (!fullscreen)
+    {
+        SDL_SetWindowSize(window, screenWidth, screenHeight);
+        SDL_SetWindowGrab(window, GrabInput ? SDL_TRUE : SDL_FALSE);
+    }
+}
+
 static void processEvent(SDL_Event *event)
 {
     switch (event->type)
@@ -253,9 +286,15 @@ static void processEvent(SDL_Event *event)
         // check for keypresses
         case SDL_KEYDOWN:
         {
+            if (ToggleFullScreenKeyShortcut(&event->key.keysym))
+            {
+                I_ToggleFullScreen();
+                return;
+            }
+
             if(event->key.keysym.sym==SDLK_SCROLLLOCK || event->key.keysym.sym==SDLK_F12)
             {
-                GrabInput = !GrabInput;
+                GrabInput = fullscreen || !GrabInput;
                 SDL_SetWindowGrab(window, GrabInput ? SDL_TRUE : SDL_FALSE);
                 return;
             }
