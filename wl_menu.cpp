@@ -739,7 +739,6 @@ CP_ReadThis (int)
 #endif
 
 
-#ifdef GOODTIMES
 ////////////////////////////////////////////////////////////////////
 //
 // BOSS KEY
@@ -748,59 +747,41 @@ CP_ReadThis (int)
 void
 BossKey (void)
 {
-#ifdef NOTYET
-    byte palette1[256][3];
-    SD_MusicOff ();
-/*       _AX = 3;
-        geninterrupt(0x10); */
-    _asm
+    const char *prompt[] = {"C:\\>", "C:\\>_"};
+    int i = 0;
+
+    int lastoffs = StopMusic();
+    int32_t lastBlinkTime = GetTimeCount();
+
+    // [FG] instant fade-in to cleared screen
+    VWB_Bar(0, 0, 320, 200, 0);
+    VL_FadeIn(0, 255, gamepal, 1);
+
+    fontnumber = 0;
+    SETFONTCOLOR(15, 0);
+
+    do
     {
-    mov eax, 3 int 0x10}
-    puts ("C>");
-    SetTextCursor (2, 0);
-//      while (!Keyboard[sc_Escape])
-    IN_Ack ();
+        // [FG] clear screen
+        VWB_Bar (0, 0, 320, 200, 0);
+
+        // [FG] print DOS prompt line with blinking cursor
+        if ((int32_t)GetTimeCount() - lastBlinkTime > 20)
+        {
+            lastBlinkTime = GetTimeCount();
+            i ^= 1;
+        }
+        PrintX = PrintY = 0;
+        US_Print(prompt[i]);
+
+        VW_UpdateScreen();
+        TicDelay(20);
+    } while (!(IN_KeyDown(sc_Escape) || IN_KeyDown(sc_Control) || IN_KeyDown(sc_Alt)));
+
     IN_ClearKeysDown ();
 
-    SD_MusicOn ();
-    VL_SetVGAPlaneMode ();
-    for (int i = 0; i < 768; i++)
-        palette1[0][i] = 0;
-
-    VL_SetPalette (&palette1[0][0]);
-    LoadLatchMem ();
-#endif
+    ContinueMusic(lastoffs);
 }
-#else
-#ifdef SPEAR
-void
-BossKey (void)
-{
-#ifdef NOTYET
-    byte palette1[256][3];
-    SD_MusicOff ();
-/*       _AX = 3;
-        geninterrupt(0x10); */
-    _asm
-    {
-    mov eax, 3 int 0x10}
-    puts ("C>");
-    SetTextCursor (2, 0);
-//      while (!Keyboard[sc_Escape])
-    IN_Ack ();
-    IN_ClearKeysDown ();
-
-    SD_MusicOn ();
-    VL_SetVGAPlaneMode ();
-    for (int i = 0; i < 768; i++)
-        palette1[0][i] = 0;
-
-    VL_SetPalette (&palette1[0][0]);
-    LoadLatchMem ();
-#endif
-}
-#endif
-#endif
 
 
 ////////////////////////////////////////////////////////////////////

@@ -80,6 +80,7 @@ char    configname[13] = "config.";
 //
 boolean param_debugmode = false;
 boolean param_nowait = false;
+boolean param_demotest = false;
 int     param_difficulty = 1;           // default is "normal"
 int     param_tedlevel = -1;            // default is not to start a level
 int     param_joystickindex = 0;
@@ -1571,7 +1572,8 @@ static void DemoLoop()
 // main game cycle
 //
 
-#ifndef DEMOTEST
+if (!param_demotest)
+{
 
     #ifndef UPLOAD
 
@@ -1600,7 +1602,7 @@ static void DemoLoop()
         PG13 ();
 #endif
 
-#endif
+}
 
     while (1)
     {
@@ -1609,7 +1611,8 @@ static void DemoLoop()
 //
 // title page
 //
-#ifndef DEMOTEST
+if (!param_demotest)
+{
 
 #ifdef SPEAR
             SDL_Color pal[256];
@@ -1653,7 +1656,7 @@ static void DemoLoop()
 
             if (IN_UserInput(TickBase*10))
                 break;
-#endif
+}
 //
 // demo
 //
@@ -1725,6 +1728,8 @@ void CheckParameters(int argc, char *argv[])
             param_difficulty = 3;
         else IFARG("--nowait")
             param_nowait = true;
+        else IFARG("--demotest")
+            param_demotest = true;
         else IFARG("--tedlevel")
         {
             if(++i >= argc)
@@ -1920,6 +1925,7 @@ void CheckParameters(int argc, char *argv[])
             " --normal               Sets the difficulty to normal for tedlevel\n"
             " --hard                 Sets the difficulty to hard for tedlevel\n"
             " --nowait               Skips intro screens\n"
+            " --demotest             Skips right into the demo loop\n"
             " --windowed[-mouse]     Starts the game in a window [and grabs mouse]\n"
             " --res <width> <height> Sets the screen resolution\n"
             "                        (must be multiple of 320x200 or 320x240)\n"
