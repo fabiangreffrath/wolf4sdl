@@ -747,15 +747,15 @@ CP_ReadThis (int)
 void
 BossKey (void)
 {
-    const char *prompt[] = {"C:\\>", "C:\\>_", "C:\\>\n"};
-    int i = 0, j = 0;
+    const char *prompt[] = {"C:\\>", "C:\\>_"};
+    int i = 0;
 
     int lastoffs = StopMusic();
     int32_t lastBlinkTime = GetTimeCount();
 
-    // [FG] clear screen
+    // [FG] instant fade-in to cleared screen
     VWB_Bar(0, 0, 320, 200, 0);
-    VW_UpdateScreen();
+    VL_FadeIn(0, 255, gamepal, 1);
 
     fontnumber = 0;
     SETFONTCOLOR(15, 0);
@@ -765,30 +765,17 @@ BossKey (void)
         // [FG] clear screen
         VWB_Bar (0, 0, 320, 200, 0);
 
-        // [FG] print more DOS prompt lines
-        PrintX = PrintY = 0;
-        for (int k = 0; k < j; k++)
-        {
-            US_Print(prompt[2]);
-            PrintX = 0;
-        }
-
-        // [FG] print last DOS prompt line with blinking cursor
-        if ((int32_t)GetTimeCount() - lastBlinkTime > 15)
+        // [FG] print DOS prompt line with blinking cursor
+        if ((int32_t)GetTimeCount() - lastBlinkTime > 20)
         {
             lastBlinkTime = GetTimeCount();
             i ^= 1;
         }
+        PrintX = PrintY = 0;
         US_Print(prompt[i]);
+
         VW_UpdateScreen();
         TicDelay(20);
-
-        // [FG] print one more DOS prompt line
-        if (IN_KeyDown(sc_Enter))
-        {
-            if (j < 19) j++;
-            IN_ClearKeysDown ();
-        }
     } while (!(IN_KeyDown(sc_Escape) || IN_KeyDown(sc_Control) || IN_KeyDown(sc_Alt)));
 
     IN_ClearKeysDown ();
