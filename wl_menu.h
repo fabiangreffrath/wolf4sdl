@@ -226,6 +226,8 @@ enum menuitems
         quit
 };
 
+extern bool menuactive;
+
 //
 // WL_INTER
 //

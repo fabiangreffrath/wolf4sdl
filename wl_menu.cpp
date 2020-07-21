@@ -452,6 +452,8 @@ void US_SetScanNames()
 
 #endif
 
+bool menuactive;
+
 ////////////////////////////////////////////////////////////////////
 //
 // Wolfenstein Control Panel!  Ta Da!
@@ -3261,6 +3263,8 @@ SetupControlPanel (void)
         CA_LoadAllSounds ();
     else
         MainMenu[savegame].active = 1;
+
+    menuactive = true;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -3325,6 +3329,8 @@ CleanupControlPanel (void)
 #endif
 
     fontnumber = 0;
+
+    menuactive = false;
 }
 
 

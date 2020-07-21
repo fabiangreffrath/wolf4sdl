@@ -149,12 +149,12 @@ static boolean MouseShouldBeGrabbed(void)
 */
    // when menu is active or game is paused, release the mouse
 
-   if (Paused)
+   if (Paused || menuactive)
       return false;
 
    // only grab mouse when playing levels (but not demos)
 
-   return (/* TODO: detect menu active*/) && !demoplayback;
+   return ingame && !demoplayback;
 }
 
 static void SetShowCursor(boolean show)
