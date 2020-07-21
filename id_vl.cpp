@@ -169,8 +169,6 @@ void	VL_SetVGAPlaneMode (void)
     }
     SDL_FillRect(screen, NULL, 0);
 
-    SDL_ShowCursor(SDL_DISABLE);
-
     memcpy(curpal, gamepal, sizeof(SDL_Color) * 256);
 
     // [FG] create paletted frame buffer
