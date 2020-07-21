@@ -339,12 +339,7 @@ void PollMouseMove (void)
 {
     int mousexmove, mouseymove;
 
-    SDL_GetMouseState(&mousexmove, &mouseymove);
-    if(IN_IsInputGrabbed())
-        IN_CenterMouse();
-
-    mousexmove -= screenWidth / 2;
-    mouseymove -= screenHeight / 2;
+    SDL_GetRelativeMouseState(&mousexmove, &mouseymove);
 
     // [FG] no sensitivity means no movement
     if (mouseadjustment)
@@ -457,7 +452,7 @@ void PollControls (void)
 //
     PollKeyboardButtons ();
 
-    if (mouseenabled && IN_IsInputGrabbed())
+    if (mouseenabled)
         PollMouseButtons ();
 
     if (joystickenabled)
@@ -468,7 +463,7 @@ void PollControls (void)
 //
     PollKeyboardMove ();
 
-    if (mouseenabled && IN_IsInputGrabbed())
+    if (mouseenabled)
         PollMouseMove ();
 
     if (joystickenabled)
@@ -675,8 +670,6 @@ void CheckKeys (void)
         IN_Ack ();
         Paused = false;
         ContinueMusic(lastoffs);
-        if (MousePresent && IN_IsInputGrabbed())
-            IN_CenterMouse();     // Clear accumulated mouse movement
         lasttimecount = GetTimeCount();
         return;
     }
@@ -719,8 +712,6 @@ void CheckKeys (void)
         if (loadedgame)
             playstate = ex_abort;
         lasttimecount = GetTimeCount();
-        if (MousePresent && IN_IsInputGrabbed())
-            IN_CenterMouse();     // Clear accumulated mouse movement
         return;
     }
 
@@ -735,9 +726,6 @@ void CheckKeys (void)
         SETFONTCOLOR (0, 15);
         if (DebugKeys () && viewsize < 20)
             DrawPlayBorder ();       // dont let the blue borders flash
-
-        if (MousePresent && IN_IsInputGrabbed())
-            IN_CenterMouse();     // Clear accumulated mouse movement
 
         lasttimecount = GetTimeCount();
         return;
@@ -1278,9 +1266,6 @@ void PlayLoop (void)
     funnyticount = 0;
     memset (buttonstate, 0, sizeof (buttonstate));
     ClearPaletteShifts ();
-
-    if (MousePresent && IN_IsInputGrabbed())
-        IN_CenterMouse();         // Clear accumulated mouse movement
 
     if (demoplayback)
         IN_StartAck ();

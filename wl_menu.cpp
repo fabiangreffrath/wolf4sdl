@@ -864,9 +864,6 @@ CP_CheckQuick (ScanCode scancode)
                     playstate = ex_abort;
                 lasttimecount = GetTimeCount ();
 
-                if (MousePresent && IN_IsInputGrabbed())
-                    IN_CenterMouse();     // Clear accumulated mouse movement
-
 #ifndef SPEAR
                 UNCACHEGRCHUNK (C_CURSOR1PIC);
                 UNCACHEGRCHUNK (C_CURSOR2PIC);
@@ -935,9 +932,6 @@ CP_CheckQuick (ScanCode scancode)
                     playstate = ex_abort;
 
                 lasttimecount = GetTimeCount ();
-
-                if (MousePresent && IN_IsInputGrabbed())
-                    IN_CenterMouse();     // Clear accumulated mouse movement
 
 #ifndef SPEAR
                 UNCACHEGRCHUNK (C_CURSOR1PIC);
@@ -1904,8 +1898,6 @@ CP_Control (int)
         {
             case CTL_MOUSEENABLE:
                 mouseenabled ^= 1;
-                if(IN_IsInputGrabbed())
-                    IN_CenterMouse();
                 DrawCtlScreen ();
                 CusItems.curpos = -1;
                 ShootSnd ();
@@ -3269,12 +3261,6 @@ SetupControlPanel (void)
         CA_LoadAllSounds ();
     else
         MainMenu[savegame].active = 1;
-
-    //
-    // CENTER MOUSE
-    //
-    if(IN_IsInputGrabbed())
-        IN_CenterMouse();
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -3743,40 +3729,37 @@ ReadAnyControl (ControlInfo * ci)
 
     IN_ReadControl (0, ci);
 
-    if (mouseenabled && IN_IsInputGrabbed())
+    if (mouseenabled)
     {
         int mousex, mousey, buttons;
-        buttons = SDL_GetMouseState(&mousex, &mousey);
+        buttons = SDL_GetRelativeMouseState(&mousex, &mousey);
         int middlePressed = buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE);
         int rightPressed = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
         buttons &= ~(SDL_BUTTON(SDL_BUTTON_MIDDLE) | SDL_BUTTON(SDL_BUTTON_RIGHT));
         if(middlePressed) buttons |= 1 << 2;
         if(rightPressed) buttons |= 1 << 1;
 
-        if(mousey - CENTERY < -SENSITIVE)
+        if(mousey < -SENSITIVE)
         {
             ci->dir = dir_North;
             mouseactive = 1;
         }
-        else if(mousey - CENTERY > SENSITIVE)
+        else if(mousey  > SENSITIVE)
         {
             ci->dir = dir_South;
             mouseactive = 1;
         }
 
-        if(mousex - CENTERX < -SENSITIVE)
+        if(mousex < -SENSITIVE)
         {
             ci->dir = dir_West;
             mouseactive = 1;
         }
-        else if(mousex - CENTERX > SENSITIVE)
+        else if(mousex > SENSITIVE)
         {
             ci->dir = dir_East;
             mouseactive = 1;
         }
-
-        if(mouseactive)
-            IN_CenterMouse();
 
         if (buttons)
         {

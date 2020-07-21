@@ -118,7 +118,6 @@ Wolf4SDL supports the following command line options:
  --normal               Sets the difficulty to normal for tedlevel
  --hard                 Sets the difficulty to hard for tedlevel
  --nowait               Skips intro screens
- --windowed[-mouse]     Starts the game in a window [and grabs mouse]
  --res <width> <height> Sets the screen resolution
                         (must be multiple of 320x200 or 320x240)
  --resf <w> <h>         Sets any screen resolution >= 320x200
