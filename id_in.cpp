@@ -392,7 +392,7 @@ static void HandleWindowEvent(SDL_WindowEvent *event)
         case SDL_WINDOWEVENT_RESIZED:
             if (!fullscreen)
             {
-                SDL_GetWindowSize(window, (int *) &screenWidth, (int *) &screenHeight);
+//              SDL_GetWindowSize(window, (int *) &screenWidth, (int *) &screenHeight);
             }
             break;
 
