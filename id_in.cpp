@@ -33,6 +33,7 @@
 // configuration variables
 //
 boolean MousePresent;
+boolean grabmouse = true;
 
 // There's no SDLK_LAST anymore. If your program had a lookup table of
 // SDLK_LAST elements, to map between SDL keys and whatever your
@@ -142,12 +143,12 @@ static boolean MouseShouldBeGrabbed(void)
 
    if (fullscreen)
       return true;
-/*
+
    // if we specify not to grab the mouse, never grab
 
    if (!grabmouse)
       return false;
-*/
+
    // when menu is active or game is paused, release the mouse
 
    if (Paused || menuactive)
@@ -196,7 +197,7 @@ void IN_UpdateGrab(void)
       SDL_GetRelativeMouseState(NULL, NULL);
    }
 
-   currently_grabbed = grab;   
+   currently_grabbed = grab;
 }
 
 static unsigned int mouse_button_state = 0;

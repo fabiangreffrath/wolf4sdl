@@ -1741,6 +1741,8 @@ void CheckParameters(int argc, char *argv[])
         }
         else IFARG("--windowed")
             fullscreen = false;
+        else IFARG("--nograbmouse")
+            grabmouse = false;
         else IFARG("--res")
         {
             if(i + 2 >= argc)
@@ -1921,6 +1923,8 @@ void CheckParameters(int argc, char *argv[])
             " --hard                 Sets the difficulty to hard for tedlevel\n"
             " --nowait               Skips intro screens\n"
             " --demotest             Skips right into the demo loop\n"
+            " --windowed             Starts the game in a window\n"
+            " --nograbmouse          Does not grab the mouse in windowed mode\n"
             " --res <width> <height> Sets the screen resolution\n"
             "                        (must be multiple of 320x200 or 320x240)\n"
             " --resf <w> <h>         Sets any screen resolution >= 320x200\n"
