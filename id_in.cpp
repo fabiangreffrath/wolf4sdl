@@ -246,8 +246,6 @@ static void MapMouseWheelToButtons(SDL_MouseWheelEvent *wheel)
 
     int button;
 
-    mouse_button_state &= ~((1 << 3) | (1 << 4));
-
     if (wheel->y <= 0)
     {   // scroll down
         button = 4;
@@ -284,7 +282,12 @@ static void I_HandleMouseEvent(SDL_Event *sdlevent)
 static int
 INL_GetMouseButtons(void)
 {
-    return mouse_button_state;
+    int buttons = mouse_button_state;
+
+    // [FG] clear out mouse wheel "buttons" once reported
+    mouse_button_state &= ~((1 << 3) | (1 << 4));
+
+    return buttons;
 }
 
 ///////////////////////////////////////////////////////////////////////////
