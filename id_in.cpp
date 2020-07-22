@@ -128,6 +128,7 @@ static	Direction	DirTable[] =		// Quick lookup for total direction
 
 static boolean screenvisible;
 static boolean window_focused;
+static int window_w, window_h;
 
 static boolean MouseShouldBeGrabbed(void)
 {
@@ -392,7 +393,7 @@ static void HandleWindowEvent(SDL_WindowEvent *event)
         case SDL_WINDOWEVENT_RESIZED:
             if (!fullscreen)
             {
-//              SDL_GetWindowSize(window, (int *) &screenWidth, (int *) &screenHeight);
+                SDL_GetWindowSize(window, &window_w, &window_h);
             }
             break;
 
@@ -444,7 +445,7 @@ static void I_ToggleFullScreen(void)
 
     if (fullscreen)
     {
-        SDL_GetWindowSize(window, (int *) &screenWidth, (int *) &screenHeight);
+        SDL_GetWindowSize(window, &window_w, &window_h);
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
@@ -452,7 +453,12 @@ static void I_ToggleFullScreen(void)
 
     if (!fullscreen)
     {
-        SDL_SetWindowSize(window, screenWidth, screenHeight);
+        if (!window_w || !window_h)
+        {
+            window_w = screenWidth;
+            window_h = screenHeight;
+        }
+        SDL_SetWindowSize(window, window_w, window_h);
     }
 }
 
