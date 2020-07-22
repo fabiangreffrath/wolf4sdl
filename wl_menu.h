@@ -226,7 +226,7 @@ enum menuitems
         quit
 };
 
-extern bool menuactive;
+extern bool menuactive; // [FG] true if menu is active
 
 //
 // WL_INTER

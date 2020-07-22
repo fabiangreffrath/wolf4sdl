@@ -452,7 +452,7 @@ void US_SetScanNames()
 
 #endif
 
-bool menuactive;
+bool menuactive; // [FG] true if menu is active
 
 ////////////////////////////////////////////////////////////////////
 //
