@@ -15,7 +15,7 @@
 #define assert_ret(x) assert(x)
 #endif
 
-boolean fullscreen = true;
+boolean fullscreen = false;
 #if defined(_arch_dreamcast)
 boolean usedoublebuffering = false;
 unsigned screenWidth = 320;
