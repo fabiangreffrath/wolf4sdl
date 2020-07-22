@@ -429,6 +429,8 @@ static void HandleWindowEvent(SDL_WindowEvent *event)
         default:
             break;
     }
+
+    IN_UpdateGrab();
 }
 
 static boolean ToggleFullScreenKeyShortcut(SDL_Keysym *sym)

@@ -3265,6 +3265,7 @@ SetupControlPanel (void)
         MainMenu[savegame].active = 1;
 
     menuactive = true;
+    IN_UpdateGrab();
 }
 
 ////////////////////////////////////////////////////////////////////

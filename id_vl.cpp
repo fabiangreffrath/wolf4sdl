@@ -296,8 +296,6 @@ void VL_GetColor	(int color, int *red, int *green, int *blue)
 // IOANCH: major thanks to http://sandervanderburg.blogspot.ro/2014/05/rendering-8-bit-palettized-surfaces-in.html
 void VL_Flip()
 {
-   IN_UpdateGrab();
-
    SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
 
    SDL_RenderClear(renderer);

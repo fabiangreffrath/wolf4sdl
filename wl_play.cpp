@@ -664,6 +664,7 @@ void CheckKeys (void)
     if(buttonstate[bt_pause]) Paused = true;
     if(Paused)
     {
+        IN_UpdateGrab();
         int lastoffs = StopMusic();
         LatchDrawPic (20 - 4, 80 - 2 * 8, PAUSEDPIC);
         VH_UpdateScreen();
@@ -1310,6 +1311,7 @@ void PlayLoop (void)
             VW_FadeIn ();
 
         CheckKeys ();
+        IN_UpdateGrab();
 
 //
 // debug aids
