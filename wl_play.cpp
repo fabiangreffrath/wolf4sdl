@@ -339,12 +339,7 @@ void PollMouseMove (void)
 {
     int mousexmove, mouseymove;
 
-    SDL_GetMouseState(&mousexmove, &mouseymove);
-    if(IN_IsInputGrabbed())
-        IN_CenterMouse();
-
-    mousexmove -= screenWidth / 2;
-    mouseymove -= screenHeight / 2;
+    SDL_GetRelativeMouseState(&mousexmove, &mouseymove);
 
     // [FG] no sensitivity means no movement
     if (mouseadjustment)
@@ -457,7 +452,7 @@ void PollControls (void)
 //
     PollKeyboardButtons ();
 
-    if (mouseenabled && IN_IsInputGrabbed())
+    if (mouseenabled)
         PollMouseButtons ();
 
     if (joystickenabled)
@@ -468,7 +463,7 @@ void PollControls (void)
 //
     PollKeyboardMove ();
 
-    if (mouseenabled && IN_IsInputGrabbed())
+    if (mouseenabled)
         PollMouseMove ();
 
     if (joystickenabled)
@@ -669,14 +664,13 @@ void CheckKeys (void)
     if(buttonstate[bt_pause]) Paused = true;
     if(Paused)
     {
+        IN_UpdateGrab();
         int lastoffs = StopMusic();
         LatchDrawPic (20 - 4, 80 - 2 * 8, PAUSEDPIC);
         VH_UpdateScreen();
         IN_Ack ();
         Paused = false;
         ContinueMusic(lastoffs);
-        if (MousePresent && IN_IsInputGrabbed())
-            IN_CenterMouse();     // Clear accumulated mouse movement
         lasttimecount = GetTimeCount();
         return;
     }
@@ -719,8 +713,6 @@ void CheckKeys (void)
         if (loadedgame)
             playstate = ex_abort;
         lasttimecount = GetTimeCount();
-        if (MousePresent && IN_IsInputGrabbed())
-            IN_CenterMouse();     // Clear accumulated mouse movement
         return;
     }
 
@@ -735,9 +727,6 @@ void CheckKeys (void)
         SETFONTCOLOR (0, 15);
         if (DebugKeys () && viewsize < 20)
             DrawPlayBorder ();       // dont let the blue borders flash
-
-        if (MousePresent && IN_IsInputGrabbed())
-            IN_CenterMouse();     // Clear accumulated mouse movement
 
         lasttimecount = GetTimeCount();
         return;
@@ -1279,9 +1268,6 @@ void PlayLoop (void)
     memset (buttonstate, 0, sizeof (buttonstate));
     ClearPaletteShifts ();
 
-    if (MousePresent && IN_IsInputGrabbed())
-        IN_CenterMouse();         // Clear accumulated mouse movement
-
     if (demoplayback)
         IN_StartAck ();
 
@@ -1325,6 +1311,7 @@ void PlayLoop (void)
             VW_FadeIn ();
 
         CheckKeys ();
+        IN_UpdateGrab();
 
 //
 // debug aids

@@ -103,9 +103,6 @@ according data files version as the differences are hardcoded into the binary!
 On Windows SDL.dll and SDL_mixer.dll must also be copied into this directory.
 They are also available at http://www.chaos-software.de.vu
 
-If you play in windowed mode (--windowed parameter), press SCROLLLOCK or F12
-to grab the mouse. Press it again to release the mouse.
-
 
 Usage:
 ------
@@ -118,7 +115,8 @@ Wolf4SDL supports the following command line options:
  --normal               Sets the difficulty to normal for tedlevel
  --hard                 Sets the difficulty to hard for tedlevel
  --nowait               Skips intro screens
- --windowed[-mouse]     Starts the game in a window [and grabs mouse]
+ --fullscreen           Starts the game in fullscreen mode
+ --nograbmouse          Does not grab the mouse in windowed mode
  --res <width> <height> Sets the screen resolution
                         (must be multiple of 320x200 or 320x240)
  --resf <w> <h>         Sets any screen resolution >= 320x200

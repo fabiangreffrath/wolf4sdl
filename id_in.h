@@ -142,7 +142,7 @@ extern  volatile boolean    Paused;
 extern  volatile char       LastASCII;
 extern           ScanCode   LastScan;
 extern           int        JoyNumButtons;
-extern           boolean    forcegrabmouse;
+extern           boolean    grabmouse;
 
 
 // Function prototypes
@@ -178,7 +178,6 @@ void    IN_GetJoyFineDelta(int *dx, int *dy);
 
 void    IN_StartAck(void);
 boolean IN_CheckAck (void);
-bool    IN_IsInputGrabbed();
-void    IN_CenterMouse();
+void    IN_UpdateGrab(void);
 
 #endif

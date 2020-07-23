@@ -15,7 +15,7 @@
 #define assert_ret(x) assert(x)
 #endif
 
-boolean fullscreen = true;
+boolean fullscreen = false;
 #if defined(_arch_dreamcast)
 boolean usedoublebuffering = false;
 unsigned screenWidth = 320;
@@ -168,8 +168,6 @@ void	VL_SetVGAPlaneMode (void)
         exit(1);
     }
     SDL_FillRect(screen, NULL, 0);
-
-    SDL_ShowCursor(SDL_DISABLE);
 
     memcpy(curpal, gamepal, sizeof(SDL_Color) * 256);
 

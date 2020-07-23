@@ -33,7 +33,7 @@
 // configuration variables
 //
 boolean MousePresent;
-boolean forcegrabmouse;
+boolean grabmouse = true;
 
 // There's no SDLK_LAST anymore. If your program had a lookup table of
 // SDLK_LAST elements, to map between SDL keys and whatever your
@@ -64,9 +64,6 @@ static KeyboardDef KbdDefs = {
 static SDL_Joystick *Joystick;
 int JoyNumButtons;
 static int JoyNumHats;
-
-static bool GrabInput = false;
-static bool NeedRestore = false;
 
 /*
 =============================================================================
@@ -129,15 +126,166 @@ static	Direction	DirTable[] =		// Quick lookup for total direction
 //		mouse driver
 //
 ///////////////////////////////////////////////////////////////////////////
+
+static boolean screenvisible;
+static boolean window_focused;
+static int window_w, window_h;
+
+static boolean MouseShouldBeGrabbed(void)
+{
+   // if the window doesnt have focus, never grab it
+
+   if (!window_focused)
+      return false;
+
+   // always grab the mouse when full screen (dont want to
+   // see the mouse pointer)
+
+   if (fullscreen)
+      return true;
+
+   // if we specify not to grab the mouse, never grab
+
+   if (!grabmouse)
+      return false;
+
+   // when menu is active or game is paused, release the mouse
+
+   if (Paused || menuactive)
+      return false;
+
+   // only grab mouse when playing levels (but not demos)
+
+   return ingame && !demoplayback;
+}
+
+static void SetShowCursor(boolean show)
+{
+   // When the cursor is hidden, grab the input.
+   // Relative mode implicitly hides the cursor.
+
+   SDL_SetRelativeMouseMode(show ? SDL_FALSE : SDL_TRUE);
+   SDL_GetRelativeMouseState(NULL, NULL);
+}
+
+void IN_UpdateGrab(void)
+{
+   static boolean currently_grabbed = false;
+   boolean grab;
+
+   grab = MouseShouldBeGrabbed();
+
+   if (grab && !currently_grabbed)
+   {
+      SetShowCursor(false);
+   }
+
+   if (!grab && currently_grabbed)
+   {
+      int screen_w, screen_h;
+
+      SetShowCursor(true);
+
+      // When releasing the mouse from grab, warp the mouse cursor to
+      // the bottom-right of the screen. This is a minimally distracting
+      // place for it to appear - we may only have released the grab
+      // because we're at an end of level intermission screen, for
+      // example.
+
+      SDL_GetWindowSize(window, &screen_w, &screen_h);
+      SDL_WarpMouseInWindow(window, screen_w - 16, screen_h - 16);
+      SDL_GetRelativeMouseState(NULL, NULL);
+   }
+
+   currently_grabbed = grab;
+}
+
+static unsigned int mouse_button_state = 0;
+
+static void UpdateMouseButtonState(unsigned int button, boolean on)
+{
+    // Note: button "0" is left, button "1" is right,
+    // button "2" is middle for Doom.  This is different
+    // to how SDL sees things.
+
+    switch (button)
+    {
+        case SDL_BUTTON_LEFT:
+            button = 0;
+            break;
+
+        case SDL_BUTTON_RIGHT:
+            button = 1;
+            break;
+
+        case SDL_BUTTON_MIDDLE:
+            button = 2;
+            break;
+
+        default:
+            return;
+    }
+
+    // Turn bit representing this button on or off.
+
+    if (on)
+    {
+        mouse_button_state |= (1 << button);
+    }
+    else
+    {
+        mouse_button_state &= ~(1 << button);
+    }
+}
+
+static void MapMouseWheelToButtons(SDL_MouseWheelEvent *wheel)
+{
+    // SDL2 distinguishes button events from mouse wheel events.
+    // We want to treat the mouse wheel as two buttons, as per
+    // SDL1
+
+    int button;
+
+    if (wheel->y <= 0)
+    {   // scroll down
+        button = 4;
+    }
+    else
+    {   // scroll up
+        button = 3;
+    }
+
+    mouse_button_state |= (1 << button);
+}
+
+static void I_HandleMouseEvent(SDL_Event *sdlevent)
+{
+    switch (sdlevent->type)
+    {
+        case SDL_MOUSEBUTTONDOWN:
+            UpdateMouseButtonState(sdlevent->button.button, true);
+            break;
+
+        case SDL_MOUSEBUTTONUP:
+            UpdateMouseButtonState(sdlevent->button.button, false);
+            break;
+
+        case SDL_MOUSEWHEEL:
+            MapMouseWheelToButtons(&(sdlevent->wheel));
+            break;
+
+        default:
+            break;
+    }
+}
+
 static int
 INL_GetMouseButtons(void)
 {
-    int buttons = SDL_GetMouseState(NULL, NULL);
-    int middlePressed = buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE);
-    int rightPressed = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
-    buttons &= ~(SDL_BUTTON(SDL_BUTTON_MIDDLE) | SDL_BUTTON(SDL_BUTTON_RIGHT));
-    if(middlePressed) buttons |= 1 << 2;
-    if(rightPressed) buttons |= 1 << 1;
+    int buttons = mouse_button_state;
+
+    // [FG] clear out mouse wheel "buttons" once reported
+    mouse_button_state &= ~((1 << 3) | (1 << 4));
 
     return buttons;
 }
@@ -242,6 +390,49 @@ boolean IN_JoyPresent()
     return Joystick != NULL;
 }
 
+static void HandleWindowEvent(SDL_WindowEvent *event)
+{
+    switch (event->event)
+    {
+        case SDL_WINDOWEVENT_RESIZED:
+            if (!fullscreen)
+            {
+                SDL_GetWindowSize(window, &window_w, &window_h);
+            }
+            break;
+
+        // Don't render the screen when the window is minimized:
+
+        case SDL_WINDOWEVENT_MINIMIZED:
+            screenvisible = false;
+            break;
+
+        case SDL_WINDOWEVENT_MAXIMIZED:
+        case SDL_WINDOWEVENT_RESTORED:
+            screenvisible = true;
+            break;
+
+        // Update the value of window_focused when we get a focus event
+        //
+        // We try to make ourselves be well-behaved: the grab on the mouse
+        // is removed if we lose focus (such as a popup window appearing),
+        // and we dont move the mouse around if we aren't focused either.
+
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+            window_focused = true;
+            break;
+
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+            window_focused = false;
+            break;
+
+        default:
+            break;
+    }
+
+    IN_UpdateGrab();
+}
+
 static boolean ToggleFullScreenKeyShortcut(SDL_Keysym *sym)
 {
     Uint16 flags = (KMOD_LALT | KMOD_RALT);
@@ -260,18 +451,20 @@ static void I_ToggleFullScreen(void)
 
     if (fullscreen)
     {
-        SDL_GetWindowSize(window, (int *) &screenWidth, (int *) &screenHeight);
+        SDL_GetWindowSize(window, &window_w, &window_h);
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        GrabInput = true;
-        SDL_SetWindowGrab(window, SDL_TRUE);
     }
 
     SDL_SetWindowFullscreen(window, flags);
 
     if (!fullscreen)
     {
-        SDL_SetWindowSize(window, screenWidth, screenHeight);
-        SDL_SetWindowGrab(window, GrabInput ? SDL_TRUE : SDL_FALSE);
+        if (!window_w || !window_h)
+        {
+            window_w = screenWidth;
+            window_h = screenHeight;
+        }
+        SDL_SetWindowSize(window, window_w, window_h);
     }
 }
 
@@ -289,13 +482,6 @@ static void processEvent(SDL_Event *event)
             if (ToggleFullScreenKeyShortcut(&event->key.keysym))
             {
                 I_ToggleFullScreen();
-                return;
-            }
-
-            if(event->key.keysym.sym==SDLK_SCROLLLOCK || event->key.keysym.sym==SDLK_F12)
-            {
-                GrabInput = fullscreen || !GrabInput;
-                SDL_SetWindowGrab(window, GrabInput ? SDL_TRUE : SDL_FALSE);
                 return;
             }
 
@@ -370,27 +556,21 @@ static void processEvent(SDL_Event *event)
             break;
         }
 
-        case SDL_WINDOWEVENT:
-        {
-            if(fullscreen)
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEWHEEL:
+            if (MousePresent && window_focused)
             {
-                if(event->window.event == SDL_WINDOWEVENT_RESTORED)
-                {
-                    if(NeedRestore)
-                    {
-                        FreeLatchMem();
-                        LoadLatchMem();
-                    }
-
-                    NeedRestore = false;
-                }
-                else
-                if(event->window.event == SDL_WINDOWEVENT_MINIMIZED)
-                {
-                    NeedRestore = true;
-                }
+                I_HandleMouseEvent(event);
             }
-        }
+            break;
+
+        case SDL_WINDOWEVENT:
+            if (event->window.windowID == SDL_GetWindowID(window))
+            {
+                HandleWindowEvent(&event->window);
+            }
+            break;
 
 #if defined(GP2X)
         case SDL_JOYBUTTONDOWN:
@@ -450,15 +630,10 @@ IN_Startup(void)
             if(param_joystickhat < -1 || param_joystickhat >= JoyNumHats)
                 Quit("The joystickhat param must be between 0 and %i!", JoyNumHats - 1);
         }
+        SDL_JoystickEventState(SDL_ENABLE);
     }
 
-    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-
-    if(fullscreen || forcegrabmouse)
-    {
-        GrabInput = true;
-        SDL_SetWindowGrab(window, SDL_TRUE);
-    }
+    IN_UpdateGrab();
 
     // I didn't find a way to ask libSDL whether a mouse is present, yet...
 #if defined(GP2X)
@@ -720,14 +895,4 @@ int IN_MouseButtons (void)
 		return INL_GetMouseButtons();
 	else
 		return 0;
-}
-
-bool IN_IsInputGrabbed()
-{
-    return GrabInput;
-}
-
-void IN_CenterMouse()
-{
-    SDL_WarpMouseInWindow(window, screenWidth / 2, screenHeight / 2);
 }
