@@ -85,15 +85,9 @@ int     param_difficulty = 1;           // default is "normal"
 int     param_tedlevel = -1;            // default is not to start a level
 int     param_joystickindex = 0;
 
-#if defined(GP2X_940)
-int     param_joystickhat = -1;
-longword param_samplerate = 11025;       // higher samplerates result in "out of memory"
-int     param_audiobuffer = 128;
-#else
 int     param_joystickhat = -1;
 longword param_samplerate = 44100;
 int     param_audiobuffer = 2048 / (44100 / param_samplerate);
-#endif
 
 int     param_mission = 0;
 boolean param_goodtimes = false;
@@ -693,9 +687,6 @@ void ShutdownId (void)
     IN_Shutdown ();
     VW_Shutdown ();
     CA_Shutdown ();
-#if defined(GP2X_940)
-    GP2X_Shutdown();
-#endif
 }
 
 
@@ -1237,10 +1228,6 @@ static void InitGame()
             printf("The joystick index must be between -1 and %i!\n", numJoysticks - 1);
         exit(1);
     }
-
-#if defined(GP2X_940)
-    GP2X_MemoryInit();
-#endif
 
     SignonScreen ();
 

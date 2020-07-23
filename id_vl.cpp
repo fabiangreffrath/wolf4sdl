@@ -16,19 +16,9 @@
 #endif
 
 boolean fullscreen = false;
-#if defined(GP2X)
-unsigned screenWidth = 320;
-unsigned screenHeight = 240;
-#if defined(GP2X_940)
-int screenBits = 8;
-#else
-int screenBits = 16;
-#endif
-#else
 unsigned screenWidth = 640;
 unsigned screenHeight = 400;
 int screenBits = -1;      // use "best" color depth according to libSDL
-#endif
 
 SDL_Window *window;
 static SDL_Renderer *renderer;

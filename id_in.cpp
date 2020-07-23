@@ -566,16 +566,6 @@ static void processEvent(SDL_Event *event)
                 HandleWindowEvent(&event->window);
             }
             break;
-
-#if defined(GP2X)
-        case SDL_JOYBUTTONDOWN:
-            GP2X_ButtonDown(event->jbutton.button);
-            break;
-
-        case SDL_JOYBUTTONUP:
-            GP2X_ButtonUp(event->jbutton.button);
-            break;
-#endif
     }
 }
 
@@ -631,11 +621,7 @@ IN_Startup(void)
     IN_UpdateGrab();
 
     // I didn't find a way to ask libSDL whether a mouse is present, yet...
-#if defined(GP2X)
-    MousePresent = false;
-#else
     MousePresent = true;
-#endif
 
     IN_Started = true;
 }

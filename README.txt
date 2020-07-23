@@ -150,7 +150,6 @@ The following ways of compiling the source code are supported:
  - Code::Blocks 8.02 (Wolf4SDL.cbp)
  - Dev-C++ 5.0 Beta 9.2 (4.9.9.2) (Wolf4SDL.dev) (see README-devcpp.txt)
  - Xcode (for Mac OS X, macosx/Wolf4SDL.xcodeproj/project.pbxproj)
- - Special compiling for GP2X (see README-GP2X.txt)
 
 To compile the source code you need the development libraries of
  - SDL (http://www.libsdl.org/download-1.2.php) and

@@ -42,13 +42,8 @@
 
 #define PACKED_STRUCT(...) PACKEDPREFIX struct __VA_ARGS__ PACKEDSUFFIX
 
-#if defined(GP2X)
-#define YESBUTTONNAME "Y"
-#define NOBUTTONNAME  "B"
-#else
 #define YESBUTTONNAME "Y"
 #define NOBUTTONNAME  "N"
-#endif
 
 #include "foreign.h"
 
@@ -1301,26 +1296,6 @@ extern  char    helpfilename[],endfilename[];
 
 extern  void    HelpScreens(void);
 extern  void    EndText(void);
-
-
-/*
-=============================================================================
-
-                               GP2X DEFINITIONS
-
-=============================================================================
-*/
-
-#if defined(GP2X)
-
-#if defined(GP2X_940)
-void GP2X_MemoryInit(void);
-void GP2X_Shutdown(void);
-#endif
-void GP2X_ButtonDown(int button);
-void GP2X_ButtonUp(int button);
-
-#endif
 
 
 /*
