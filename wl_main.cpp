@@ -1776,50 +1776,6 @@ void CheckParameters(int argc, char *argv[])
                     printf("Screen height must be at least 200!\n"), hasError = true;
             }
         }
-        else IFARG("--bits")
-        {
-            if(++i >= argc)
-            {
-                printf("The bits option is missing the color depth argument!\n");
-                hasError = true;
-            }
-            else
-            {
-                screenBits = atoi(argv[i]);
-                switch(screenBits)
-                {
-                    case 8:
-                    case 16:
-                    case 24:
-                    case 32:
-                        break;
-
-                    default:
-                        printf("Screen color depth must be 8, 16, 24, or 32!\n");
-                        hasError = true;
-                        break;
-                }
-            }
-        }
-        else IFARG("--nodblbuf")
-            usedoublebuffering = false;
-        else IFARG("--extravbls")
-        {
-            if(++i >= argc)
-            {
-                printf("The extravbls option is missing the vbls argument!\n");
-                hasError = true;
-            }
-            else
-            {
-                extravbls = atoi(argv[i]);
-                if(extravbls < 0)
-                {
-                    printf("Extravbls must be positive!\n");
-                    hasError = true;
-                }
-            }
-        }
         else IFARG("--joystick")
         {
             if(++i >= argc)
@@ -1929,12 +1885,6 @@ void CheckParameters(int argc, char *argv[])
             "                        (must be multiple of 320x200 or 320x240)\n"
             " --resf <w> <h>         Sets any screen resolution >= 320x200\n"
             "                        (which may result in graphic errors)\n"
-            " --bits <b>             Sets the screen color depth\n"
-            "                        (use this when you have palette/fading problems\n"
-            "                        allowed: 8, 16, 24, 32, default: \"best\" depth)\n"
-            " --nodblbuf             Don't use SDL's double buffering\n"
-            " --extravbls <vbls>     Sets a delay after each frame, which may help to\n"
-            "                        reduce flickering (unit is currently 8 ms, default: 0)\n"
             " --joystick <index>     Use the index-th joystick if available\n"
             "                        (-1 to disable joystick, default: 0)\n"
             " --joystickhat <index>  Enables movement with the given coolie hat\n"

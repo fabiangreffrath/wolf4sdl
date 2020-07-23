@@ -17,12 +17,10 @@
 
 boolean fullscreen = false;
 #if defined(_arch_dreamcast)
-boolean usedoublebuffering = false;
 unsigned screenWidth = 320;
 unsigned screenHeight = 200;
 int screenBits = 8;
 #elif defined(GP2X)
-boolean usedoublebuffering = true;
 unsigned screenWidth = 320;
 unsigned screenHeight = 240;
 #if defined(GP2X_940)
@@ -31,7 +29,6 @@ int screenBits = 8;
 int screenBits = 16;
 #endif
 #else
-boolean usedoublebuffering = true;
 unsigned screenWidth = 640;
 unsigned screenHeight = 400;
 int screenBits = -1;      // use "best" color depth according to libSDL
@@ -393,7 +390,6 @@ void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
 			newptr++;
 		}
 
-		if(!usedoublebuffering || screenBits == 8) VL_WaitVBL(1);
 		VL_SetPalette (palette2, true);
 	}
 
@@ -437,7 +433,6 @@ void VL_FadeIn (int start, int end, SDL_Color *palette, int steps)
 			palette2[j].b = palette1[j].b + delta * i / steps;
 		}
 
-		if(!usedoublebuffering || screenBits == 8) VL_WaitVBL(1);
 		VL_SetPalette(palette2, true);
 	}
 

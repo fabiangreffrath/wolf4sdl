@@ -1123,7 +1123,7 @@ void RecordDemo (void)
     SetupGameLevel ();
     StartMusic ();
 
-    if(usedoublebuffering) VH_UpdateScreen();
+    VH_UpdateScreen();
     fizzlein = true;
 
     PlayLoop ();
@@ -1319,7 +1319,7 @@ void Died (void)
     //
     FinishPaletteShifts ();
 
-    if(usedoublebuffering) VH_UpdateScreen();
+    VH_UpdateScreen();
 
     VL_BarScaledCoord (viewscreenx,viewscreeny,viewwidth,viewheight,4);
 
