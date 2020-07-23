@@ -18,7 +18,6 @@ Main features:
        - Linux
        - BSD variants
        - Mac OS X (x86)
-       - KallistiOS (used for Dreamcast)
       Only little endian platforms like x86, ARM and SH-4 are supported, yet.
 
  - AdLib sounds and music:
@@ -121,14 +120,6 @@ Wolf4SDL supports the following command line options:
                         (must be multiple of 320x200 or 320x240)
  --resf <w> <h>         Sets any screen resolution >= 320x200
                         (which may result in graphic errors)
- --bits <b>             Sets the screen color depth
-                        (Use this when you have palette/fading problem
-                        or perhaps to optimize speed on old systems.
-                        Allowed: 8, 16, 24, 32, default: "best" depth)
- --nodblbuf             Don't use SDL's double buffering
- --extravbls <vbls>     Sets a delay after each frame, which may help to
-                        reduce flickering (SDL does not support vsync...)
-                        (unit is currently 8 ms, default: 0)
  --joystick <index>     Use the index-th joystick if available
  --joystickhat <index>  Enables movement with the given coolie hat
  --samplerate <rate>    Sets the sound sample rate (given in Hz)
@@ -148,31 +139,8 @@ For Spear of Destiny the following additional options are available:
 Compiling from source code:
 ---------------------------
 
-The current version of the source code is available in the svn repository at:
-   svn://tron.homeunix.org:3690/wolf3d/trunk
-
 The following ways of compiling the source code are supported:
  - Makefile (for Linux, BSD variants and MinGW/MSYS)
- - Visual C++ 2008 (Wolf4SDL.VC9.sln and Wolf4SDL.VC9.vcproj)
- - Visual C++ 2005 (Wolf4SDL.sln and Wolf4SDL.vcproj)
- - Visual C++ 6 (Wolf4SDL.dsw and Wolf4SDL.dsp)
- - Code::Blocks 8.02 (Wolf4SDL.cbp)
- - Dev-C++ 5.0 Beta 9.2 (4.9.9.2) (Wolf4SDL.dev) (see README-devcpp.txt)
- - Xcode (for Mac OS X, macosx/Wolf4SDL.xcodeproj/project.pbxproj)
- - Special compiling for Dreamcast (see README-dc.txt)
- - Special compiling for GP2X (see README-GP2X.txt)
-
-To compile the source code you need the development libraries of
- - SDL (http://www.libsdl.org/download-1.2.php) and
- - SDL_mixer (http://www.libsdl.org/projects/SDL_mixer/)
-and have to adjust the include and library paths in the projects accordingly.
-
-Please note, that there is no official SDL_mixer development pack for MinGW,
-yet, but you can get the needed files from a Dev-C++ package here:
-http://sourceforge.net/project/showfiles.php?group_id=94270&package_id=151751
-Just rename the file extension from ".devpack" to ".tar.bz2" and unpack it
-with for example WinRAR. Then add the directories include/SDL and lib to the
-according search paths in your project.
 
 IMPORTANT: Do not forget to take care of version.h!
    By default it compiles for "Wolfenstein 3D v1.4 full GT/ID/Activision"!

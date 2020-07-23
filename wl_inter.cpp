@@ -672,7 +672,7 @@ LevelCompleted (void)
                 Write (x, 7, tempstr);
                 if (!(i % (PAR_AMOUNT / 10)))
                     SD_PlaySound (ENDBONUS1SND);
-                if(!usedoublebuffering || !(i % (PAR_AMOUNT / 50))) VW_UpdateScreen ();
+                if(!(i % (PAR_AMOUNT / 50))) VW_UpdateScreen ();
                 while(SD_SoundPlaying ())
                     BJ_Breathe ();
                 if (IN_CheckAck ())
@@ -703,7 +703,7 @@ LevelCompleted (void)
             Write (x, 14, tempstr);
             if (!(i % 10))
                 SD_PlaySound (ENDBONUS1SND);
-            if(!usedoublebuffering || !(i & 1)) VW_UpdateScreen ();
+            if(!(i & 1)) VW_UpdateScreen ();
             while (SD_SoundPlaying ())
                 BJ_Breathe ();
 
@@ -745,7 +745,7 @@ LevelCompleted (void)
             Write (x, 16, tempstr);
             if (!(i % 10))
                 SD_PlaySound (ENDBONUS1SND);
-            if(!usedoublebuffering || !(i & 1)) VW_UpdateScreen ();
+            if(!(i & 1)) VW_UpdateScreen ();
             while (SD_SoundPlaying ())
                 BJ_Breathe ();
 
@@ -786,7 +786,7 @@ LevelCompleted (void)
             Write (x, 18, tempstr);
             if (!(i % 10))
                 SD_PlaySound (ENDBONUS1SND);
-            if(!usedoublebuffering || !(i & 1)) VW_UpdateScreen ();
+            if(!(i & 1)) VW_UpdateScreen ();
             while (SD_SoundPlaying ())
                 BJ_Breathe ();
             if (IN_CheckAck ())
