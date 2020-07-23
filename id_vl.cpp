@@ -16,11 +16,7 @@
 #endif
 
 boolean fullscreen = false;
-#if defined(_arch_dreamcast)
-unsigned screenWidth = 320;
-unsigned screenHeight = 200;
-int screenBits = 8;
-#elif defined(GP2X)
+#if defined(GP2X)
 unsigned screenWidth = 320;
 unsigned screenHeight = 240;
 #if defined(GP2X_940)

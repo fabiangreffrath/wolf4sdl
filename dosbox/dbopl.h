@@ -16,9 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#if defined(_arch_dreamcast)
-#	include "dc/dc_main.h"
-#elif !defined(_WIN32)
+#if !defined(_WIN32)
 #	include <stdint.h>
 #endif
 #include <SDL.h>

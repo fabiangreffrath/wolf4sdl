@@ -11,10 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unordered_map>
-#if defined(_arch_dreamcast)
-#	include <string.h>
-#	include "dc/dc_main.h"
-#elif !defined(_WIN32)
+#if !defined(_WIN32)
 #	include <stdint.h>
 #	include <string.h>
 #	include <stdarg.h>
@@ -45,10 +42,7 @@
 
 #define PACKED_STRUCT(...) PACKEDPREFIX struct __VA_ARGS__ PACKEDSUFFIX
 
-#if defined(_arch_dreamcast)
-#define YESBUTTONNAME "A"
-#define NOBUTTONNAME  "B"
-#elif defined(GP2X)
+#if defined(GP2X)
 #define YESBUTTONNAME "Y"
 #define NOBUTTONNAME  "B"
 #else
