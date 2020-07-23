@@ -139,28 +139,8 @@ For Spear of Destiny the following additional options are available:
 Compiling from source code:
 ---------------------------
 
-The current version of the source code is available in the svn repository at:
-   svn://tron.homeunix.org:3690/wolf3d/trunk
-
 The following ways of compiling the source code are supported:
  - Makefile (for Linux, BSD variants and MinGW/MSYS)
- - Visual C++ 2008 (Wolf4SDL.VC9.sln and Wolf4SDL.VC9.vcproj)
- - Visual C++ 2005 (Wolf4SDL.sln and Wolf4SDL.vcproj)
- - Visual C++ 6 (Wolf4SDL.dsw and Wolf4SDL.dsp)
- - Code::Blocks 8.02 (Wolf4SDL.cbp)
- - Dev-C++ 5.0 Beta 9.2 (4.9.9.2) (Wolf4SDL.dev) (see README-devcpp.txt)
-
-To compile the source code you need the development libraries of
- - SDL (http://www.libsdl.org/download-1.2.php) and
- - SDL_mixer (http://www.libsdl.org/projects/SDL_mixer/)
-and have to adjust the include and library paths in the projects accordingly.
-
-Please note, that there is no official SDL_mixer development pack for MinGW,
-yet, but you can get the needed files from a Dev-C++ package here:
-http://sourceforge.net/project/showfiles.php?group_id=94270&package_id=151751
-Just rename the file extension from ".devpack" to ".tar.bz2" and unpack it
-with for example WinRAR. Then add the directories include/SDL and lib to the
-according search paths in your project.
 
 IMPORTANT: Do not forget to take care of version.h!
    By default it compiles for "Wolfenstein 3D v1.4 full GT/ID/Activision"!
