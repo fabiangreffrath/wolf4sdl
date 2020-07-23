@@ -425,18 +425,10 @@ boolean FizzleFade (SDL_Surface *source, int x1, int y1,
                     // copy one pixel
                     //
 
-                    if(screenBits == 8)
-                    {
-                        *(destptr + (y1 + y) * screen->pitch + x1 + x)
-                            = *(srcptr + (y1 + y) * source->pitch + x1 + x);
-                    }
-                    else
-                    {
                         byte col = *(srcptr + (y1 + y) * source->pitch + x1 + x);
                         uint32_t fullcol = SDL_MapRGB(screen->format, curpal[col].r, curpal[col].g, curpal[col].b);
                         memcpy(destptr + (y1 + y) * screen->pitch + (x1 + x) * screen->format->BytesPerPixel,
                             &fullcol, screen->format->BytesPerPixel);
-                    }
 
                     if(rndval == 0)		// entire sequence has been completed
                         goto finished;
@@ -446,7 +438,7 @@ boolean FizzleFade (SDL_Surface *source, int x1, int y1,
             }
 
             // If there is no double buffering, we always use the "first frame" case
-            if(usedoublebuffering) first = 0;
+            first = 0;
 
             VL_UnlockSurface(screen);
             VL_Flip();

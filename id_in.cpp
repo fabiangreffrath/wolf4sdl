@@ -305,13 +305,8 @@ void IN_GetJoyDelta(int *dx,int *dy)
     }
 
     SDL_JoystickUpdate();
-#ifdef _arch_dreamcast
-    int x = 0;
-    int y = 0;
-#else
     int x = SDL_JoystickGetAxis(Joystick, 0) >> 8;
     int y = SDL_JoystickGetAxis(Joystick, 1) >> 8;
-#endif
 
     if(param_joystickhat != -1)
     {
@@ -571,16 +566,6 @@ static void processEvent(SDL_Event *event)
                 HandleWindowEvent(&event->window);
             }
             break;
-
-#if defined(GP2X)
-        case SDL_JOYBUTTONDOWN:
-            GP2X_ButtonDown(event->jbutton.button);
-            break;
-
-        case SDL_JOYBUTTONUP:
-            GP2X_ButtonUp(event->jbutton.button);
-            break;
-#endif
     }
 }
 
@@ -636,13 +621,7 @@ IN_Startup(void)
     IN_UpdateGrab();
 
     // I didn't find a way to ask libSDL whether a mouse is present, yet...
-#if defined(GP2X)
-    MousePresent = false;
-#elif defined(_arch_dreamcast)
-    MousePresent = DC_MousePresent();
-#else
     MousePresent = true;
-#endif
 
     IN_Started = true;
 }

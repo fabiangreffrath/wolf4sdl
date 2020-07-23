@@ -1123,7 +1123,7 @@ void RecordDemo (void)
     SetupGameLevel ();
     StartMusic ();
 
-    if(usedoublebuffering) VH_UpdateScreen();
+    VH_UpdateScreen();
     fizzlein = true;
 
     PlayLoop ();
@@ -1319,7 +1319,7 @@ void Died (void)
     //
     FinishPaletteShifts ();
 
-    if(usedoublebuffering) VH_UpdateScreen();
+    VH_UpdateScreen();
 
     VL_BarScaledCoord (viewscreenx,viewscreeny,viewwidth,viewheight,4);
 
@@ -1561,10 +1561,6 @@ startplayloop:
                 VW_FadeOut ();
                 if(screenHeight % 200 != 0)
                     VL_ClearScreen(0);
-
-#ifdef _arch_dreamcast
-                DC_StatusClearLCD();
-#endif
 
                 ClearMemory ();
 

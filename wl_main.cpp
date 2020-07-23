@@ -85,19 +85,9 @@ int     param_difficulty = 1;           // default is "normal"
 int     param_tedlevel = -1;            // default is not to start a level
 int     param_joystickindex = 0;
 
-#if defined(_arch_dreamcast)
-int     param_joystickhat = 0;
-longword param_samplerate = 11025;       // higher samplerates result in "out of memory"
-int     param_audiobuffer = 4096 / (44100 / param_samplerate);
-#elif defined(GP2X_940)
-int     param_joystickhat = -1;
-longword param_samplerate = 11025;       // higher samplerates result in "out of memory"
-int     param_audiobuffer = 128;
-#else
 int     param_joystickhat = -1;
 longword param_samplerate = 44100;
 int     param_audiobuffer = 2048 / (44100 / param_samplerate);
-#endif
 
 int     param_mission = 0;
 boolean param_goodtimes = false;
@@ -127,10 +117,6 @@ void ReadConfig(void)
     SDSMode sds;
 
     char configpath[300];
-
-#ifdef _arch_dreamcast
-    DC_LoadFromVMU(configname);
-#endif
 
     if(configdir[0])
         snprintf(configpath, sizeof(configpath), "%s/%s", configdir, configname);
@@ -263,10 +249,6 @@ void WriteConfig(void)
 {
     char configpath[300];
 
-#ifdef _arch_dreamcast
-    fs_unlink(configname);
-#endif
-
     if(configdir[0])
         snprintf(configpath, sizeof(configpath), "%s/%s", configdir, configname);
     else
@@ -305,11 +287,8 @@ void WriteConfig(void)
         mouseadjustment = mouseadjustment & 0xff;
 
         close(file);
-#undef write2
     }
-#ifdef _arch_dreamcast
-    DC_SaveToVMU(configname, NULL);
-#endif
+#undef write2
 }
 
 
@@ -708,9 +687,6 @@ void ShutdownId (void)
     IN_Shutdown ();
     VW_Shutdown ();
     CA_Shutdown ();
-#if defined(GP2X_940)
-    GP2X_Shutdown();
-#endif
 }
 
 
@@ -1253,10 +1229,6 @@ static void InitGame()
         exit(1);
     }
 
-#if defined(GP2X_940)
-    GP2X_MemoryInit();
-#endif
-
     SignonScreen ();
 
 #if defined _WIN32
@@ -1330,10 +1302,6 @@ static void InitGame()
 // draw intro screen stuff
 //
     IntroScreen ();
-
-#ifdef _arch_dreamcast
-    //TODO: VMU Selection Screen
-#endif
 
 //
 // load in and lock down some basic chunks
@@ -1776,50 +1744,6 @@ void CheckParameters(int argc, char *argv[])
                     printf("Screen height must be at least 200!\n"), hasError = true;
             }
         }
-        else IFARG("--bits")
-        {
-            if(++i >= argc)
-            {
-                printf("The bits option is missing the color depth argument!\n");
-                hasError = true;
-            }
-            else
-            {
-                screenBits = atoi(argv[i]);
-                switch(screenBits)
-                {
-                    case 8:
-                    case 16:
-                    case 24:
-                    case 32:
-                        break;
-
-                    default:
-                        printf("Screen color depth must be 8, 16, 24, or 32!\n");
-                        hasError = true;
-                        break;
-                }
-            }
-        }
-        else IFARG("--nodblbuf")
-            usedoublebuffering = false;
-        else IFARG("--extravbls")
-        {
-            if(++i >= argc)
-            {
-                printf("The extravbls option is missing the vbls argument!\n");
-                hasError = true;
-            }
-            else
-            {
-                extravbls = atoi(argv[i]);
-                if(extravbls < 0)
-                {
-                    printf("Extravbls must be positive!\n");
-                    hasError = true;
-                }
-            }
-        }
         else IFARG("--joystick")
         {
             if(++i >= argc)
@@ -1929,12 +1853,6 @@ void CheckParameters(int argc, char *argv[])
             "                        (must be multiple of 320x200 or 320x240)\n"
             " --resf <w> <h>         Sets any screen resolution >= 320x200\n"
             "                        (which may result in graphic errors)\n"
-            " --bits <b>             Sets the screen color depth\n"
-            "                        (use this when you have palette/fading problems\n"
-            "                        allowed: 8, 16, 24, 32, default: \"best\" depth)\n"
-            " --nodblbuf             Don't use SDL's double buffering\n"
-            " --extravbls <vbls>     Sets a delay after each frame, which may help to\n"
-            "                        reduce flickering (unit is currently 8 ms, default: 0)\n"
             " --joystick <index>     Use the index-th joystick if available\n"
             "                        (-1 to disable joystick, default: 0)\n"
             " --joystickhat <index>  Enables movement with the given coolie hat\n"
@@ -1944,7 +1862,7 @@ void CheckParameters(int argc, char *argv[])
             " --ignorenumchunks      Ignores the number of chunks in VGAHEAD.*\n"
             "                        (may be useful for some broken mods)\n"
             " --configdir <dir>      Directory where config file and save games are stored\n"
-#if defined(_arch_dreamcast) || defined(_WIN32)
+#if defined(_WIN32)
             "                        (default: current directory)\n"
 #else
             "                        (default: $HOME/.wolf4sdl)\n"
@@ -1973,11 +1891,7 @@ void CheckParameters(int argc, char *argv[])
 
 int main (int argc, char *argv[])
 {
-#if defined(_arch_dreamcast)
-    DC_Init();
-#else
     CheckParameters(argc, argv);
-#endif
 
     CheckForEpisodes();
 
