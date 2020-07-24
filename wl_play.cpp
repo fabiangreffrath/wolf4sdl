@@ -674,9 +674,7 @@ void CheckKeys (void)
 // F1-F7/ESC to enter control panel
 //
     if (
-#ifndef DEBCHECK
            scan == sc_F10 ||
-#endif
            scan == sc_F9 || scan == sc_F7 || scan == sc_F8)     // pop up quit dialog
     {
         ClearMemory ();
