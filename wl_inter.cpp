@@ -168,13 +168,6 @@ Victory (void)
     if (bordercol != VIEWCOLOR)
         DrawStatusBorder (VIEWCOLOR);
 
-#ifdef JAPAN
-#ifndef JAPDEMO
-    CA_CacheGrChunk (C_ENDRATIOSPIC);
-    VWB_DrawPic (0, 0, C_ENDRATIOSPIC);
-    UNCACHEGRCHUNK (C_ENDRATIOSPIC);
-#endif
-#else
     Write (18, 2, STR_YOUWIN);
 
     Write (TIMEX, TIMEY - 2, STR_TOTALTIME);
@@ -185,11 +178,7 @@ Victory (void)
     Write (RATIOX + 4, RATIOY + 2, STR_RATSECRET);
     Write (RATIOX, RATIOY + 4, STR_RATTREASURE);
 
-#endif
-
-#ifndef JAPDEMO
     VWB_DrawPic (8, 4, L_BJWINSPIC);
-#endif
 
 
     for (kr = sr = tr = sec = i = 0; i < LRpack; i++)
@@ -290,7 +279,6 @@ Victory (void)
 
 //==========================================================================
 
-#ifndef JAPAN
 /*
 ==================
 =
@@ -316,7 +304,6 @@ PG13 (void)
 
     VW_FadeOut ();
 }
-#endif
 
 
 //==========================================================================
@@ -563,11 +550,6 @@ LevelCompleted (void)
     IN_ClearKeysDown ();
     IN_StartAck ();
 
-#ifdef JAPAN
-    CA_CacheGrChunk (C_INTERMISSIONPIC);
-    VWB_DrawPic (0, 0, C_INTERMISSIONPIC);
-    UNCACHEGRCHUNK (C_INTERMISSIONPIC);
-#endif
     VWB_DrawPic (0, 16, L_GUYPIC);
 
 #ifndef SPEAR
@@ -576,7 +558,6 @@ LevelCompleted (void)
     if (mapon != 4 && mapon != 9 && mapon != 15 && mapon < 17)
 #endif
     {
-#ifndef JAPAN
         Write (14, 2, "floor\ncompleted");
 
         Write (14, 7, STR_BONUS "     0");
@@ -588,7 +569,6 @@ LevelCompleted (void)
         Write (1, 18, STR_RAT2TREASURE);
 
         Write (26, 2, itoa (gamestate.mapon + 1, tempstr, 10));
-#endif
 
         Write (26, 12, parTimes[gamestate.episode * 10 + mapon].timestr);
 
@@ -876,21 +856,6 @@ done:   itoa (kr, tempstr, 10);
         CA_CacheGrChunk (STARTFONT + 1);
         Message ("This concludes your demo\n"
                  "of Spear of Destiny! Now,\n" "go to your local software\n" "store and buy it!");
-        UNCACHEGRCHUNK (STARTFONT + 1);
-
-        IN_ClearKeysDown ();
-        IN_Ack ();
-    }
-#endif
-
-#ifdef JAPDEMO
-    if (gamestate.mapon == 3)
-    {
-        SD_PlaySound (BONUS1UPSND);
-
-        CA_CacheGrChunk (STARTFONT + 1);
-        Message ("This concludes your demo\n"
-                 "of Wolfenstein 3-D! Now,\n" "go to your local software\n" "store and buy it!");
         UNCACHEGRCHUNK (STARTFONT + 1);
 
         IN_ClearKeysDown ();
@@ -1215,7 +1180,6 @@ CheckHighScore (int32_t score, word other)
 
 #ifndef UPLOAD
 #ifndef SPEAR
-#ifndef JAPAN
 ////////////////////////////////////////////////////////
 //
 // NON-SHAREWARE NOTICE
@@ -1250,7 +1214,6 @@ NonShareware (void)
     VW_FadeIn ();
     IN_Ack ();
 }
-#endif
 #endif
 #endif
 

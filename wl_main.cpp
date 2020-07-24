@@ -859,19 +859,15 @@ void FinishSignon (void)
     WindowW = 320;
     PrintY = 190;
 
-    #ifndef JAPAN
     SETFONTCOLOR(14,4);
 
     US_CPrint ("Press a key");
-
-    #endif
 
     VH_UpdateScreen();
 
     if (!param_nowait)
         IN_Ack ();
 
-    #ifndef JAPAN
     VW_Bar (0,189,300,11,VL_GetPixel(0,0));
 
     PrintY = 190;
@@ -880,7 +876,6 @@ void FinishSignon (void)
     US_CPrint ("Working...");
 
     VH_UpdateScreen();
-    #endif
 
     SETFONTCOLOR(0,15);
 #else
@@ -1446,10 +1441,8 @@ void Quit (const char *errorStr, ...)
     if (!*error)
     {
 #ifdef NOTYET
-        #ifndef JAPAN
         CA_CacheGrChunk (ORDERSCREEN);
         screen = grsegs[ORDERSCREEN];
-        #endif
 #endif
         WriteConfig ();
     }
@@ -1480,9 +1473,7 @@ void Quit (const char *errorStr, ...)
     if (!*error)
     {
 #ifdef NOTYET
-        #ifndef JAPAN
         memcpy((byte *)0xb8000,screen+7,24*160); // 24 for SPEAR/UPLOAD compatibility
-        #endif
         SetTextCursor(0,23);
 #endif
     }
@@ -1539,10 +1530,8 @@ if (!param_demotest)
 
         #ifndef GOODTIMES
         #ifndef SPEAR
-        #ifndef JAPAN
         if (!param_nowait)
             NonShareware();
-        #endif
         #else
             #ifndef GOODTIMES
             #ifndef SPEARDEMO
@@ -1557,10 +1546,8 @@ if (!param_demotest)
 
     StartCPMusic(INTROSONG);
 
-#ifndef JAPAN
     if (!param_nowait)
         PG13 ();
-#endif
 
 }
 

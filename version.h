@@ -13,13 +13,11 @@
 //#define APOGEE_1_0
 //#define APOGEE_1_1
 //#define APOGEE_1_2
-//#define JAPAN
 
 /*
     Wolf3d Full v1.1 Apogee (with ReadThis)   - define CARMACIZED and APOGEE_1_1
     Wolf3d Full v1.4 Apogee (with ReadThis)   - define CARMACIZED
     Wolf3d Full v1.4 GT/ID/Activision         - define CARMACIZED and GOODTIMES
-    Wolf3d Full v1.4 Imagineer (Japanese)     - define CARMACIZED and JAPAN
     Wolf3d Shareware v1.0                     - define UPLOAD and APOGEE_1_0
     Wolf3d Shareware v1.1                     - define CARMACIZED and UPLOAD and APOGEE_1_1
     Wolf3d Shareware v1.2                     - define CARMACIZED and UPLOAD and APOGEE_1_2

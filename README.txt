@@ -80,7 +80,6 @@ version.h as described in that file):
  - Wolfenstein 3D v1.1 full Apogee
  - Wolfenstein 3D v1.4 full Apogee
  - Wolfenstein 3D v1.4 full GT/ID/Activision
- - Wolfenstein 3D v1.4 full Imagineer (Japanese)
  - Wolfenstein 3D v1.0 shareware Apogee
  - Wolfenstein 3D v1.1 shareware Apogee
  - Wolfenstein 3D v1.2 shareware Apogee
