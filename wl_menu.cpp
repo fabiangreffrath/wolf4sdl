@@ -73,11 +73,7 @@ CP_itemtype MainMenu[] = {
 #ifndef GOODTIMES
 #ifndef SPEAR
 
-#ifdef SPANISH
-    {2, "Ve esto!", CP_ReadThis},
-#else
     {2, "Read This!", CP_ReadThis},
-#endif
 
 #endif
 #endif
@@ -171,19 +167,6 @@ CP_itemtype NewEmenu[] = {
     {0, "", 0}
 #endif
 #else
-#ifdef SPANISH
-    {1, "Episodio 1\n" "Fuga desde Wolfenstein", 0},
-    {0, "", 0},
-    {3, "Episodio 2\n" "Operacion Eisenfaust", 0},
-    {0, "", 0},
-    {3, "Episodio 3\n" "Muere, Fuhrer, Muere!", 0},
-    {0, "", 0},
-    {3, "Episodio 4\n" "Un Negro Secreto", 0},
-    {0, "", 0},
-    {3, "Episodio 5\n" "Huellas del Loco", 0},
-    {0, "", 0},
-    {3, "Episodio 6\n" "Confrontacion", 0}
-#else
     {1, "Episode 1\n" "Escape from Wolfenstein", 0},
     {0, "", 0},
     {3, "Episode 2\n" "Operation: Eisenfaust", 0},
@@ -195,7 +178,6 @@ CP_itemtype NewEmenu[] = {
     {3, "Episode 5\n" "Trail of the Madman", 0},
     {0, "", 0},
     {3, "Episode 6\n" "Confrontation", 0}
-#endif
 #endif
 };
 #endif
@@ -665,11 +647,7 @@ DrawMainMenu (void)
     DrawStripes (10);
     VWB_DrawPic (84, 0, C_OPTIONSPIC);
 
-#ifdef SPANISH
-    DrawWindow (MENU_X - 8, MENU_Y - 3, MENU_W + 8, MENU_H, BKGDCOLOR);
-#else
     DrawWindow (MENU_X - 8, MENU_Y - 3, MENU_W, MENU_H, BKGDCOLOR);
-#endif
 #endif
 
     //
@@ -679,11 +657,7 @@ DrawMainMenu (void)
     {
 #ifndef JAPAN
 
-#ifdef SPANISH
-        strcpy (&MainMenu[backtodemo].string, STR_GAME);
-#else
         strcpy (&MainMenu[backtodemo].string[8], STR_GAME);
-#endif
 
 #else
         CA_CacheGrChunk (C_MRETGAMEPIC);
@@ -698,11 +672,7 @@ DrawMainMenu (void)
     else
     {
 #ifndef JAPAN
-#ifdef SPANISH
-        strcpy (&MainMenu[backtodemo].string, STR_BD);
-#else
         strcpy (&MainMenu[backtodemo].string[8], STR_DEMO);
-#endif
 #else
         CA_CacheGrChunk (C_MRETDEMOPIC);
         VWB_DrawPic (12 * 8, 20 * 8, C_MRETDEMOPIC);
@@ -956,11 +926,7 @@ CP_CheckQuick (ScanCode scancode)
 #ifdef JAPAN
             if (GetYorN (7, 8, C_QUITMSGPIC))
 #else
-#ifdef SPANISH
-            if (Confirm (ENDGAMESTR))
-#else
             if (Confirm (endStrings[US_RndT () & (0x7 + (US_RndT () & 1))]))
-#endif
 #endif
             {
                 VW_UpdateScreen ();
@@ -1194,11 +1160,7 @@ DrawNewEpisode (void)
     SETFONTCOLOR (READHCOLOR, BKGDCOLOR);
     PrintY = 2;
     WindowX = 0;
-#ifdef SPANISH
-    US_CPrint ("Cual episodio jugar?");
-#else
     US_CPrint ("Which episode to play?");
-#endif
 #endif
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
@@ -1231,11 +1193,7 @@ DrawNewGame (void)
     PrintY = NM_Y - 32;
 
 #ifndef SPEAR
-#ifdef SPANISH
-    US_Print ("Eres macho?");
-#else
     US_Print ("How tough are you?");
-#endif
 #else
     VWB_DrawPic (PrintX, PrintY, C_HOWTOUGHPIC);
 #endif
@@ -1927,11 +1885,7 @@ DrawMouseSens (void)
 #else
     ClearMScreen ();
     VWB_DrawPic (112, 184, C_MOUSELBACKPIC);
-#ifdef SPANISH
-    DrawWindow (10, 80, 300, 43, BKGDCOLOR);
-#else
     DrawWindow (10, 80, 300, 30 + offset, BKGDCOLOR);
-#endif
 
     WindowX = 0;
     WindowW = 320;
@@ -1943,13 +1897,6 @@ DrawMouseSens (void)
     US_CPrint ("Vertical Sensitivity");
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
-#ifdef SPANISH
-    PrintX = 14;
-    PrintY = 95 + 13;
-    US_Print (STR_SLOW);
-    PrintX = 252;
-    US_Print (STR_FAST);
-#else
     PrintX = 14;
     PrintY = 95;
     US_Print (STR_SLOW);
@@ -1960,7 +1907,6 @@ DrawMouseSens (void)
     US_Print (STR_SLOW);
     PrintX = 269;
     US_Print (STR_FAST);
-#endif
 #endif
 
     VWB_Bar (60, 97, 200, 10, TEXTCOLOR);
@@ -2640,16 +2586,6 @@ DrawCustomScreen (void)
 #endif
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
-#ifdef SPANISH
-    PrintX = CST_START - 16;
-    US_Print (STR_CRUN);
-    PrintX = CST_START - 16 + CST_SPC * 1;
-    US_Print (STR_COPEN);
-    PrintX = CST_START - 16 + CST_SPC * 2;
-    US_Print (STR_CFIRE);
-    PrintX = CST_START - 16 + CST_SPC * 3;
-    US_Print (STR_CSTRAFE "\n");
-#else
     PrintX = CST_START;
     US_Print (STR_CRUN);
     PrintX = CST_START + CST_SPC * 1;
@@ -2658,7 +2594,6 @@ DrawCustomScreen (void)
     US_Print (STR_CFIRE);
     PrintX = CST_START + CST_SPC * 3;
     US_Print (STR_CSTRAFE "\n");
-#endif
 
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustMouse (0);
@@ -2681,16 +2616,6 @@ DrawCustomScreen (void)
 #endif
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
-#ifdef SPANISH
-    PrintX = CST_START - 16;
-    US_Print (STR_CRUN);
-    PrintX = CST_START - 16 + CST_SPC * 1;
-    US_Print (STR_COPEN);
-    PrintX = CST_START - 16 + CST_SPC * 2;
-    US_Print (STR_CFIRE);
-    PrintX = CST_START - 16 + CST_SPC * 3;
-    US_Print (STR_CSTRAFE "\n");
-#else
     PrintX = CST_START;
     US_Print (STR_CRUN);
     PrintX = CST_START + CST_SPC * 1;
@@ -2699,7 +2624,6 @@ DrawCustomScreen (void)
     US_Print (STR_CFIRE);
     PrintX = CST_START + CST_SPC * 3;
     US_Print (STR_CSTRAFE "\n");
-#endif
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustJoy (0);
     US_Print ("\n");
@@ -2715,16 +2639,6 @@ DrawCustomScreen (void)
     PrintY += 13;
 #endif
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
-#ifdef SPANISH
-    PrintX = CST_START - 16;
-    US_Print (STR_CRUN);
-    PrintX = CST_START - 16 + CST_SPC * 1;
-    US_Print (STR_COPEN);
-    PrintX = CST_START - 16 + CST_SPC * 2;
-    US_Print (STR_CFIRE);
-    PrintX = CST_START - 16 + CST_SPC * 3;
-    US_Print (STR_CSTRAFE "\n");
-#else
     PrintX = CST_START;
     US_Print (STR_CRUN);
     PrintX = CST_START + CST_SPC * 1;
@@ -2733,7 +2647,6 @@ DrawCustomScreen (void)
     US_Print (STR_CFIRE);
     PrintX = CST_START + CST_SPC * 3;
     US_Print (STR_CSTRAFE "\n");
-#endif
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustKeybd (0);
     US_Print ("\n");
@@ -2743,16 +2656,6 @@ DrawCustomScreen (void)
     // KEYBOARD MOVE KEYS
     //
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
-#ifdef SPANISH
-    PrintX = 4;
-    US_Print (STR_LEFT);
-    US_Print ("/");
-    US_Print (STR_RIGHT);
-    US_Print ("/");
-    US_Print (STR_FRWD);
-    US_Print ("/");
-    US_Print (STR_BKWD "\n");
-#else
     PrintX = CST_START;
     US_Print (STR_LEFT);
     PrintX = CST_START + CST_SPC * 1;
@@ -2761,7 +2664,6 @@ DrawCustomScreen (void)
     US_Print (STR_FRWD);
     PrintX = CST_START + CST_SPC * 3;
     US_Print (STR_BKWD "\n");
-#endif
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustKeys (0);
 #endif
@@ -3031,11 +2933,7 @@ CP_Quit (int)
     if (GetYorN (7, 11, C_QUITMSGPIC))
 #else
 
-#ifdef SPANISH
-    if (Confirm (ENDGAMESTR))
-#else
     if (Confirm (endStrings[US_RndT () & (0x7 + (US_RndT () & 1))]))
-#endif
 
 #endif
     {
@@ -3820,27 +3718,14 @@ Confirm (const char *string)
         }
         else SDL_Delay(5);
 
-#ifdef SPANISH
-    }
-    while (!Keyboard[sc_S] && !Keyboard[sc_N] && !Keyboard[sc_Escape]);
-#else
     }
     while (!Keyboard[sc_Y] && !Keyboard[sc_N] && !Keyboard[sc_Escape] && !ci.button0 && !ci.button1);
-#endif
 
-#ifdef SPANISH
-    if (Keyboard[sc_S] || ci.button0)
-    {
-        xit = 1;
-        ShootSnd ();
-    }
-#else
     if (Keyboard[sc_Y] || ci.button0)
     {
         xit = 1;
         ShootSnd ();
     }
-#endif
 
     IN_ClearKeysDown ();
     WaitKeyUp ();
@@ -3873,23 +3758,8 @@ GetYorN (int x, int y, int pic)
     {
         IN_WaitAndProcessEvents();
     }
-#ifdef SPANISH
-    while (!Keyboard[sc_S] && !Keyboard[sc_N] && !Keyboard[sc_Escape]);
-#else
     while (!Keyboard[sc_Y] && !Keyboard[sc_N] && !Keyboard[sc_Escape]);
-#endif
 
-#ifdef SPANISH
-    if (Keyboard[sc_S])
-    {
-        xit = 1;
-        ShootSnd ();
-    }
-
-    while (Keyboard[sc_S] || Keyboard[sc_N] || Keyboard[sc_Escape])
-        IN_WaitAndProcessEvents();
-
-#else
 
     if (Keyboard[sc_Y])
     {
@@ -3899,7 +3769,6 @@ GetYorN (int x, int y, int pic)
 
     while (Keyboard[sc_Y] || Keyboard[sc_N] || Keyboard[sc_Escape])
         IN_WaitAndProcessEvents();
-#endif
 
     IN_ClearKeysDown ();
     SD_PlaySound (whichsnd[xit]);

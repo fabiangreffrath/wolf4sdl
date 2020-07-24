@@ -181,15 +181,9 @@ Victory (void)
 
     Write (12, RATIOY - 2, "averages");
 
-#ifdef SPANISH
-    Write (RATIOX + 2, RATIOY, STR_RATKILL);
-    Write (RATIOX + 2, RATIOY + 2, STR_RATSECRET);
-    Write (RATIOX + 2, RATIOY + 4, STR_RATTREASURE);
-#else
     Write (RATIOX + 8, RATIOY, STR_RATKILL);
     Write (RATIOX + 4, RATIOY + 2, STR_RATSECRET);
     Write (RATIOX, RATIOY + 4, STR_RATTREASURE);
-#endif
 
 #endif
 
@@ -246,7 +240,6 @@ Victory (void)
     x = RATIOX + 24 - (int) strlen(tempstr) * 2;
     Write (x, RATIOY + 4, tempstr);
 
-#ifndef SPANISH
 #ifndef UPLOAD
 #ifndef SPEAR
     //
@@ -266,7 +259,6 @@ Victory (void)
         tempstr[3] = 0;
         US_Print (tempstr);
     }
-#endif
 #endif
 #endif
 
@@ -585,34 +577,20 @@ LevelCompleted (void)
 #endif
     {
 #ifndef JAPAN
-#ifdef SPANISH
-        Write (14, 2, "piso\ncompletado");
-#else
         Write (14, 2, "floor\ncompleted");
-#endif
 
         Write (14, 7, STR_BONUS "     0");
         Write (16, 10, STR_TIME);
         Write (16, 12, STR_PAR);
 
-#ifdef SPANISH
-        Write (11, 14, STR_RAT2KILL);
-        Write (11, 16, STR_RAT2SECRET);
-        Write (11, 18, STR_RAT2TREASURE);
-#else
         Write (9, 14, STR_RAT2KILL);
         Write (5, 16, STR_RAT2SECRET);
         Write (1, 18, STR_RAT2TREASURE);
-#endif
 
         Write (26, 2, itoa (gamestate.mapon + 1, tempstr, 10));
 #endif
 
-#ifdef SPANISH
-        Write (30, 12, parTimes[gamestate.episode * 10 + mapon].timestr);
-#else
         Write (26, 12, parTimes[gamestate.episode * 10 + mapon].timestr);
-#endif
 
         //
         // PRINT TIME
@@ -628,11 +606,7 @@ LevelCompleted (void)
         min = sec / 60;
         sec %= 60;
 
-#ifdef SPANISH
-        i = 30 * 8;
-#else
         i = 26 * 8;
-#endif
         VWB_DrawPic (i, 10 * 8, L_NUM0PIC + (min / 10));
         i += 2 * 8;
         VWB_DrawPic (i, 10 * 8, L_NUM0PIC + (min % 10));
@@ -687,11 +661,7 @@ LevelCompleted (void)
         }
 
 
-#ifdef SPANISH
-#define RATIOXX                33
-#else
 #define RATIOXX                37
-#endif
         //
         // KILL RATIO
         //
@@ -1266,24 +1236,14 @@ NonShareware (void)
     PrintX = 110;
     PrintY = 15;
 
-#ifdef SPANISH
-    US_Print ("Atencion");
-#else
     US_Print ("Attention");
-#endif
 
     SETFONTCOLOR (HIGHLIGHT, BKGDCOLOR);
     WindowX = PrintX = 40;
     PrintY = 60;
-#ifdef SPANISH
-    US_Print ("Este juego NO es gratis y\n");
-    US_Print ("NO es Shareware; favor de\n");
-    US_Print ("no distribuirlo.\n\n");
-#else
     US_Print ("This game is NOT shareware.\n");
     US_Print ("Please do not distribute it.\n");
     US_Print ("Thanks.\n\n");
-#endif
     US_Print ("        Id Software\n");
 
     VW_UpdateScreen ();
