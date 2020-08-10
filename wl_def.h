@@ -52,15 +52,11 @@
     #ifdef UPLOAD
         #include "gfxv_apo.h"
     #else
-		#ifdef JAPAN
-			#include "gfxv_jap.h"
-		#else
 			#ifdef GOODTIMES
 	            #include "gfxv_wl6.h"
 		    #else
 			    #include "gfxv_apo.h"
 			#endif
-        #endif
     #endif
 #else
     #include "audiosod.h"
@@ -943,7 +939,6 @@ extern  int      param_joystickhat;
 extern  longword param_samplerate;
 extern  int      param_audiobuffer;
 extern  int      param_mission;
-extern  boolean  param_goodtimes;
 extern  boolean  param_ignorenumchunks;
 
 

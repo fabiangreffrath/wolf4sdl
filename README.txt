@@ -80,7 +80,6 @@ version.h as described in that file):
  - Wolfenstein 3D v1.1 full Apogee
  - Wolfenstein 3D v1.4 full Apogee
  - Wolfenstein 3D v1.4 full GT/ID/Activision
- - Wolfenstein 3D v1.4 full Imagineer (Japanese)
  - Wolfenstein 3D v1.0 shareware Apogee
  - Wolfenstein 3D v1.1 shareware Apogee
  - Wolfenstein 3D v1.2 shareware Apogee
@@ -133,7 +132,6 @@ Wolf4SDL supports the following command line options:
 
 For Spear of Destiny the following additional options are available:
  --mission <mission>    Mission number to play (1-3)
- --goodtimes            Disable copy protection quiz
 
 
 Compiling from source code:

@@ -2582,13 +2582,7 @@ void    A_StartDeathCam (objtype *ob)
     else
     {
         CacheLump(LEVELEND_LUMP_START,LEVELEND_LUMP_END);
-#ifdef JAPAN
-#ifndef JAPDEMO
-        CA_CacheScreen(C_LETSSEEPIC);
-#endif
-#else
         Write(0,7,STR_SEEAGAIN);
-#endif
     }
 
     VW_UpdateScreen ();

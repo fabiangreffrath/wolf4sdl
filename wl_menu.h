@@ -46,15 +46,7 @@
 #define MENU_X  76
 #define MENU_Y  55
 #define MENU_W  178
-#ifndef SPEAR
-#ifndef GOODTIMES
-#define MENU_H  13*10+6
-#else
 #define MENU_H  13*9+6
-#endif
-#else
-#define MENU_H  13*9+6
-#endif
 
 #define SM_X    48
 #define SM_W    250
@@ -67,11 +59,7 @@
 #define SM_H3   3*13-7
 
 #define CTL_X   24
-#ifdef JAPAN
-#define CTL_Y   70
-#else
 #define CTL_Y   86
-#endif
 #define CTL_W   284
 #define CTL_H   60
 
@@ -214,13 +202,6 @@ enum menuitems
         loadgame,
         savegame,
         changeview,
-
-#ifndef GOODTIMES
-#ifndef SPEAR
-        readthis,
-#endif
-#endif
-
         viewscores,
         backtodemo,
         quit
