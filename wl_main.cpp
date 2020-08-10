@@ -90,7 +90,6 @@ longword param_samplerate = 44100;
 int     param_audiobuffer = 2048 / (44100 / param_samplerate);
 
 int     param_mission = 0;
-boolean param_goodtimes = false;
 boolean param_ignorenumchunks = false;
 
 /*
@@ -1526,24 +1525,6 @@ static void DemoLoop()
 if (!param_demotest)
 {
 
-    #ifndef UPLOAD
-
-        #ifndef GOODTIMES
-        #ifndef SPEAR
-        if (!param_nowait)
-            NonShareware();
-        #else
-            #ifndef GOODTIMES
-            #ifndef SPEARDEMO
-            extern void CopyProtection(void);
-            if(!param_goodtimes)
-                CopyProtection();
-            #endif
-            #endif
-        #endif
-        #endif
-    #endif
-
     StartCPMusic(INTROSONG);
 
     if (!param_nowait)
@@ -1801,8 +1782,6 @@ void CheckParameters(int argc, char *argv[])
                 }
             }
         }
-        else IFARG("--goodtimes")
-            param_goodtimes = true;
         else IFARG("--ignorenumchunks")
             param_ignorenumchunks = true;
         else IFARG("--help")
@@ -1849,7 +1828,6 @@ void CheckParameters(int argc, char *argv[])
 #if defined(SPEAR) && !defined(SPEARDEMO)
             " --mission <mission>    Mission number to play (0-3)\n"
             "                        (default: 0 -> .sod, 1-3 -> .sd*)\n"
-            " --goodtimes            Disable copy protection quiz\n"
 #endif
             , defaultSampleRate
         );

@@ -22,19 +22,8 @@ extern int numEpisodesMissing;
 //
 // PRIVATE PROTOTYPES
 //
-int CP_ReadThis (int);
 
-#ifdef SPEAR
 #define STARTITEM       newgame
-
-#else
-#ifdef GOODTIMES
-#define STARTITEM       newgame
-
-#else
-#define STARTITEM       readthis
-#endif
-#endif
 
 // ENDSTRx constants are defined in foreign.h
 char endStrings[9][80] = {
@@ -57,15 +46,6 @@ CP_itemtype MainMenu[] = {
     {1, STR_LG, CP_LoadGame},
     {0, STR_SG, CP_SaveGame},
     {1, STR_CV, CP_ChangeView},
-
-#ifndef GOODTIMES
-#ifndef SPEAR
-
-    {2, "Read This!", CP_ReadThis},
-
-#endif
-#endif
-
     {1, STR_VS, CP_ViewScores},
     {1, STR_BD, 0},
     {1, STR_QT, 0}
@@ -384,15 +364,7 @@ US_ControlPanel (ScanCode scancode)
     switch (scancode)
     {
         case sc_F1:
-#ifdef SPEAR
             BossKey ();
-#else
-#ifdef GOODTIMES
-            BossKey ();
-#else
-            HelpScreens ();
-#endif
-#endif
             goto finishup;
 
         case sc_F2:
@@ -583,24 +555,6 @@ DrawMainMenu (void)
     DrawMenu (&MainItems, &MainMenu[0]);
     VW_UpdateScreen ();
 }
-
-#ifndef GOODTIMES
-#ifndef SPEAR
-////////////////////////////////////////////////////////////////////
-//
-// READ THIS!
-//
-////////////////////////////////////////////////////////////////////
-int
-CP_ReadThis (int)
-{
-    StartCPMusic (CORNER_MUS);
-    HelpScreens ();
-    StartCPMusic (MENUSONG);
-    return true;
-}
-#endif
-#endif
 
 
 ////////////////////////////////////////////////////////////////////
@@ -997,15 +951,6 @@ CP_NewGame (int)
     NewGame (which, episode);
     StartGame = 1;
     MenuFadeOut ();
-
-    //
-    // CHANGE "READ THIS!" TO NORMAL COLOR
-    //
-#ifndef SPEAR
-#ifndef GOODTIMES
-    MainMenu[readthis].active = 1;
-#endif
-#endif
 
     pickquick = 0;
 
@@ -1427,15 +1372,6 @@ CP_LoadGame (int quick)
 
             StartGame = 1;
             ShootSnd ();
-            //
-            // CHANGE "READ THIS!" TO NORMAL COLOR
-            //
-
-#ifndef SPEAR
-#ifndef GOODTIMES
-            MainMenu[readthis].active = 1;
-#endif
-#endif
 
             exit = 1;
             break;
@@ -3862,9 +3798,6 @@ CheckForEpisodes (void)
     strcat (demoname, extension);
 
 #ifndef SPEAR
-#ifndef GOODTIMES
-    strcat (helpfilename, extension);
-#endif
     strcat (endfilename, extension);
 #endif
 }

@@ -132,7 +132,6 @@ Wolf4SDL supports the following command line options:
 
 For Spear of Destiny the following additional options are available:
  --mission <mission>    Mission number to play (1-3)
- --goodtimes            Disable copy protection quiz
 
 
 Compiling from source code:
