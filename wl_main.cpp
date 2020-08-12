@@ -161,7 +161,7 @@ void ReadConfig(void)
         read2(file,&mouseadjustment,sizeof(mouseadjustment));
 
         // [FG] vertical mouse sensitivity
-        if (read(file,&mouseadjustment,sizeof(mouseadjustment))<0)
+        if (read(file,&mouseadjustment_v,sizeof(mouseadjustment_v))<0)
         {
             mouseadjustment_v = mouseadjustment;
         }
