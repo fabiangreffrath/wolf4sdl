@@ -868,7 +868,7 @@ typedef struct
 {
     short      viewx,
                viewheight,
-               shapenum;
+               *shapenum;
     short      flags;          // this must be changed to uint32_t, when you
                                // you need more than 16-flags for drawing
 #ifdef USE_DIR3DSPR
@@ -895,7 +895,7 @@ void DrawScaleds (void)
 //
     for (statptr = &statobjlist[0] ; statptr !=laststatobj ; statptr++)
     {
-        if ((visptr->shapenum = statptr->shapenum) == -1)
+        if ((visptr->shapenum = statptr->shapenum) == NULL)
             continue;                                               // object has been deleted
 
         if (!*statptr->visspot)
@@ -905,7 +905,7 @@ void DrawScaleds (void)
             &visptr->viewx,&visptr->viewheight) && statptr->flags & FL_BONUS)
         {
             GetBonus (statptr);
-            if(statptr->shapenum == -1)
+            if(statptr->shapenum == NULL)
                 continue;                                           // object has been taken
         }
 
@@ -931,7 +931,7 @@ void DrawScaleds (void)
 //
     for (obj = player->next;obj;obj=obj->next)
     {
-        if ((visptr->shapenum = obj->state->shapenum)==0)
+        if ((visptr->shapenum = obj->state->shapenum)==NULL)
             continue;                                               // no shape
 
         spotloc = (obj->tilex<<mapshift)+obj->tiley;   // optimize: keep in struct?
@@ -958,8 +958,11 @@ void DrawScaleds (void)
 
             visptr->viewx = obj->viewx;
             visptr->viewheight = obj->viewheight;
-            if (visptr->shapenum == -1)
-                visptr->shapenum = obj->temp1;  // special shape
+            if (*visptr->shapenum == -1)
+            {
+                void *temp1 = &obj->temp1;
+                visptr->shapenum = (short *)temp1;  // special shape
+            }
 
             if (obj->state->rotate)
                 visptr->shapenum += CalcRotate (obj);
@@ -1006,7 +1009,7 @@ void DrawScaleds (void)
             Scale3DShape(vbuf, vbufPitch, farthest->transsprite);
         else
 #endif
-            ScaleShape(farthest->viewx, farthest->shapenum, farthest->viewheight, farthest->flags);
+            ScaleShape(farthest->viewx, *farthest->shapenum, farthest->viewheight, farthest->flags);
 
         farthest->viewheight = 32000;
     }
@@ -1024,8 +1027,8 @@ void DrawScaleds (void)
 ==============
 */
 
-int weaponscale[NUMWEAPONS] = {SPR_KNIFEREADY, SPR_PISTOLREADY,
-    SPR_MACHINEGUNREADY, SPR_CHAINREADY};
+short *weaponscale[NUMWEAPONS] = {&SPR_KNIFEREADY, &SPR_PISTOLREADY,
+    &SPR_MACHINEGUNREADY, &SPR_CHAINREADY};
 
 void DrawPlayerWeapon (void)
 {
@@ -1044,7 +1047,7 @@ void DrawPlayerWeapon (void)
 
     if (gamestate.weapon != wp_none)
     {
-        shapenum = weaponscale[gamestate.weapon]+gamestate.weaponframe;
+        shapenum = *weaponscale[gamestate.weapon]+gamestate.weaponframe;
         SimpleScaleShape(viewwidth/2,shapenum,viewheight+1);
     }
 
