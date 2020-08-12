@@ -66,13 +66,14 @@ CP_itemtype SndMenu[] = {
     {1, STR_ALSB, 0}
 };
 
-enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE };
+enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE, CTL_ALWAYSRUN }; // [FG] toggle always run
 
 CP_itemtype CtlMenu[] = {
     {0, STR_MOUSEEN, 0},
     {0, STR_SENS, MouseSensitivity},
     {0, STR_JOYEN, 0},
-    {1, STR_CUSTOM, CustomControls}
+    {1, STR_CUSTOM, CustomControls},
+    {1, "Always Run", 0} // [FG] toggle always run
 };
 
 #ifndef SPEAR
@@ -1648,6 +1649,14 @@ CP_Control (int)
                 MenuFadeIn ();
                 WaitKeyUp ();
                 break;
+
+            // [FG] toggle always run
+            case CTL_ALWAYSRUN:
+                always_run ^= 1;
+                DrawCtlScreen ();
+                CusItems.curpos = -1;
+                ShootSnd ();
+                break;
         }
     }
     while (which >= 0);
@@ -1876,6 +1885,13 @@ DrawCtlScreen (void)
 
     y = CTL_Y + 29;
     if (joystickenabled)
+        VWB_DrawPic (x, y, C_SELECTEDPIC);
+    else
+        VWB_DrawPic (x, y, C_NOTSELECTEDPIC);
+
+    // [FG] toggle always run
+    y = CTL_Y + 55;
+    if (always_run)
         VWB_DrawPic (x, y, C_SELECTEDPIC);
     else
         VWB_DrawPic (x, y, C_NOTSELECTEDPIC);

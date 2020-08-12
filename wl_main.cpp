@@ -91,6 +91,7 @@ int     param_audiobuffer = 2048 / (44100 / param_samplerate);
 
 int     param_mission = 0;
 boolean param_ignorenumchunks = false;
+boolean always_run = false;
 
 /*
 =============================================================================
@@ -165,6 +166,12 @@ void ReadConfig(void)
             mouseadjustment_v = mouseadjustment;
         }
 
+        // [FG] toggle always run
+        if (read(file,&always_run,sizeof(always_run))<0)
+        {
+            always_run = false;
+        }
+
         close(file);
 #undef read2
 
@@ -195,6 +202,8 @@ void ReadConfig(void)
 
         if(viewsize<4) viewsize=4;
         else if(viewsize>21) viewsize=21;
+
+        always_run = !!always_run;
 
         MainMenu[6].active=1;
         MainItems.curpos=0;
@@ -229,6 +238,7 @@ noconfig:
 
         viewsize = 19;                          // start with a good size
         mouseadjustment_v=mouseadjustment=5;
+        always_run = false;
     }
 
     SD_SetMusicMode (sm);
@@ -284,6 +294,9 @@ void WriteConfig(void)
 
         // [FG] vertical mouse sensitivity
         write2(file,&mouseadjustment_v,sizeof(mouseadjustment_v));
+
+        // [FG] toggle always run
+        write2(file,&always_run,sizeof(always_run));
 
         close(file);
     }

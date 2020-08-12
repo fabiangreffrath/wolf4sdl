@@ -309,7 +309,7 @@ void PollJoystickButtons (void)
 
 void PollKeyboardMove (void)
 {
-    int delta = buttonstate[bt_run] ? RUNMOVE * tics : BASEMOVE * tics;
+    int delta = (buttonstate[bt_run] ^ always_run) ? RUNMOVE * tics : BASEMOVE * tics; // [FG] toggle always run
 
     if (Keyboard[dirscan[di_north]])
         controly -= delta;
@@ -358,7 +358,7 @@ void PollJoystickMove (void)
 
     IN_GetJoyDelta (&joyx, &joyy);
 
-    int delta = buttonstate[bt_run] ? RUNMOVE * tics : BASEMOVE * tics;
+    int delta = (buttonstate[bt_run] ^ always_run) ? RUNMOVE * tics : BASEMOVE * tics; // [FG] toggle always run
 
     if (joyx > 64 || buttonstate[bt_turnright])
         controlx += delta;
