@@ -61,7 +61,7 @@
 #define CTL_X   24
 #define CTL_Y   86
 #define CTL_W   284
-#define CTL_H   (60+13) // [FG] toggle always run
+#define CTL_H   (60+26) // [FG] toggle always run
 
 #define LSM_X   85
 #define LSM_Y   55
@@ -157,7 +157,7 @@ void DrawNewGame(void);
 void DrawChangeView(int view);
 void DrawMouseSens(void);
 void DrawCtlScreen(void);
-void DrawCustomScreen(void);
+void DrawCustomScreen(int);
 void DrawLSAction(int which);
 void DrawCustMouse(int hilight);
 void DrawCustJoy(int hilight);
@@ -172,6 +172,7 @@ void PrintLSEntry(int w,int color);
 void TrackWhichGame(int w);
 void DrawNewGameDiff(int w);
 void FixupCustom(int w);
+void FixupCustom2(int w);
 
 int CP_NewGame(int);
 int CP_Sound(int);
@@ -185,6 +186,7 @@ int CP_ViewScores(int);
 int  CP_EndGame(int);
 int  CP_CheckQuick(ScanCode scancode);
 int CustomControls(int);
+int CustomControls2(int);
 int MouseSensitivity(int);
 
 void CheckForEpisodes(void);

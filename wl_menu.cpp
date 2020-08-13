@@ -66,13 +66,14 @@ CP_itemtype SndMenu[] = {
     {1, STR_ALSB, 0}
 };
 
-enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE, CTL_ALWAYSRUN }; // [FG] toggle always run
+enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE, CTL_CUSTOMIZE2, CTL_ALWAYSRUN }; // [FG] toggle always run
 
 CP_itemtype CtlMenu[] = {
     {0, STR_MOUSEEN, 0},
     {0, STR_SENS, MouseSensitivity},
     {0, STR_JOYEN, 0},
-    {1, STR_CUSTOM, CustomControls},
+    {1, "Customize Keyboard", CustomControls},
+    {1, "Customize Mouse/JS", CustomControls2},
     {1, "Always Run", 0} // [FG] toggle always run
 };
 
@@ -125,12 +126,25 @@ CP_itemtype CusMenu[] = {
     {1, "", 0}
 };
 
+CP_itemtype Cus2Menu[] = {
+    {1, "", 0},
+    {0, "", 0},
+    {0, "", 0},
+    {1, "", 0},
+    {0, "", 0},
+    {0, "", 0},
+    {1, "", 0},
+    {0, "", 0},
+    {1, "", 0}
+};
+
 // CP_iteminfo struct format: short x, y, amount, curpos, indent;
 CP_iteminfo MainItems = { MENU_X, MENU_Y, lengthof(MainMenu), STARTITEM, 24 },
             SndItems  = { SM_X, SM_Y1, lengthof(SndMenu), 0, 52 },
             LSItems   = { LSM_X, LSM_Y, lengthof(LSMenu), 0, 24 },
             CtlItems  = { CTL_X, CTL_Y, lengthof(CtlMenu), -1, 56 },
             CusItems  = { 8, CST_Y + 13 * 2, lengthof(CusMenu), -1, 0},
+            Cus2Items = { 8, CST_Y + 13 * 2, lengthof(Cus2Menu), -1, 0},
 #ifndef SPEAR
             NewEitems = { NE_X, NE_Y, lengthof(NewEmenu), 0, 88 },
 #endif
@@ -1645,6 +1659,7 @@ CP_Control (int)
 
             case CTL_MOUSESENS:
             case CTL_CUSTOMIZE:
+            case CTL_CUSTOMIZE2:
                 DrawCtlScreen ();
                 MenuFadeIn ();
                 WaitKeyUp ();
@@ -1890,7 +1905,7 @@ DrawCtlScreen (void)
         VWB_DrawPic (x, y, C_NOTSELECTEDPIC);
 
     // [FG] toggle always run
-    y = CTL_Y + 55;
+    y = CTL_Y + 3 + 5*13;
     if (always_run)
         VWB_DrawPic (x, y, C_SELECTEDPIC);
     else
@@ -1932,10 +1947,38 @@ CustomControls (int)
 {
     int which;
 
-    DrawCustomScreen ();
+    DrawCustomScreen (1);
     do
     {
         which = HandleMenu (&CusItems, &CusMenu[0], FixupCustom);
+        switch (which)
+        {
+            case 0:
+                DefineKeyMove ();
+                DrawCustKeys (0);
+                break;
+            case 2:
+                DefineKeyBtns ();
+                DrawCustKeybd (0);
+                break;
+        }
+    }
+    while (which >= 0);
+
+    MenuFadeOut ();
+
+    return 0;
+}
+
+int
+CustomControls2 (int)
+{
+    int which;
+
+    DrawCustomScreen (2);
+    do
+    {
+        which = HandleMenu (&Cus2Items, &Cus2Menu[0], FixupCustom2);
         switch (which)
         {
             case 0:
@@ -1946,13 +1989,6 @@ CustomControls (int)
                 DefineJoyBtns ();
                 DrawCustJoy (0);
                 break;
-            case 6:
-                DefineKeyBtns ();
-                DrawCustKeybd (0);
-                break;
-            case 8:
-                DefineKeyMove ();
-                DrawCustKeys (0);
         }
     }
     while (which >= 0);
@@ -2332,13 +2368,79 @@ FixupCustom (int w)
     lastwhich = w;
 }
 
+void
+FixupCustom2 (int w)
+{
+    static int lastwhich = -1;
+    int y = CST_Y + 26 + w * 13;
+
+
+    VWB_Hlin (7, 32, y - 1, DEACTIVE);
+    VWB_Hlin (7, 32, y + 12, BORD2COLOR);
+#ifndef SPEAR
+    VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+    VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+#else
+    VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+    VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+#endif
+
+    switch (w)
+    {
+        case 0:
+            DrawCustMouse (1);
+            break;
+        case 3:
+            DrawCustJoy (1);
+            break;
+        case 6:
+            DrawCustKeybd (1);
+            break;
+        case 8:
+            DrawCustKeys (1);
+    }
+
+
+    if (lastwhich >= 0)
+    {
+        y = CST_Y + 26 + lastwhich * 13;
+        VWB_Hlin (7, 32, y - 1, DEACTIVE);
+        VWB_Hlin (7, 32, y + 12, BORD2COLOR);
+#ifndef SPEAR
+        VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+        VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+#else
+        VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+        VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+#endif
+
+        if (lastwhich != w)
+            switch (lastwhich)
+            {
+                case 0:
+                    DrawCustMouse (0);
+                    break;
+                case 3:
+                    DrawCustJoy (0);
+                    break;
+                case 6:
+                    DrawCustKeybd (0);
+                    break;
+                case 8:
+                    DrawCustKeys (0);
+            }
+    }
+
+    lastwhich = w;
+}
+
 
 ////////////////////////
 //
 // DRAW CUSTOMIZE SCREEN
 //
 void
-DrawCustomScreen (void)
+DrawCustomScreen (int cust)
 {
     int i;
 
@@ -2350,6 +2452,8 @@ DrawCustomScreen (void)
     DrawStripes (10);
     VWB_DrawPic (80, 0, C_CUSTOMIZEPIC);
 
+if (cust == 2)
+{
     //
     // MOUSE
     //
@@ -2407,7 +2511,20 @@ DrawCustomScreen (void)
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustJoy (0);
     US_Print ("\n");
+    //
+    // PICK STARTING POINT IN MENU
+    //
+    if (Cus2Items.curpos < 0)
+        for (i = 0; i < Cus2Items.amount; i++)
+            if (Cus2Menu[i].active)
+            {
+                Cus2Items.curpos = i;
+                break;
+            }
 
+}
+else
+{
 
     //
     // KEYBOARD
@@ -2456,7 +2573,7 @@ DrawCustomScreen (void)
                 CusItems.curpos = i;
                 break;
             }
-
+}
 
     VW_UpdateScreen ();
     MenuFadeIn ();
