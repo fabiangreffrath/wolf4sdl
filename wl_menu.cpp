@@ -117,9 +117,9 @@ CP_itemtype LSMenu[] = {
 CP_itemtype CusMenu[] = {
     {1, "", 0},
     {0, "", 0},
-    {0, "", 0},
     {1, "", 0},
     {0, "", 0},
+    {1, "", 0},
     {0, "", 0},
     {1, "", 0},
     {0, "", 0},
@@ -132,10 +132,10 @@ CP_itemtype Cus2Menu[] = {
     {0, "", 0},
     {1, "", 0},
     {0, "", 0},
-    {0, "", 0},
     {1, "", 0},
     {0, "", 0},
-    {1, "", 0}
+    {1, "", 0},
+    {0, "", 0}
 };
 
 // CP_iteminfo struct format: short x, y, amount, curpos, indent;
@@ -1646,14 +1646,14 @@ CP_Control (int)
             case CTL_MOUSEENABLE:
                 mouseenabled ^= 1;
                 DrawCtlScreen ();
-                CusItems.curpos = -1;
+                Cus2Items.curpos = CusItems.curpos = -1;
                 ShootSnd ();
                 break;
 
             case CTL_JOYENABLE:
                 joystickenabled ^= 1;
                 DrawCtlScreen ();
-                CusItems.curpos = -1;
+                Cus2Items.curpos = CusItems.curpos = -1;
                 ShootSnd ();
                 break;
 
@@ -1669,7 +1669,7 @@ CP_Control (int)
             case CTL_ALWAYSRUN:
                 always_run ^= 1;
                 DrawCtlScreen ();
-                CusItems.curpos = -1;
+                Cus2Items.curpos = CusItems.curpos = -1;
                 ShootSnd ();
                 break;
         }
@@ -1954,12 +1954,24 @@ CustomControls (int)
         switch (which)
         {
             case 0:
+                DefineKeyBtns ();
+                DrawCustKeybd (0);
+                break;
+            case 2:
                 DefineKeyMove ();
                 DrawCustKeys (0);
                 break;
-            case 2:
+            case 4:
                 DefineKeyBtns ();
-                DrawCustKeybd (0);
+                DrawCust2Keybd (0);
+                break;
+            case 6:
+                DefineKeyBtns ();
+                DrawCust3Keybd (0);
+                break;
+            case 8:
+                DefineKeyBtns ();
+                DrawCust4Keybd (0);
                 break;
         }
     }
@@ -1986,6 +1998,14 @@ CustomControls2 (int)
                 DrawCustMouse (1);
                 break;
             case 3:
+                DefineJoyBtns ();
+                DrawCustJoy (0);
+                break;
+            case 5:
+                DefineJoyBtns ();
+                DrawCustJoy (0);
+                break;
+            case 7:
                 DefineJoyBtns ();
                 DrawCustJoy (0);
                 break;
@@ -2322,16 +2342,20 @@ FixupCustom (int w)
     switch (w)
     {
         case 0:
-            DrawCustMouse (1);
-            break;
-        case 3:
-            DrawCustJoy (1);
-            break;
-        case 6:
             DrawCustKeybd (1);
             break;
-        case 8:
+        case 2:
             DrawCustKeys (1);
+            break;
+        case 4:
+            DrawCust2Keybd (1);
+            break;
+        case 6:
+            DrawCust3Keybd (1);
+            break;
+        case 8:
+            DrawCust4Keybd (1);
+            break;
     }
 
 
@@ -2351,17 +2375,21 @@ FixupCustom (int w)
         if (lastwhich != w)
             switch (lastwhich)
             {
-                case 0:
-                    DrawCustMouse (0);
-                    break;
-                case 3:
-                    DrawCustJoy (0);
-                    break;
-                case 6:
-                    DrawCustKeybd (0);
-                    break;
-                case 8:
-                    DrawCustKeys (0);
+        case 0:
+            DrawCustKeybd (0);
+            break;
+        case 2:
+            DrawCustKeys (0);
+            break;
+        case 4:
+            DrawCust2Keybd (0);
+            break;
+        case 6:
+            DrawCust3Keybd (0);
+            break;
+        case 8:
+            DrawCust4Keybd (0);
+            break;
             }
     }
 
@@ -2451,6 +2479,7 @@ DrawCustomScreen (int cust)
     VWB_DrawPic (112, 184, C_MOUSELBACKPIC);
     DrawStripes (10);
     VWB_DrawPic (80, 0, C_CUSTOMIZEPIC);
+    PrintY = CST_Y;
 
 if (cust == 2)
 {
@@ -2563,6 +2592,34 @@ else
     US_Print (STR_BKWD "\n");
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustKeys (0);
+    US_Print ("\n");
+
+    SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
+    PrintX = CST_START;
+    US_Print ("Wp1");
+    PrintX = CST_START + CST_SPC * 1;
+    US_Print ("Wp2");
+    PrintX = CST_START + CST_SPC * 2;
+    US_Print ("Wp3");
+    PrintX = CST_START + CST_SPC * 3;
+    US_Print ("Wp4" "\n");
+    DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
+    DrawCustKeybd (0);
+    US_Print ("\n");
+
+    SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
+    PrintX = CST_START;
+    US_Print ("Wp+");
+    PrintX = CST_START + CST_SPC * 1;
+    US_Print ("Wp-");
+    PrintX = CST_START + CST_SPC * 2;
+    US_Print ("Menu");
+    PrintX = CST_START + CST_SPC * 3;
+    US_Print ("Pause" "\n");
+    DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
+    DrawCustKeybd (0);
+    US_Print ("\n");
+
     //
     // PICK STARTING POINT IN MENU
     //
@@ -2674,9 +2731,57 @@ DrawCustKeybd (int hilight)
         color = HIGHLIGHT;
     SETFONTCOLOR (color, BKGDCOLOR);
 
-    PrintY = CST_Y + 13 * 8;
+    PrintY = CST_Y + 13 * 2;
     for (i = 0; i < 4; i++)
         PrintCustKeybd (i);
+}
+
+void
+DrawCust2Keybd (int hilight)
+{
+    int i, color;
+
+
+    color = TEXTCOLOR;
+    if (hilight)
+        color = HIGHLIGHT;
+    SETFONTCOLOR (color, BKGDCOLOR);
+
+    PrintY = CST_Y + 13 * 6;
+    for (i = 0; i < 4; i++)
+        PrintCustKeybd (i + 4);
+}
+
+void
+DrawCust3Keybd (int hilight)
+{
+    int i, color;
+
+
+    color = TEXTCOLOR;
+    if (hilight)
+        color = HIGHLIGHT;
+    SETFONTCOLOR (color, BKGDCOLOR);
+
+    PrintY = CST_Y + 13 * 8;
+    for (i = 0; i < 4; i++)
+        PrintCustKeybd (i + 8);
+}
+
+void
+DrawCust4Keybd (int hilight)
+{
+    int i, color;
+
+
+    color = TEXTCOLOR;
+    if (hilight)
+        color = HIGHLIGHT;
+    SETFONTCOLOR (color, BKGDCOLOR);
+
+    PrintY = CST_Y + 13 * 10;
+    for (i = 0; i < 4; i++)
+        PrintCustKeybd (i + 12);
 }
 
 void
@@ -2697,7 +2802,7 @@ DrawCustKeys (int hilight)
         color = HIGHLIGHT;
     SETFONTCOLOR (color, BKGDCOLOR);
 
-    PrintY = CST_Y + 13 * 10;
+    PrintY = CST_Y + 13 * 4;
     for (i = 0; i < 4; i++)
         PrintCustKeys (i);
 }
