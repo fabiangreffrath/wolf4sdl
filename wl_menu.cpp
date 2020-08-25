@@ -1962,15 +1962,15 @@ CustomControls (int)
                 DrawCustKeys (0);
                 break;
             case 4:
-                DefineKeyBtns ();
+                DefineKey2Btns ();
                 DrawCust2Keybd (0);
                 break;
             case 6:
-                DefineKeyBtns ();
+                DefineKey3Btns ();
                 DrawCust3Keybd (0);
                 break;
             case 8:
-                DefineKeyBtns ();
+                DefineKey4Btns ();
                 DrawCust4Keybd (0);
                 break;
         }
@@ -2051,7 +2051,28 @@ void
 DefineKeyBtns (void)
 {
     CustomCtrls keyallowed = { 1, 1, 1, 1 };
-    EnterCtrlData (8, &keyallowed, DrawCustKeybd, PrintCustKeybd, KEYBOARDBTNS);
+    EnterCtrlData (2, &keyallowed, DrawCustKeybd, PrintCustKeybd, KEYBOARDBTNS);
+}
+
+void
+DefineKey2Btns (void)
+{
+    CustomCtrls keyallowed = { 1, 1, 1, 1 };
+    EnterCtrlData (6, &keyallowed, DrawCust2Keybd, PrintCust2Keybd, KEYBOARD2BTNS);
+}
+
+void
+DefineKey3Btns (void)
+{
+    CustomCtrls keyallowed = { 1, 1, 1, 1 };
+    EnterCtrlData (8, &keyallowed, DrawCust3Keybd, PrintCust3Keybd, KEYBOARD3BTNS);
+}
+
+void
+DefineKey4Btns (void)
+{
+    CustomCtrls keyallowed = { 1, 1, 0, 0 };
+    EnterCtrlData (10, &keyallowed, DrawCust4Keybd, PrintCust4Keybd, KEYBOARD4BTNS);
 }
 
 
@@ -2063,7 +2084,7 @@ void
 DefineKeyMove (void)
 {
     CustomCtrls keyallowed = { 1, 1, 1, 1 };
-    EnterCtrlData (10, &keyallowed, DrawCustKeys, PrintCustKeys, KEYBOARDMOVE);
+    EnterCtrlData (4, &keyallowed, DrawCustKeys, PrintCustKeys, KEYBOARDMOVE);
 }
 
 
@@ -2130,14 +2151,14 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
         //
         // CHANGE BUTTON VALUE?
         //
-        if (((type != KEYBOARDBTNS && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3)) ||
-            ((type == KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_Enter))
+        if (((!(type & KEYBOARDBTNS) && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3)) ||
+            ((type & KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_Enter))
         {
             lastFlashTime = GetTimeCount();
             tick = picked = 0;
             SETFONTCOLOR (0, TEXTCOLOR);
 
-            if (type == KEYBOARDBTNS || type == KEYBOARDMOVE)
+            if (type & KEYBOARDBTNS || type == KEYBOARDMOVE)
                 IN_ClearKeysDown ();
 
             while(1)
@@ -2231,6 +2252,36 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                         if (LastScan && LastScan != sc_Escape)
                         {
                             buttonscan[order[which]] = LastScan;
+                            picked = 1;
+                            ShootSnd ();
+                            IN_ClearKeysDown ();
+                        }
+                        break;
+
+                    case KEYBOARD2BTNS:
+                        if (LastScan && LastScan != sc_Escape)
+                        {
+                            buttonscan[which+4] = LastScan;
+                            picked = 1;
+                            ShootSnd ();
+                            IN_ClearKeysDown ();
+                        }
+                        break;
+
+                    case KEYBOARD3BTNS:
+                        if (LastScan && LastScan != sc_Escape)
+                        {
+                            buttonscan[which+8] = LastScan;
+                            picked = 1;
+                            ShootSnd ();
+                            IN_ClearKeysDown ();
+                        }
+                        break;
+
+                    case KEYBOARD4BTNS:
+                        if (LastScan && LastScan != sc_Escape)
+                        {
+                            buttonscan[which+12] = LastScan;
                             picked = 1;
                             ShootSnd ();
                             IN_ClearKeysDown ();
@@ -2604,7 +2655,7 @@ else
     PrintX = CST_START + CST_SPC * 3;
     US_Print ("Wp4" "\n");
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
-    DrawCustKeybd (0);
+    DrawCust2Keybd (0);
     US_Print ("\n");
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
@@ -2617,7 +2668,16 @@ else
     PrintX = CST_START + CST_SPC * 3;
     US_Print ("Pause" "\n");
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
-    DrawCustKeybd (0);
+    DrawCust3Keybd (0);
+    US_Print ("\n");
+
+    SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
+    PrintX = CST_START;
+    US_Print ("StrLft");
+    PrintX = CST_START + CST_SPC * 1;
+    US_Print ("StrRgt" "\n");
+    DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
+    DrawCust4Keybd (0);
     US_Print ("\n");
 
     //
@@ -2721,6 +2781,27 @@ PrintCustKeybd (int i)
 }
 
 void
+PrintCust2Keybd (int i)
+{
+    PrintX = CST_START + CST_SPC * i;
+    US_Print ((const char *) IN_GetScanName (buttonscan[i+4]));
+}
+
+void
+PrintCust3Keybd (int i)
+{
+    PrintX = CST_START + CST_SPC * i;
+    US_Print ((const char *) IN_GetScanName (buttonscan[i+8]));
+}
+
+void
+PrintCust4Keybd (int i)
+{
+    PrintX = CST_START + CST_SPC * i;
+    US_Print ((const char *) IN_GetScanName (buttonscan[i+12]));
+}
+
+void
 DrawCustKeybd (int hilight)
 {
     int i, color;
@@ -2749,7 +2830,7 @@ DrawCust2Keybd (int hilight)
 
     PrintY = CST_Y + 13 * 6;
     for (i = 0; i < 4; i++)
-        PrintCustKeybd (i + 4);
+        PrintCust2Keybd (i);
 }
 
 void
@@ -2765,7 +2846,7 @@ DrawCust3Keybd (int hilight)
 
     PrintY = CST_Y + 13 * 8;
     for (i = 0; i < 4; i++)
-        PrintCustKeybd (i + 8);
+        PrintCust3Keybd (i);
 }
 
 void
@@ -2780,8 +2861,8 @@ DrawCust4Keybd (int hilight)
     SETFONTCOLOR (color, BKGDCOLOR);
 
     PrintY = CST_Y + 13 * 10;
-    for (i = 0; i < 4; i++)
-        PrintCustKeybd (i + 12);
+    for (i = 0; i < 2; i++)
+        PrintCust4Keybd (i);
 }
 
 void
@@ -3811,6 +3892,10 @@ IN_GetScanName (ScanCode scan)
         if (*s == scan)
             return (*p);*/
 
+    if (!scan)
+    {
+        return "None";
+    }
     std::unordered_map<ScanCode, const char*>::iterator it = ScanNames.find(scan);
     if (it == ScanNames.end())
     {
