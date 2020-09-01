@@ -66,14 +66,14 @@ CP_itemtype SndMenu[] = {
     {1, STR_ALSB, 0}
 };
 
-enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE, CTL_CUSTOMIZE2, CTL_ALWAYSRUN }; // [FG] toggle always run
+enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE, CTL_CUSTOMIZE2, CTL_ALWAYSRUN }; // [FG] extended "Customize" menus, toggle always run
 
 CP_itemtype CtlMenu[] = {
     {0, STR_MOUSEEN, 0},
     {0, STR_SENS, MouseSensitivity},
     {0, STR_JOYEN, 0},
-    {1, "Customize Keyboard", CustomControls},
-    {1, "Customize Mouse/JS", CustomControls2},
+    {1, "Customize Keyboard", CustomControls}, // [FG] extended "Customize" menus
+    {1, "Customize Mouse/JS", Custom2Controls}, // [FG] extended "Customize" menus
     {1, "Always Run", 0} // [FG] toggle always run
 };
 
@@ -126,6 +126,7 @@ CP_itemtype CusMenu[] = {
     {1, "", 0}
 };
 
+// [FG] extended "Customize" menus
 CP_itemtype Cus2Menu[] = {
     {1, "", 0},
     {0, "", 0},
@@ -144,7 +145,7 @@ CP_iteminfo MainItems = { MENU_X, MENU_Y, lengthof(MainMenu), STARTITEM, 24 },
             LSItems   = { LSM_X, LSM_Y, lengthof(LSMenu), 0, 24 },
             CtlItems  = { CTL_X, CTL_Y, lengthof(CtlMenu), -1, 56 },
             CusItems  = { 8, CST_Y + 13 * 2, lengthof(CusMenu), -1, 0},
-            Cus2Items = { 8, CST_Y + 13 * 2, lengthof(Cus2Menu), -1, 0},
+            Cus2Items = { 8, CST_Y + 13 * 2, lengthof(Cus2Menu), -1, 0}, // [FG] extended "Customize" menus
 #ifndef SPEAR
             NewEitems = { NE_X, NE_Y, lengthof(NewEmenu), 0, 88 },
 #endif
@@ -240,6 +241,7 @@ static byte *ExtScanNames[] =   // Names corresponding to ExtScanCodes
 static std::unordered_map<ScanCode, const char *> ScanNames;
 void US_SetScanNames()
 {
+    ScanNames[0] = "None";
     ScanNames[sc_Enter] = "Enter";
     ScanNames[SDLK_UP] = "Up";
     ScanNames[SDLK_DOWN] = "Down";
@@ -1659,6 +1661,7 @@ CP_Control (int)
 
             case CTL_MOUSESENS:
             case CTL_CUSTOMIZE:
+            // [FG] extended "Customize" menus
             case CTL_CUSTOMIZE2:
                 DrawCtlScreen ();
                 MenuFadeIn ();
@@ -1961,14 +1964,17 @@ CustomControls (int)
                 DefineKeyMove ();
                 DrawCustKeys (0);
                 break;
+            // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
             case 4:
                 DefineKey2Btns ();
                 DrawCust2Keybd (0);
                 break;
+            // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
             case 6:
                 DefineKey3Btns ();
                 DrawCust3Keybd (0);
                 break;
+            // [FG] keyboard buttons 4 (StrLft, StrRgt)
             case 8:
                 DefineKey4Btns ();
                 DrawCust4Keybd (0);
@@ -1983,7 +1989,7 @@ CustomControls (int)
 }
 
 int
-CustomControls2 (int)
+Custom2Controls (int)
 {
     int which;
 
@@ -2054,6 +2060,7 @@ DefineKeyBtns (void)
     EnterCtrlData (2, &keyallowed, DrawCustKeybd, PrintCustKeybd, KEYBOARDBTNS);
 }
 
+// [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void
 DefineKey2Btns (void)
 {
@@ -2061,6 +2068,7 @@ DefineKey2Btns (void)
     EnterCtrlData (6, &keyallowed, DrawCust2Keybd, PrintCust2Keybd, KEYBOARD2BTNS);
 }
 
+// [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
 void
 DefineKey3Btns (void)
 {
@@ -2068,6 +2076,7 @@ DefineKey3Btns (void)
     EnterCtrlData (8, &keyallowed, DrawCust3Keybd, PrintCust3Keybd, KEYBOARD3BTNS);
 }
 
+// [FG] keyboard buttons 4 (StrLft, StrRgt)
 void
 DefineKey4Btns (void)
 {
@@ -2151,14 +2160,19 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
         //
         // CHANGE BUTTON VALUE?
         //
-        if (((!(type & KEYBOARDBTNS) && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3)) ||
-            ((type & KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_Enter))
+        // [FG] extended "Customize" menus
+        if (((type != KEYBOARD4BTNS && type != KEYBOARD3BTNS && type != KEYBOARD2BTNS &&
+              type != KEYBOARDBTNS && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3)) ||
+            ((type == KEYBOARD4BTNS || type == KEYBOARD3BTNS || type == KEYBOARD2BTNS ||
+              type == KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_Enter))
         {
             lastFlashTime = GetTimeCount();
             tick = picked = 0;
             SETFONTCOLOR (0, TEXTCOLOR);
 
-            if (type & KEYBOARDBTNS || type == KEYBOARDMOVE)
+            // [FG] extended "Customize" menus
+            if (type == KEYBOARD4BTNS || type == KEYBOARD3BTNS || type == KEYBOARD2BTNS ||
+                type == KEYBOARDBTNS || type == KEYBOARDMOVE)
                 IN_ClearKeysDown ();
 
             while(1)
@@ -2258,6 +2272,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                         }
                         break;
 
+                    // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
                     case KEYBOARD2BTNS:
                         if (LastScan && LastScan != sc_Escape)
                         {
@@ -2268,6 +2283,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                         }
                         break;
 
+                    // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
                     case KEYBOARD3BTNS:
                         if (LastScan && LastScan != sc_Escape)
                         {
@@ -2278,6 +2294,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                         }
                         break;
 
+                    // [FG] keyboard buttons 4 (StrLft, StrRgt)
                     case KEYBOARD4BTNS:
                         if (LastScan && LastScan != sc_Escape)
                         {
@@ -2398,12 +2415,15 @@ FixupCustom (int w)
         case 2:
             DrawCustKeys (1);
             break;
+        // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
         case 4:
             DrawCust2Keybd (1);
             break;
+        // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
         case 6:
             DrawCust3Keybd (1);
             break;
+        // [FG] keyboard buttons 4 (StrLft, StrRgt)
         case 8:
             DrawCust4Keybd (1);
             break;
@@ -2432,12 +2452,15 @@ FixupCustom (int w)
         case 2:
             DrawCustKeys (0);
             break;
+        // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
         case 4:
             DrawCust2Keybd (0);
             break;
+        // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
         case 6:
             DrawCust3Keybd (0);
             break;
+        // [FG] keyboard buttons 4 (StrLft, StrRgt)
         case 8:
             DrawCust4Keybd (0);
             break;
@@ -2780,6 +2803,7 @@ PrintCustKeybd (int i)
     US_Print ((const char *) IN_GetScanName (buttonscan[order[i]]));
 }
 
+// [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void
 PrintCust2Keybd (int i)
 {
@@ -2787,6 +2811,7 @@ PrintCust2Keybd (int i)
     US_Print ((const char *) IN_GetScanName (buttonscan[i+4]));
 }
 
+// [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
 void
 PrintCust3Keybd (int i)
 {
@@ -2794,6 +2819,7 @@ PrintCust3Keybd (int i)
     US_Print ((const char *) IN_GetScanName (buttonscan[i+8]));
 }
 
+// [FG] keyboard buttons 4 (StrLft, StrRgt)
 void
 PrintCust4Keybd (int i)
 {
@@ -2817,6 +2843,7 @@ DrawCustKeybd (int hilight)
         PrintCustKeybd (i);
 }
 
+// [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void
 DrawCust2Keybd (int hilight)
 {
@@ -2833,6 +2860,7 @@ DrawCust2Keybd (int hilight)
         PrintCust2Keybd (i);
 }
 
+// [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
 void
 DrawCust3Keybd (int hilight)
 {
@@ -2849,6 +2877,7 @@ DrawCust3Keybd (int hilight)
         PrintCust3Keybd (i);
 }
 
+// [FG] keyboard buttons 4 (StrLft, StrRgt)
 void
 DrawCust4Keybd (int hilight)
 {
@@ -3892,10 +3921,6 @@ IN_GetScanName (ScanCode scan)
         if (*s == scan)
             return (*p);*/
 
-    if (!scan)
-    {
-        return "None";
-    }
     std::unordered_map<ScanCode, const char*>::iterator it = ScanNames.find(scan);
     if (it == ScanNames.end())
     {

@@ -146,9 +146,9 @@ void DrawStripes(int y);
 void DefineMouseBtns(void);
 void DefineJoyBtns(void);
 void DefineKeyBtns(void);
-void DefineKey2Btns(void);
-void DefineKey3Btns(void);
-void DefineKey4Btns(void);
+void DefineKey2Btns(void); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
+void DefineKey3Btns(void); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
+void DefineKey4Btns(void); // [FG] keyboard buttons 4 (StrLft, StrRgt)
 void DefineKeyMove(void);
 void EnterCtrlData(int index,CustomCtrls *cust,void (*DrawRtn)(int),void (*PrintRtn)(int),int type);
 
@@ -160,28 +160,28 @@ void DrawNewGame(void);
 void DrawChangeView(int view);
 void DrawMouseSens(void);
 void DrawCtlScreen(void);
-void DrawCustomScreen(int);
+void DrawCustomScreen(int); // [FG] extended "Customize" menus
 void DrawLSAction(int which);
 void DrawCustMouse(int hilight);
 void DrawCustJoy(int hilight);
 void DrawCustKeybd(int hilight);
-void DrawCust2Keybd(int hilight);
-void DrawCust3Keybd(int hilight);
-void DrawCust4Keybd(int hilight);
+void DrawCust2Keybd(int hilight); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
+void DrawCust3Keybd(int hilight); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
+void DrawCust4Keybd(int hilight); // [FG] keyboard buttons 4 (StrLft, StrRgt)
 void DrawCustKeys(int hilight);
 void PrintCustMouse(int i);
 void PrintCustJoy(int i);
 void PrintCustKeybd(int i);
-void PrintCust2Keybd(int i);
-void PrintCust3Keybd(int i);
-void PrintCust4Keybd(int i);
+void PrintCust2Keybd(int i); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
+void PrintCust3Keybd(int i); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
+void PrintCust4Keybd(int i); // [FG] keyboard buttons 4 (StrLft, StrRgt)
 void PrintCustKeys(int i);
 
 void PrintLSEntry(int w,int color);
 void TrackWhichGame(int w);
 void DrawNewGameDiff(int w);
 void FixupCustom(int w);
-void FixupCustom2(int w);
+void FixupCustom2(int w); // [FG] extended "Customize" menus
 
 int CP_NewGame(int);
 int CP_Sound(int);
@@ -195,7 +195,7 @@ int CP_ViewScores(int);
 int  CP_EndGame(int);
 int  CP_CheckQuick(ScanCode scancode);
 int CustomControls(int);
-int CustomControls2(int);
+int Custom2Controls(int); // [FG] extended "Customize" menus
 int MouseSensitivity(int);
 
 void CheckForEpisodes(void);
@@ -203,7 +203,8 @@ void CheckForEpisodes(void);
 void FreeMusic(void);
 
 
-enum {MOUSE,JOYSTICK,KEYBOARDBTNS,KEYBOARDMOVE=4,KEYBOARD2BTNS=10,KEYBOARD3BTNS=18,KEYBOARD4BTNS=34};        // FOR INPUT TYPES
+// [FG] extended "Customize" menus
+enum {MOUSE,JOYSTICK,KEYBOARDBTNS,KEYBOARDMOVE,KEYBOARD2BTNS,KEYBOARD3BTNS,KEYBOARD4BTNS};        // FOR INPUT TYPES
 
 enum menuitems
 {
