@@ -63,6 +63,9 @@ typedef struct
 static Mix_Chunk *SoundChunks[ STARTMUSIC - STARTDIGISOUNDS];
 static byte      *SoundBuffers[STARTMUSIC - STARTDIGISOUNDS];
 
+// [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+SDL_mutex *audioMutex;
+
 globalsoundpos channelSoundPos[MIX_CHANNELS];
 
 //      Global variables
@@ -890,8 +893,13 @@ SDL_SetupDigi(void)
 static void
 SDL_ALStopSound(void)
 {
+    // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+    SDL_LockMutex(audioMutex);
+
     alSound = 0;
     alOut(alFreqH + 0, 0);
+
+    SDL_UnlockMutex(audioMutex);
 }
 
 static void
@@ -930,6 +938,9 @@ SDL_ALPlaySound(AdLibSound *sound)
 
     SDL_ALStopSound();
 
+    // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+    SDL_LockMutex(audioMutex);
+
     alLengthLeft = sound->common.length;
     data = sound->data;
     alBlock = ((sound->block & 7) << 2) | 0x20;
@@ -942,6 +953,8 @@ SDL_ALPlaySound(AdLibSound *sound)
 
     SDL_AlSetFXInst(inst);
     alSound = (byte *)data;
+
+    SDL_UnlockMutex(audioMutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -952,10 +965,15 @@ SDL_ALPlaySound(AdLibSound *sound)
 static void
 SDL_ShutAL(void)
 {
+    // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+    SDL_LockMutex(audioMutex);
+
     alSound = 0;
     alOut(alEffects,0);
     alOut(alFreqH + 0,0);
     SDL_AlSetFXInst(&alZeroInst);
+
+    SDL_UnlockMutex(audioMutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1124,33 +1142,32 @@ void SDL_IMFMusicPlayer(void *udata, Uint8 *stream, int len)
                 return;
             }
         }
+
+        // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+        SDL_LockMutex(audioMutex);
+
         soundTimeCounter--;
         if(!soundTimeCounter)
         {
             soundTimeCounter = 5;
-            if(curAlSound != alSound)
-            {
-                curAlSound = curAlSoundPtr = alSound;
-                curAlLengthLeft = alLengthLeft;
-            }
-            if(curAlSound)
-            {
-                if(*curAlSoundPtr)
-                {
-                    alOut(alFreqL, *curAlSoundPtr);
-                    alOut(alFreqH, alBlock);
-                }
-                else alOut(alFreqH, 0);
-                curAlSoundPtr++;
-                curAlLengthLeft--;
-                if(!curAlLengthLeft)
-                {
-                    curAlSound = alSound = 0;
-                    SoundNumber = (soundnames) 0;
-                    SoundPriority = 0;
-                    alOut(alFreqH, 0);
-                }
-            }
+
+            // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+			// [k1n9_duk3] THIS is the way the original Wolfenstein 3-D code handled it!
+			if(alSound)
+			{
+				if(*alSound)
+				{
+					alOut(alFreqL, *alSound);
+					alOut(alFreqH, alBlock);
+				} else alOut(alFreqH, 0);
+				alSound++;
+				if (!(--alLengthLeft))
+				{
+					alSound = 0;
+					SoundPriority=0;
+					alOut(alFreqH, 0);
+				}
+			}
         }
         if(sqActive)
         {
@@ -1173,6 +1190,8 @@ void SDL_IMFMusicPlayer(void *udata, Uint8 *stream, int len)
             }
         }
         numreadysamples = samplesPerMusicTick;
+
+        SDL_UnlockMutex(audioMutex);
     }
 }
 
@@ -1189,6 +1208,13 @@ SD_Startup(void)
 
     if (SD_Started)
         return;
+
+    // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+    if (!(audioMutex = SDL_CreateMutex()))
+    {
+        puts("Unable to create audio mutex");
+        return;
+    }
 
     if(Mix_OpenAudio(param_samplerate, AUDIO_S16, 2, param_audiobuffer))
     {
@@ -1246,6 +1272,13 @@ SD_Shutdown(void)
 
     SD_MusicOff();
     SD_StopSound();
+
+    // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+    if (audioMutex)
+    {
+        SDL_DestroyMutex(audioMutex);
+        audioMutex = NULL;
+    }
 
     for(int i = 0; i < STARTMUSIC - STARTDIGISOUNDS; i++)
     {
@@ -1449,6 +1482,9 @@ SD_MusicOff(void)
 {
     word    i;
 
+    // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+    SDL_LockMutex(audioMutex);
+
     sqActive = false;
     switch (MusicMode)
     {
@@ -1460,6 +1496,8 @@ SD_MusicOff(void)
         default:
             break;
     }
+
+    SDL_UnlockMutex(audioMutex);
 
     return (int) (sqHackPtr-sqHack);
 }
@@ -1476,6 +1514,9 @@ SD_StartMusic(int chunk)
 
     if (MusicMode == smm_AdLib)
     {
+        // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+        SDL_LockMutex(audioMutex);
+
         int32_t chunkLen = CA_CacheAudioChunk(chunk);
         sqHack = (word *)(void *) audiosegs[chunk];     // alignment is correct
         if(*sqHack == 0) sqHackLen = sqHackSeqLen = chunkLen;
@@ -1484,6 +1525,8 @@ SD_StartMusic(int chunk)
         sqHackTime = 0;
         alTimeCount = 0;
         SD_MusicOn();
+
+        SDL_UnlockMutex(audioMutex);
     }
 }
 
@@ -1494,6 +1537,9 @@ SD_ContinueMusic(int chunk, int startoffs)
 
     if (MusicMode == smm_AdLib)
     {
+        // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
+        SDL_LockMutex(audioMutex);
+
         int32_t chunkLen = CA_CacheAudioChunk(chunk);
         sqHack = (word *)(void *) audiosegs[chunk];     // alignment is correct
         if(*sqHack == 0) sqHackLen = sqHackSeqLen = chunkLen;
@@ -1523,6 +1569,8 @@ SD_ContinueMusic(int chunk, int startoffs)
         alTimeCount = 0;
 
         SD_MusicOn();
+
+        SDL_UnlockMutex(audioMutex);
     }
 }
 
