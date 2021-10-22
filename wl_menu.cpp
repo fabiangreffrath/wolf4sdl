@@ -130,8 +130,8 @@ CP_itemtype CusMenu[] = {
 CP_itemtype Cus2Menu[] = {
     {1, "", 0},
     {0, "", 0},
-    {0, "", 0},
     {1, "", 0},
+    {0, "", 0},
     {0, "", 0},
     {1, "", 0},
     {0, "", 0},
@@ -349,6 +349,8 @@ void US_SetScanNames()
     ScanNames[SDLK_LEFTBRACKET] = "[";
     ScanNames[SDLK_BACKSLASH] = "\\";
     ScanNames[SDLK_RIGHTBRACKET] = "]";
+    ScanNames[KEYD_MWHEELUP] = "MWUP";
+    ScanNames[KEYD_MWHEELDOWN] = "MWDN";
 }
 
 #endif
@@ -2003,15 +2005,7 @@ Custom2Controls (int)
                 DefineMouseBtns ();
                 DrawCustMouse (1);
                 break;
-            case 3:
-                DefineJoyBtns ();
-                DrawCustJoy (0);
-                break;
             case 5:
-                DefineJoyBtns ();
-                DrawCustJoy (0);
-                break;
-            case 7:
                 DefineJoyBtns ();
                 DrawCustJoy (0);
                 break;
@@ -2492,14 +2486,9 @@ FixupCustom2 (int w)
         case 0:
             DrawCustMouse (1);
             break;
-        case 3:
+        case 5:
             DrawCustJoy (1);
             break;
-        case 6:
-            DrawCustKeybd (1);
-            break;
-        case 8:
-            DrawCustKeys (1);
     }
 
 
@@ -2522,14 +2511,9 @@ FixupCustom2 (int w)
                 case 0:
                     DrawCustMouse (0);
                     break;
-                case 3:
+                case 5:
                     DrawCustJoy (0);
                     break;
-                case 6:
-                    DrawCustKeybd (0);
-                    break;
-                case 8:
-                    DrawCustKeys (0);
             }
     }
 

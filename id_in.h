@@ -92,6 +92,8 @@ typedef	int		ScanCode;
 
 #define	key_None		0
 
+const int KEYD_MWHEELUP = (0x80 + 0x6b), KEYD_MWHEELDOWN = (0x80 + 0x6c);
+
 typedef	enum		{
 						demo_Off,demo_Record,demo_Playback,demo_PlayDone
 					} Demo;
