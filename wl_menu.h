@@ -145,6 +145,8 @@ void DrawStripes(int y);
 
 void DefineMouseBtns(void);
 void DefineJoyBtns(void);
+void DefineJoy2Btns(void);
+void DefineJoy3Btns(void);
 void DefineKeyBtns(void);
 void DefineKey2Btns(void); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void DefineKey3Btns(void); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
@@ -164,6 +166,8 @@ void DrawCustomScreen(int); // [FG] extended "Customize" menus
 void DrawLSAction(int which);
 void DrawCustMouse(int hilight);
 void DrawCustJoy(int hilight);
+void DrawCust2Joy(int hilight);
+void DrawCust3Joy(int hilight);
 void DrawCustKeybd(int hilight);
 void DrawCust2Keybd(int hilight); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void DrawCust3Keybd(int hilight); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
@@ -171,6 +175,8 @@ void DrawCust4Keybd(int hilight); // [FG] keyboard buttons 4 (StrLft, StrRgt)
 void DrawCustKeys(int hilight);
 void PrintCustMouse(int i);
 void PrintCustJoy(int i);
+void PrintCust2Joy(int i);
+void PrintCust3Joy(int i);
 void PrintCustKeybd(int i);
 void PrintCust2Keybd(int i); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void PrintCust3Keybd(int i); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
@@ -204,7 +210,7 @@ void FreeMusic(void);
 
 
 // [FG] extended "Customize" menus
-enum {MOUSE,JOYSTICK,KEYBOARDBTNS,KEYBOARDMOVE,KEYBOARD2BTNS,KEYBOARD3BTNS,KEYBOARD4BTNS};        // FOR INPUT TYPES
+enum {MOUSE,JOYSTICK,JOYSTICK2,JOYSTICK3,KEYBOARDBTNS,KEYBOARDMOVE,KEYBOARD2BTNS,KEYBOARD3BTNS,KEYBOARD4BTNS};        // FOR INPUT TYPES
 
 enum menuitems
 {

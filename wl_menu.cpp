@@ -130,8 +130,8 @@ CP_itemtype CusMenu[] = {
 CP_itemtype Cus2Menu[] = {
     {1, "", 0},
     {0, "", 0},
-    {1, "", 0},
     {0, "", 0},
+    {1, "", 0},
     {0, "", 0},
     {1, "", 0},
     {0, "", 0},
@@ -1943,8 +1943,14 @@ DrawCtlScreen (void)
 ////////////////////////////////////////////////////////////////////
 enum
 { FIRE, STRAFE, RUN, OPEN };
-char mbarray[4][3] = { "b0", "b1", "b2", "b3" };
-int8_t order[4] = { RUN, OPEN, FIRE, STRAFE };
+char mbarray[32][4] = { "b00", "b01", "b02", "b03", "b04", "b05", "b06", "b07", "b08", "b09",
+                        "b10", "b11", "b12", "b13", "b14", "b15", "b16", "b17", "b18", "b19",
+                        "b20", "b21", "b22", "b23", "b24", "b25", "b26", "b27", "b28", "b29",
+                        "b30", "b31" };
+int8_t order[32] = { RUN, OPEN, FIRE, STRAFE, 4, 5, 6, 7, 8, 9,
+                    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+                    31, 31 };
 
 
 int
@@ -2005,9 +2011,17 @@ Custom2Controls (int)
                 DefineMouseBtns ();
                 DrawCustMouse (1);
                 break;
-            case 5:
+            case 3:
                 DefineJoyBtns ();
                 DrawCustJoy (0);
+                break;
+            case 5:
+                DefineJoy2Btns ();
+                DrawCust2Joy (0);
+                break;
+            case 7:
+                DefineJoy3Btns ();
+                DrawCust3Joy (0);
                 break;
         }
     }
@@ -2040,6 +2054,20 @@ DefineJoyBtns (void)
 {
     CustomCtrls joyallowed = { 1, 1, 1, 1 };
     EnterCtrlData (5, &joyallowed, DrawCustJoy, PrintCustJoy, JOYSTICK);
+}
+
+void
+DefineJoy2Btns (void)
+{
+    CustomCtrls joyallowed = { 1, 1, 1, 1 };
+    EnterCtrlData (7, &joyallowed, DrawCust2Joy, PrintCust2Joy, JOYSTICK2);
+}
+
+void
+DefineJoy3Btns (void)
+{
+    CustomCtrls joyallowed = { 1, 1, 0, 0 };
+    EnterCtrlData (9, &joyallowed, DrawCust3Joy, PrintCust3Joy, JOYSTICK3);
 }
 
 
@@ -2144,7 +2172,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
         SDL_Delay(5);
         ReadAnyControl (&ci);
 
-        if (type == MOUSE || type == JOYSTICK)
+        if (type == MOUSE || type == JOYSTICK || type == JOYSTICK2 || type == JOYSTICK3)
             if (IN_KeyDown (sc_Enter) || IN_KeyDown (sc_Control) || IN_KeyDown (sc_Alt))
             {
                 IN_ClearKeysDown ();
@@ -2156,7 +2184,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
         //
         // [FG] extended "Customize" menus
         if (((type != KEYBOARD4BTNS && type != KEYBOARD3BTNS && type != KEYBOARD2BTNS &&
-              type != KEYBOARDBTNS && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3)) ||
+              type != KEYBOARDBTNS && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3 | IN_JoyButtons())) ||
             ((type == KEYBOARD4BTNS || type == KEYBOARD3BTNS || type == KEYBOARD2BTNS ||
               type == KEYBOARDBTNS || type == KEYBOARDMOVE) && LastScan == sc_Enter))
         {
@@ -2230,18 +2258,19 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                         break;
 
                     case JOYSTICK:
-                        if (ci.button0)
-                            result = 1;
-                        else if (ci.button1)
-                            result = 2;
-                        else if (ci.button2)
-                            result = 3;
-                        else if (ci.button3)
-                            result = 4;
+                        button = IN_JoyButtons();
+                        for (int i = 0; i < 32; i++)
+                        {
+                          if (button & (1 << i))
+                          {
+                            result = i + 1;
+                            break;
+                          }
+                        }
 
                         if (result)
                         {
-                            for (int z = 0; z < 4; z++)
+                            for (int z = 0; z < 32; z++)
                             {
                                 if (order[which] == buttonjoy[z])
                                 {
@@ -2251,6 +2280,63 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                             }
 
                             buttonjoy[result - 1] = order[which];
+                            picked = 1;
+                            SD_PlaySound (SHOOTDOORSND);
+
+                        }
+                        break;
+
+                    case JOYSTICK2:
+                        button = IN_JoyButtons();
+                        for (int i = 0; i < 32; i++)
+                        {
+                          if (button & (1 << i))
+                          {
+                            result = i + 1;
+                            break;
+                          }
+                        }
+
+                        if (result)
+                        {
+                            for (int z = 0; z < 32; z++)
+                            {
+                                if (which+8 == buttonjoy[z])
+                                {
+                                    buttonjoy[z] = bt_nobutton;
+                                    break;
+                                }
+                            }
+
+                            buttonjoy[result - 1] = which+8;
+                            picked = 1;
+                            SD_PlaySound (SHOOTDOORSND);
+                        }
+                        break;
+
+                    case JOYSTICK3:
+                        button = IN_JoyButtons();
+                        for (int i = 0; i < 32; i++)
+                        {
+                          if (button & (1 << i))
+                          {
+                            result = i + 1;
+                            break;
+                          }
+                        }
+
+                        if (result)
+                        {
+                            for (int z = 0; z < 32; z++)
+                            {
+                                if (which+12 == buttonjoy[z])
+                                {
+                                    buttonjoy[z] = bt_nobutton;
+                                    break;
+                                }
+                            }
+
+                            buttonjoy[result - 1] = which+12;
                             picked = 1;
                             SD_PlaySound (SHOOTDOORSND);
                         }
@@ -2486,8 +2572,14 @@ FixupCustom2 (int w)
         case 0:
             DrawCustMouse (1);
             break;
-        case 5:
+        case 3:
             DrawCustJoy (1);
+            break;
+        case 5:
+            DrawCust2Joy (1);
+            break;
+        case 7:
+            DrawCust3Joy (1);
             break;
     }
 
@@ -2511,8 +2603,14 @@ FixupCustom2 (int w)
                 case 0:
                     DrawCustMouse (0);
                     break;
-                case 5:
+                case 3:
                     DrawCustJoy (0);
+                    break;
+                case 5:
+                    DrawCust2Joy (0);
+                    break;
+                case 7:
+                    DrawCust3Joy (0);
                     break;
             }
     }
@@ -2598,6 +2696,28 @@ if (cust == 2)
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustJoy (0);
     US_Print ("\n");
+
+    SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
+    PrintX = CST_START;
+    US_Print ("Wp+");
+    PrintX = CST_START + CST_SPC * 1;
+    US_Print ("Wp-");
+    PrintX = CST_START + CST_SPC * 2;
+    US_Print ("Menu");
+    PrintX = CST_START + CST_SPC * 3;
+    US_Print ("Pause" "\n");
+    DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
+    DrawCust2Joy (0);
+    US_Print ("\n");
+
+    PrintX = CST_START;
+    US_Print ("StrLft");
+    PrintX = CST_START + CST_SPC * 1;
+    US_Print ("StrRgt" "\n");
+    DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
+    DrawCust3Joy (0);
+    US_Print ("\n");
+
     //
     // PICK STARTING POINT IN MENU
     //
@@ -2745,9 +2865,37 @@ DrawCustMouse (int hilight)
 void
 PrintCustJoy (int i)
 {
-    for (int j = 0; j < 4; j++)
+    for (int j = 0; j < 32; j++)
     {
         if (order[i] == buttonjoy[j])
+        {
+            PrintX = CST_START + CST_SPC * i;
+            US_Print (mbarray[j]);
+            break;
+        }
+    }
+}
+
+void
+PrintCust2Joy (int i)
+{
+    for (int j = 0; j < 32; j++)
+    {
+        if (i + 8 == buttonjoy[j])
+        {
+            PrintX = CST_START + CST_SPC * i;
+            US_Print (mbarray[j]);
+            break;
+        }
+    }
+}
+
+void
+PrintCust3Joy (int i)
+{
+    for (int j = 0; j < 32; j++)
+    {
+        if (i + 12 == buttonjoy[j])
         {
             PrintX = CST_START + CST_SPC * i;
             US_Print (mbarray[j]);
@@ -2769,14 +2917,60 @@ DrawCustJoy (int hilight)
     if (!joystickenabled)
     {
         SETFONTCOLOR (DEACTIVE, BKGDCOLOR);
-        CusMenu[3].active = 0;
+        Cus2Menu[3].active = 0;
     }
     else
-        CusMenu[3].active = 1;
+        Cus2Menu[3].active = 1;
 
     PrintY = CST_Y + 13 * 5;
     for (i = 0; i < 4; i++)
         PrintCustJoy (i);
+}
+
+void
+DrawCust2Joy (int hilight)
+{
+    int i, color;
+
+    color = TEXTCOLOR;
+    if (hilight)
+        color = HIGHLIGHT;
+    SETFONTCOLOR (color, BKGDCOLOR);
+
+    if (!joystickenabled)
+    {
+        SETFONTCOLOR (DEACTIVE, BKGDCOLOR);
+        Cus2Menu[5].active = 0;
+    }
+    else
+        Cus2Menu[5].active = 1;
+
+    PrintY = CST_Y + 13 * 7;
+    for (i = 0; i < 4; i++)
+        PrintCust2Joy (i);
+}
+
+void
+DrawCust3Joy (int hilight)
+{
+    int i, color;
+
+    color = TEXTCOLOR;
+    if (hilight)
+        color = HIGHLIGHT;
+    SETFONTCOLOR (color, BKGDCOLOR);
+
+    if (!joystickenabled)
+    {
+        SETFONTCOLOR (DEACTIVE, BKGDCOLOR);
+        Cus2Menu[7].active = 0;
+    }
+    else
+        Cus2Menu[7].active = 1;
+
+    PrintY = CST_Y + 13 * 9;
+    for (i = 0; i < 4; i++)
+        PrintCust3Joy (i);
 }
 
 
