@@ -61,7 +61,7 @@
 #define CTL_X   24
 #define CTL_Y   86
 #define CTL_W   284
-#define CTL_H   (60+26) // [FG] toggle always run
+#define CTL_H   (60+2*13) // [FG] toggle always run
 
 #define LSM_X   85
 #define LSM_Y   55
@@ -145,8 +145,8 @@ void DrawStripes(int y);
 
 void DefineMouseBtns(void);
 void DefineJoyBtns(void);
-void DefineJoy2Btns(void);
-void DefineJoy3Btns(void);
+void DefineJoy2Btns(void); // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
+void DefineJoy3Btns(void); // [FG] joystick buttons 3 (StrLft, StrRgt)
 void DefineKeyBtns(void);
 void DefineKey2Btns(void); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void DefineKey3Btns(void); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
@@ -166,8 +166,8 @@ void DrawCustomScreen(int); // [FG] extended "Customize" menus
 void DrawLSAction(int which);
 void DrawCustMouse(int hilight);
 void DrawCustJoy(int hilight);
-void DrawCust2Joy(int hilight);
-void DrawCust3Joy(int hilight);
+void DrawCust2Joy(int hilight); // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
+void DrawCust3Joy(int hilight); // [FG] joystick buttons 3 (StrLft, StrRgt)
 void DrawCustKeybd(int hilight);
 void DrawCust2Keybd(int hilight); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void DrawCust3Keybd(int hilight); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)
@@ -175,8 +175,8 @@ void DrawCust4Keybd(int hilight); // [FG] keyboard buttons 4 (StrLft, StrRgt)
 void DrawCustKeys(int hilight);
 void PrintCustMouse(int i);
 void PrintCustJoy(int i);
-void PrintCust2Joy(int i);
-void PrintCust3Joy(int i);
+void PrintCust2Joy(int i); // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
+void PrintCust3Joy(int i); // [FG] joystick buttons 3 (StrLft, StrRgt)
 void PrintCustKeybd(int i);
 void PrintCust2Keybd(int i); // [FG] keyboard buttons 2 (Wp1, Wp2, Wp3, Wp4)
 void PrintCust3Keybd(int i); // [FG] keyboard buttons 3 (Wp+, Wp-, Menu, Pause)

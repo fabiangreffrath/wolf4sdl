@@ -434,7 +434,7 @@ static void I_ToggleFullScreen(void)
     }
 }
 
-// [FG] map mouse wheel to keypresses
+// [FG] map mouse wheel to key presses
 static unsigned int mwheelsym = 0;
 static inline void mwheelkey (int type)
 {
@@ -464,7 +464,7 @@ static void processEvent(SDL_Event *event)
                 {
                     mwheelsym = KEYD_MWHEELUP;
                 }
-                else// if (event->wheel.y < 0)
+                else
                 {
                     mwheelsym = KEYD_MWHEELDOWN;
                 }

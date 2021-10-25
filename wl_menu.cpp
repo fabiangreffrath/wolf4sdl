@@ -1943,10 +1943,12 @@ DrawCtlScreen (void)
 ////////////////////////////////////////////////////////////////////
 enum
 { FIRE, STRAFE, RUN, OPEN };
+// [FG] support up to 32 joystick buttons
 char mbarray[32][4] = { "b00", "b01", "b02", "b03", "b04", "b05", "b06", "b07", "b08", "b09",
                         "b10", "b11", "b12", "b13", "b14", "b15", "b16", "b17", "b18", "b19",
                         "b20", "b21", "b22", "b23", "b24", "b25", "b26", "b27", "b28", "b29",
                         "b30", "b31" };
+// [FG] support up to 32 joystick buttons
 int8_t order[32] = { RUN, OPEN, FIRE, STRAFE, 4, 5, 6, 7, 8, 9,
                     10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
                     20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
@@ -2015,6 +2017,7 @@ Custom2Controls (int)
                 DefineJoyBtns ();
                 DrawCustJoy (0);
                 break;
+            // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
             case 5:
                 DefineJoy2Btns ();
                 DrawCust2Joy (0);
@@ -2056,6 +2059,7 @@ DefineJoyBtns (void)
     EnterCtrlData (5, &joyallowed, DrawCustJoy, PrintCustJoy, JOYSTICK);
 }
 
+// [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
 void
 DefineJoy2Btns (void)
 {
@@ -2063,6 +2067,7 @@ DefineJoy2Btns (void)
     EnterCtrlData (7, &joyallowed, DrawCust2Joy, PrintCust2Joy, JOYSTICK2);
 }
 
+// [FG] joystick buttons 3 (StrLft, StrRgt)
 void
 DefineJoy3Btns (void)
 {
@@ -2172,6 +2177,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
         SDL_Delay(5);
         ReadAnyControl (&ci);
 
+        // [FG] extended "Customize" menus
         if (type == MOUSE || type == JOYSTICK || type == JOYSTICK2 || type == JOYSTICK3)
             if (IN_KeyDown (sc_Enter) || IN_KeyDown (sc_Control) || IN_KeyDown (sc_Alt))
             {
@@ -2182,7 +2188,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
         //
         // CHANGE BUTTON VALUE?
         //
-        // [FG] extended "Customize" menus
+        // [FG] extended "Customize" menus, support up to 32 joystick buttons
         if (((type != KEYBOARD4BTNS && type != KEYBOARD3BTNS && type != KEYBOARD2BTNS &&
               type != KEYBOARDBTNS && type != KEYBOARDMOVE) && (ci.button0 | ci.button1 | ci.button2 | ci.button3 | IN_JoyButtons())) ||
             ((type == KEYBOARD4BTNS || type == KEYBOARD3BTNS || type == KEYBOARD2BTNS ||
@@ -2259,6 +2265,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
 
                     case JOYSTICK:
                         button = IN_JoyButtons();
+                        // [FG] support up to 32 joystick buttons
                         for (int i = 0; i < 32; i++)
                         {
                           if (button & (1 << i))
@@ -2270,6 +2277,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
 
                         if (result)
                         {
+                            // [FG] support up to 32 joystick buttons
                             for (int z = 0; z < 32; z++)
                             {
                                 if (order[which] == buttonjoy[z])
@@ -2286,8 +2294,10 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                         }
                         break;
 
+                    // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
                     case JOYSTICK2:
                         button = IN_JoyButtons();
+                        // [FG] support up to 32 joystick buttons
                         for (int i = 0; i < 32; i++)
                         {
                           if (button & (1 << i))
@@ -2299,6 +2309,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
 
                         if (result)
                         {
+                            // [FG] support up to 32 joystick buttons
                             for (int z = 0; z < 32; z++)
                             {
                                 if (which+8 == buttonjoy[z])
@@ -2314,8 +2325,10 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
                         }
                         break;
 
+                    // [FG] joystick buttons 3 (StrLft, StrRgt)
                     case JOYSTICK3:
                         button = IN_JoyButtons();
+                        // [FG] support up to 32 joystick buttons
                         for (int i = 0; i < 32; i++)
                         {
                           if (button & (1 << i))
@@ -2327,6 +2340,7 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
 
                         if (result)
                         {
+                            // [FG] support up to 32 joystick buttons
                             for (int z = 0; z < 32; z++)
                             {
                                 if (which+12 == buttonjoy[z])
@@ -2575,9 +2589,11 @@ FixupCustom2 (int w)
         case 3:
             DrawCustJoy (1);
             break;
+        // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
         case 5:
             DrawCust2Joy (1);
             break;
+        // [FG] joystick buttons 3 (StrLft, StrRgt)
         case 7:
             DrawCust3Joy (1);
             break;
@@ -2606,9 +2622,11 @@ FixupCustom2 (int w)
                 case 3:
                     DrawCustJoy (0);
                     break;
+                // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
                 case 5:
                     DrawCust2Joy (0);
                     break;
+                // [FG] joystick buttons 3 (StrLft, StrRgt)
                 case 7:
                     DrawCust3Joy (0);
                     break;
@@ -2865,6 +2883,7 @@ DrawCustMouse (int hilight)
 void
 PrintCustJoy (int i)
 {
+    // [FG] support up to 32 joystick buttons
     for (int j = 0; j < 32; j++)
     {
         if (order[i] == buttonjoy[j])
@@ -2876,9 +2895,11 @@ PrintCustJoy (int i)
     }
 }
 
+// [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
 void
 PrintCust2Joy (int i)
 {
+    // [FG] support up to 32 joystick buttons
     for (int j = 0; j < 32; j++)
     {
         if (i + 8 == buttonjoy[j])
@@ -2890,9 +2911,11 @@ PrintCust2Joy (int i)
     }
 }
 
+// [FG] joystick buttons 3 (StrLft, StrRgt)
 void
 PrintCust3Joy (int i)
 {
+    // [FG] support up to 32 joystick buttons
     for (int j = 0; j < 32; j++)
     {
         if (i + 12 == buttonjoy[j])
@@ -2922,6 +2945,7 @@ DrawCustJoy (int hilight)
     else
         Cus2Menu[3].active = 1;
 
+    // [FG] redraw other joystick buttons lines
     if (hilight)
     {
         DrawCust2Joy(0);
@@ -2934,6 +2958,7 @@ DrawCustJoy (int hilight)
         PrintCustJoy (i);
 }
 
+// [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
 void
 DrawCust2Joy (int hilight)
 {
@@ -2952,6 +2977,7 @@ DrawCust2Joy (int hilight)
     else
         Cus2Menu[5].active = 1;
 
+    // [FG] redraw other joystick buttons lines
     if (hilight)
     {
         DrawCustJoy(0);
@@ -2964,6 +2990,7 @@ DrawCust2Joy (int hilight)
         PrintCust2Joy (i);
 }
 
+// [FG] joystick buttons 3 (StrLft, StrRgt)
 void
 DrawCust3Joy (int hilight)
 {
@@ -2982,6 +3009,7 @@ DrawCust3Joy (int hilight)
     else
         Cus2Menu[7].active = 1;
 
+    // [FG] redraw other joystick buttons lines
     if (hilight)
     {
         DrawCustJoy(0);
