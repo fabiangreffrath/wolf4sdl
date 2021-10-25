@@ -2922,7 +2922,14 @@ DrawCustJoy (int hilight)
     else
         Cus2Menu[3].active = 1;
 
+    if (hilight)
+    {
+        DrawCust2Joy(0);
+        DrawCust3Joy(0);
+    }
+
     PrintY = CST_Y + 13 * 5;
+    VWB_Bar(CST_START, PrintY - 1, 310 - CST_START + 5, 13, BKGDCOLOR);
     for (i = 0; i < 4; i++)
         PrintCustJoy (i);
 }
@@ -2945,7 +2952,14 @@ DrawCust2Joy (int hilight)
     else
         Cus2Menu[5].active = 1;
 
+    if (hilight)
+    {
+        DrawCustJoy(0);
+        DrawCust3Joy(0);
+    }
+
     PrintY = CST_Y + 13 * 7;
+    VWB_Bar(CST_START, PrintY - 1, 310 - CST_START + 5, 13, BKGDCOLOR);
     for (i = 0; i < 4; i++)
         PrintCust2Joy (i);
 }
@@ -2968,7 +2982,14 @@ DrawCust3Joy (int hilight)
     else
         Cus2Menu[7].active = 1;
 
+    if (hilight)
+    {
+        DrawCustJoy(0);
+        DrawCust2Joy(0);
+    }
+
     PrintY = CST_Y + 13 * 9;
+    VWB_Bar(CST_START, PrintY - 1, 310 - CST_START + 5, 13, BKGDCOLOR);
     for (i = 0; i < 4; i++)
         PrintCust3Joy (i);
 }
