@@ -1955,12 +1955,50 @@ int8_t order[32] = { RUN, OPEN, FIRE, STRAFE, 4, 5, 6, 7, 8, 9,
                     31, 31 };
 
 
+// [FG] extended "Customize" menus
+int
+Custom2Controls (int)
+{
+    int which;
+
+    DrawCustom2Screen ();
+    do
+    {
+        which = HandleMenu (&Cus2Items, &Cus2Menu[0], FixupCustom2);
+        switch (which)
+        {
+            case 0:
+                DefineMouseBtns ();
+                DrawCustMouse (1);
+                break;
+            case 3:
+                DefineJoyBtns ();
+                DrawCustJoy (0);
+                break;
+            // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
+            case 5:
+                DefineJoy2Btns ();
+                DrawCust2Joy (0);
+                break;
+            case 7:
+                DefineJoy3Btns ();
+                DrawCust3Joy (0);
+                break;
+        }
+    }
+    while (which >= 0);
+
+    MenuFadeOut ();
+
+    return 0;
+}
+
 int
 CustomControls (int)
 {
     int which;
 
-    DrawCustomScreen (1);
+    DrawCustomScreen ();
     do
     {
         which = HandleMenu (&CusItems, &CusMenu[0], FixupCustom);
@@ -1988,43 +2026,6 @@ CustomControls (int)
             case 8:
                 DefineKey4Btns ();
                 DrawCust4Keybd (0);
-                break;
-        }
-    }
-    while (which >= 0);
-
-    MenuFadeOut ();
-
-    return 0;
-}
-
-int
-Custom2Controls (int)
-{
-    int which;
-
-    DrawCustomScreen (2);
-    do
-    {
-        which = HandleMenu (&Cus2Items, &Cus2Menu[0], FixupCustom2);
-        switch (which)
-        {
-            case 0:
-                DefineMouseBtns ();
-                DrawCustMouse (1);
-                break;
-            case 3:
-                DefineJoyBtns ();
-                DrawCustJoy (0);
-                break;
-            // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
-            case 5:
-                DefineJoy2Btns ();
-                DrawCust2Joy (0);
-                break;
-            case 7:
-                DefineJoy3Btns ();
-                DrawCust3Joy (0);
                 break;
         }
     }
@@ -2484,6 +2485,79 @@ EnterCtrlData (int index, CustomCtrls * cust, void (*DrawRtn) (int), void (*Prin
 //
 // FIXUP GUN CURSOR OVERDRAW SHIT
 //
+// [FG] extended "Customize" menus
+void
+FixupCustom2 (int w)
+{
+    static int lastwhich = -1;
+    int y = CST_Y + 26 + w * 13;
+
+
+    VWB_Hlin (7, 32, y - 1, DEACTIVE);
+    VWB_Hlin (7, 32, y + 12, BORD2COLOR);
+#ifndef SPEAR
+    VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+    VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+#else
+    VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+    VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+#endif
+
+    switch (w)
+    {
+        case 0:
+            DrawCustMouse (1);
+            break;
+        case 3:
+            DrawCustJoy (1);
+            break;
+        // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
+        case 5:
+            DrawCust2Joy (1);
+            break;
+        // [FG] joystick buttons 3 (StrLft, StrRgt)
+        case 7:
+            DrawCust3Joy (1);
+            break;
+    }
+
+
+    if (lastwhich >= 0)
+    {
+        y = CST_Y + 26 + lastwhich * 13;
+        VWB_Hlin (7, 32, y - 1, DEACTIVE);
+        VWB_Hlin (7, 32, y + 12, BORD2COLOR);
+#ifndef SPEAR
+        VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+        VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+#else
+        VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+        VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+#endif
+
+        if (lastwhich != w)
+            switch (lastwhich)
+            {
+                case 0:
+                    DrawCustMouse (0);
+                    break;
+                case 3:
+                    DrawCustJoy (0);
+                    break;
+                // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
+                case 5:
+                    DrawCust2Joy (0);
+                    break;
+                // [FG] joystick buttons 3 (StrLft, StrRgt)
+                case 7:
+                    DrawCust3Joy (0);
+                    break;
+            }
+    }
+
+    lastwhich = w;
+}
+
 void
 FixupCustom (int w)
 {
@@ -2564,85 +2638,14 @@ FixupCustom (int w)
     lastwhich = w;
 }
 
-void
-FixupCustom2 (int w)
-{
-    static int lastwhich = -1;
-    int y = CST_Y + 26 + w * 13;
-
-
-    VWB_Hlin (7, 32, y - 1, DEACTIVE);
-    VWB_Hlin (7, 32, y + 12, BORD2COLOR);
-#ifndef SPEAR
-    VWB_Hlin (7, 32, y - 2, BORDCOLOR);
-    VWB_Hlin (7, 32, y + 13, BORDCOLOR);
-#else
-    VWB_Hlin (7, 32, y - 2, BORD2COLOR);
-    VWB_Hlin (7, 32, y + 13, BORD2COLOR);
-#endif
-
-    switch (w)
-    {
-        case 0:
-            DrawCustMouse (1);
-            break;
-        case 3:
-            DrawCustJoy (1);
-            break;
-        // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
-        case 5:
-            DrawCust2Joy (1);
-            break;
-        // [FG] joystick buttons 3 (StrLft, StrRgt)
-        case 7:
-            DrawCust3Joy (1);
-            break;
-    }
-
-
-    if (lastwhich >= 0)
-    {
-        y = CST_Y + 26 + lastwhich * 13;
-        VWB_Hlin (7, 32, y - 1, DEACTIVE);
-        VWB_Hlin (7, 32, y + 12, BORD2COLOR);
-#ifndef SPEAR
-        VWB_Hlin (7, 32, y - 2, BORDCOLOR);
-        VWB_Hlin (7, 32, y + 13, BORDCOLOR);
-#else
-        VWB_Hlin (7, 32, y - 2, BORD2COLOR);
-        VWB_Hlin (7, 32, y + 13, BORD2COLOR);
-#endif
-
-        if (lastwhich != w)
-            switch (lastwhich)
-            {
-                case 0:
-                    DrawCustMouse (0);
-                    break;
-                case 3:
-                    DrawCustJoy (0);
-                    break;
-                // [FG] joystick buttons 2 (Wp+, Wp-, Menu, Pause)
-                case 5:
-                    DrawCust2Joy (0);
-                    break;
-                // [FG] joystick buttons 3 (StrLft, StrRgt)
-                case 7:
-                    DrawCust3Joy (0);
-                    break;
-            }
-    }
-
-    lastwhich = w;
-}
-
 
 ////////////////////////
 //
 // DRAW CUSTOMIZE SCREEN
 //
+// [FG] extended "Customize" menus
 void
-DrawCustomScreen (int cust)
+DrawCustom2Screen (void)
 {
     int i;
 
@@ -2655,8 +2658,6 @@ DrawCustomScreen (int cust)
     VWB_DrawPic (80, 0, C_CUSTOMIZEPIC);
     PrintY = CST_Y;
 
-if (cust == 2)
-{
     //
     // MOUSE
     //
@@ -2747,9 +2748,24 @@ if (cust == 2)
                 break;
             }
 
+
+    VW_UpdateScreen ();
+    MenuFadeIn ();
 }
-else
+
+void
+DrawCustomScreen (void)
 {
+    int i;
+
+
+    ClearMScreen ();
+    WindowX = 0;
+    WindowW = 320;
+    VWB_DrawPic (112, 184, C_MOUSELBACKPIC);
+    DrawStripes (10);
+    VWB_DrawPic (80, 0, C_CUSTOMIZEPIC);
+    PrintY = CST_Y;
 
     //
     // KEYBOARD
@@ -2835,7 +2851,7 @@ else
                 CusItems.curpos = i;
                 break;
             }
-}
+
 
     VW_UpdateScreen ();
     MenuFadeIn ();

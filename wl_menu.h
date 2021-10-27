@@ -162,7 +162,8 @@ void DrawNewGame(void);
 void DrawChangeView(int view);
 void DrawMouseSens(void);
 void DrawCtlScreen(void);
-void DrawCustomScreen(int); // [FG] extended "Customize" menus
+void DrawCustomScreen(void);
+void DrawCustom2Screen(void); // [FG] extended "Customize" menus
 void DrawLSAction(int which);
 void DrawCustMouse(int hilight);
 void DrawCustJoy(int hilight);
