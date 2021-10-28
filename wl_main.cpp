@@ -1684,8 +1684,6 @@ void CheckParameters(int argc, char *argv[])
             fullscreen = true;
         else IFARG("--nograbmouse")
             grabmouse = false;
-        else IFARG("--noaspect")
-            aspect = false;
         else IFARG("--res")
         {
             if(i + 2 >= argc)
@@ -1700,6 +1698,7 @@ void CheckParameters(int argc, char *argv[])
                 unsigned factor = screenWidth / 320;
                 if(screenWidth % 320 || screenHeight != 200 * factor)
                     printf("Screen size must be a multiple of 320x200!\n"), hasError = true;
+                aspect = true;
             }
         }
         else IFARG("--resf")
@@ -1717,6 +1716,7 @@ void CheckParameters(int argc, char *argv[])
                     printf("Screen width must be at least 320!\n"), hasError = true;
                 if(screenHeight < 200)
                     printf("Screen height must be at least 200!\n"), hasError = true;
+                aspect = false;
             }
         }
         else IFARG("--joystick")
@@ -1822,9 +1822,8 @@ void CheckParameters(int argc, char *argv[])
             " --demotest             Skips right into the demo loop\n"
             " --fullscreen           Starts the game in fullscreen mode\n"
             " --nograbmouse          Does not grab the mouse in windowed mode\n"
-            " --noaspect             Does not apply aspect ratio correction\n"
             " --res <width> <height> Sets the screen resolution\n"
-            "                        (must be multiple of 320x200 or 320x240)\n"
+            "                        (must be multiple of 320x200)\n"
             " --resf <w> <h>         Sets any screen resolution >= 320x200\n"
             "                        (which may result in graphic errors)\n"
             " --joystick <index>     Use the index-th joystick if available\n"
