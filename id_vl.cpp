@@ -16,6 +16,7 @@
 #endif
 
 boolean fullscreen = false;
+boolean aspect = true; // [FG] aspect ratio correction
 unsigned screenWidth = 640;
 unsigned screenHeight = 400;
 int screenBits = -1;      // use "best" color depth according to libSDL
@@ -83,6 +84,7 @@ void	VL_Shutdown (void)
 void	VL_SetVGAPlaneMode (void)
 {
     const char *title;
+    int actualHeight; // [FG] aspect ratio correction
 #ifdef SPEAR
     title = "Spear of Destiny";
 #else
@@ -102,7 +104,9 @@ void	VL_SetVGAPlaneMode (void)
                screenWidth, screenHeight, SDL_GetError());
         exit(1);
     }
-    SDL_SetWindowMinimumSize(window, screenWidth, screenHeight);
+    // [FG] aspect ratio correction
+    actualHeight = aspect ? (6 * screenHeight / 5) : screenHeight;
+    SDL_SetWindowMinimumSize(window, screenWidth, actualHeight);
 
     int pixel_format = SDL_GetWindowPixelFormat(window);
 
@@ -119,7 +123,8 @@ void	VL_SetVGAPlaneMode (void)
                SDL_GetError());
         exit(1);
     }
-    SDL_RenderSetLogicalSize(renderer, screenWidth, screenHeight);
+    // [FG] aspect ratio correction
+    SDL_RenderSetLogicalSize(renderer, screenWidth, actualHeight);
 
     // [FG] create texture
 

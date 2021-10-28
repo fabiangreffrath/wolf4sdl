@@ -15,6 +15,7 @@ extern SDL_Window *window;
 extern SDL_Surface *screen, *screenBuffer, *curSurface;
 
 extern  boolean  fullscreen;
+extern  boolean  aspect; // [FG] aspect ratio correction
 extern  unsigned screenWidth, screenHeight, screenPitch, bufferPitch, curPitch;
 extern  unsigned scaleFactor;
 
