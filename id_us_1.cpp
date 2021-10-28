@@ -681,7 +681,7 @@ US_LineInput(int x,int y,char *buf,const char *def,boolean escok,
 				case sc_Delete:
 					if (s[cursor])
 					{
-						strcpy(s + cursor,s + cursor + 1);
+						memmove(s + cursor,s + cursor + 1, MaxString - cursor - 1);
 						redraw = true;
 					}
 					c = key_None;
