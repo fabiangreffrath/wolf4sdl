@@ -238,26 +238,6 @@ static void UpdateMouseButtonState(unsigned int button, boolean on)
     }
 }
 
-static void MapMouseWheelToButtons(SDL_MouseWheelEvent *wheel)
-{
-    // SDL2 distinguishes button events from mouse wheel events.
-    // We want to treat the mouse wheel as two buttons, as per
-    // SDL1
-
-    int button;
-
-    if (wheel->y <= 0)
-    {   // scroll down
-        button = 4;
-    }
-    else
-    {   // scroll up
-        button = 3;
-    }
-
-    mouse_button_state |= (1 << button);
-}
-
 static void I_HandleMouseEvent(SDL_Event *sdlevent)
 {
     switch (sdlevent->type)
@@ -270,10 +250,6 @@ static void I_HandleMouseEvent(SDL_Event *sdlevent)
             UpdateMouseButtonState(sdlevent->button.button, false);
             break;
 
-        case SDL_MOUSEWHEEL:
-            MapMouseWheelToButtons(&(sdlevent->wheel));
-            break;
-
         default:
             break;
     }
@@ -282,12 +258,7 @@ static void I_HandleMouseEvent(SDL_Event *sdlevent)
 static int
 INL_GetMouseButtons(void)
 {
-    int buttons = mouse_button_state;
-
-    // [FG] clear out mouse wheel "buttons" once reported
-    mouse_button_state &= ~((1 << 3) | (1 << 4));
-
-    return buttons;
+    return mouse_button_state;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -463,6 +434,19 @@ static void I_ToggleFullScreen(void)
     }
 }
 
+// [FG] map mouse wheel to key presses
+static unsigned int mwheelsym = 0;
+static inline void mwheelkey (int type)
+{
+    SDL_Event event;
+
+    event.type = type;
+    event.key.keysym.sym = mwheelsym;
+    SDL_PushEvent(&event);
+
+    mwheelsym = 0;
+}
+
 static void processEvent(SDL_Event *event)
 {
     switch (event->type)
@@ -470,6 +454,24 @@ static void processEvent(SDL_Event *event)
         // exit if the window is closed
         case SDL_QUIT:
             Quit(NULL);
+
+        // [FG] map mouse wheel to key presses
+        case SDL_MOUSEWHEEL:
+        {
+            if (MousePresent && window_focused)
+            {
+                if (event->wheel.y > 0)
+                {
+                    mwheelsym = KEYD_MWHEELUP;
+                }
+                else
+                {
+                    mwheelsym = KEYD_MWHEELDOWN;
+                }
+                // [FG] fake key press event
+                event->key.keysym.sym = mwheelsym;
+            }
+        } // [FG] fall through
 
         // check for keypresses
         case SDL_KEYDOWN:
@@ -553,7 +555,6 @@ static void processEvent(SDL_Event *event)
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEWHEEL:
             if (MousePresent && window_focused)
             {
                 I_HandleMouseEvent(event);
@@ -578,6 +579,10 @@ void IN_WaitAndProcessEvents()
         processEvent(&event);
     }
     while(SDL_PollEvent(&event));
+
+    // [FG] fake key release event
+    if (mwheelsym)
+        mwheelkey(SDL_KEYUP);
 }
 
 void IN_ProcessEvents()
@@ -588,6 +593,10 @@ void IN_ProcessEvents()
     {
         processEvent(&event);
     }
+
+    // [FG] fake key release event
+    if (mwheelsym)
+        mwheelkey(SDL_KEYUP);
 }
 
 
