@@ -931,7 +931,7 @@ void DrawScaleds (void)
 //
     for (obj = player->next;obj;obj=obj->next)
     {
-        if ((visptr->shapenum = obj->state->shapenum)==NULL)
+        if (*(visptr->shapenum = obj->state->shapenum)==0)
             continue;                                               // no shape
 
         spotloc = (obj->tilex<<mapshift)+obj->tiley;   // optimize: keep in struct?
@@ -958,10 +958,9 @@ void DrawScaleds (void)
 
             visptr->viewx = obj->viewx;
             visptr->viewheight = obj->viewheight;
-            if (*visptr->shapenum == -1)
+            if (visptr->shapenum == NULL)
             {
-                void *temp1 = &obj->temp1;
-                visptr->shapenum = (short *)temp1;  // special shape
+                visptr->shapenum = ShapePtr(obj->temp1);  // special shape
             }
 
             if (obj->state->rotate)

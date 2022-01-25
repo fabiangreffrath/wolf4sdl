@@ -513,3 +513,18 @@ statetype states[numstates] = {
 	{false,NULL,0,NULL,NULL,s_null},	// s_deathcam
 #endif
 };
+
+short *ShapePtr (short shapenum)
+{
+	int i;
+
+	for (i = 0; i < numstates; i++)
+	{
+		if (*states[i].shapenum == shapenum)
+		{
+			return states[i].shapenum;
+		}
+	}
+
+	return NULL;
+}
