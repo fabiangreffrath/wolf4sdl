@@ -86,8 +86,8 @@ int     param_tedlevel = -1;            // default is not to start a level
 int     param_joystickindex = 0;
 
 int     param_joystickhat = -1;
-longword param_samplerate = 44100;
-int     param_audiobuffer = 2048 / (44100 / param_samplerate);
+int     param_samplerate = 44100;
+int     param_audiobuffer = -1;
 
 int     param_mission = 0;
 boolean param_ignorenumchunks = false;
@@ -1647,7 +1647,6 @@ if (!param_demotest)
 void CheckParameters(int argc, char *argv[])
 {
     bool hasError = false, showHelp = false;
-    bool sampleRateGiven = false, audioBufferGiven = false;
     int defaultSampleRate = param_samplerate;
 
     for(int i = 1; i < argc; i++)
@@ -1745,7 +1744,6 @@ void CheckParameters(int argc, char *argv[])
                 hasError = true;
             }
             else param_samplerate = atoi(argv[i]);
-            sampleRateGiven = true;
         }
         else IFARG("--audiobuffer")
         {
@@ -1755,7 +1753,6 @@ void CheckParameters(int argc, char *argv[])
                 hasError = true;
             }
             else param_audiobuffer = atoi(argv[i]);
-            audioBufferGiven = true;
         }
         else IFARG("--mission")
         {
@@ -1848,9 +1845,6 @@ void CheckParameters(int argc, char *argv[])
         );
         exit(1);
     }
-
-    if(sampleRateGiven && !audioBufferGiven)
-        param_audiobuffer = 2048 / (44100 / param_samplerate);
 }
 
 /*

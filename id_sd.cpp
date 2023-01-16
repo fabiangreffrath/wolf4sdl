@@ -42,8 +42,8 @@ typedef struct
 	longword formatlen;
 	word val0x0001;
 	word channels;
-	longword samplerate;
-	longword bytespersec;
+	int samplerate;
+	int bytespersec;
 	word bytespersample;
 	word bitspersample;
 } headchunk;
@@ -1195,6 +1195,32 @@ void SDL_IMFMusicPlayer(void *udata, Uint8 *stream, int len)
     }
 }
 
+static int GetSliceSize(void)
+{
+  int limit, n;
+
+  if (param_audiobuffer != -1)
+    return param_audiobuffer;
+
+  limit = 2048 / (44100 / param_samplerate);
+
+  // Try all powers of two, not exceeding the limit.
+
+  for (n = 0; ; n++)
+  {
+    // 2^n <= limit < 2^n+1 ?
+
+    if ((1 << (n + 1)) > limit)
+    {
+      return (1 << n);
+    }
+  }
+
+  // Should never happen?
+
+  return 1024;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 //      SD_Startup() - starts up the Sound Mgr
@@ -1206,6 +1232,9 @@ SD_Startup(void)
 {
     int     i;
 
+    static Uint16 mix_format;
+    static int mix_channels;
+
     if (SD_Started)
         return;
 
@@ -1216,12 +1245,14 @@ SD_Startup(void)
         return;
     }
 
-    if(Mix_OpenAudio(param_samplerate, AUDIO_S16, 2, param_audiobuffer))
+    if (Mix_OpenAudioDevice(param_samplerate, AUDIO_S16SYS, 2, GetSliceSize(), NULL,
+                            SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0)
     {
         printf("Unable to open audio: %s\n", Mix_GetError());
         return;
     }
 
+    Mix_QuerySpec(&param_samplerate, &mix_format, &mix_channels);
     Mix_ReserveChannels(2);  // reserve player and boss weapon channels
     Mix_GroupChannels(2, MIX_CHANNELS-1, 1); // group remaining channels
 
