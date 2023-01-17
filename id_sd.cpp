@@ -33,26 +33,8 @@
 
 #define ORIGSAMPLERATE 7042
 
-typedef struct
-{
-	char RIFF[4];
-	longword filelenminus8;
-	char WAVE[4];
-	char fmt_[4];
-	longword formatlen;
-	word val0x0001;
-	word channels;
-	int samplerate;
-	int bytespersec;
-	word bytespersample;
-	word bitspersample;
-} headchunk;
-
-typedef struct
-{
-	char chunkid[4];
-	longword chunklength;
-} wavechunk;
+static Uint16 mix_format;
+static int mix_channels;
 
 typedef struct
 {
@@ -60,8 +42,7 @@ typedef struct
     uint32_t length;
 } digiinfo;
 
-static Mix_Chunk *SoundChunks[ STARTMUSIC - STARTDIGISOUNDS];
-static byte      *SoundBuffers[STARTMUSIC - STARTDIGISOUNDS];
+static Mix_Chunk SoundChunks[STARTMUSIC - STARTDIGISOUNDS] = {0};
 
 // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
 SDL_mutex *audioMutex;
@@ -175,285 +156,6 @@ static void SDL_SoundFinished(void)
 	SoundPriority = 0;
 }
 
-
-#ifdef NOTYET
-
-void SDL_turnOnPCSpeaker(word timerval);
-#pragma aux SDL_turnOnPCSpeaker = \
-        "mov    al,0b6h" \
-        "out    43h,al" \
-        "mov    al,bl" \
-        "out    42h,al" \
-        "mov    al,bh" \
-        "out    42h,al" \
-        "in     al,61h" \
-        "or     al,3"   \
-        "out    61h,al" \
-        parm [bx] \
-        modify exact [al]
-
-void SDL_turnOffPCSpeaker();
-#pragma aux SDL_turnOffPCSpeaker = \
-        "in     al,61h" \
-        "and    al,0fch" \
-        "out    61h,al" \
-        modify exact [al]
-
-void SDL_setPCSpeaker(byte val);
-#pragma aux SDL_setPCSpeaker = \
-        "in     al,61h" \
-        "and    al,0fch" \
-        "or     al,ah" \
-        "out    61h,al" \
-        parm [ah] \
-        modify exact [al]
-
-void inline SDL_DoFX()
-{
-        if(pcSound)
-        {
-                if(*pcSound!=pcLastSample)
-                {
-                        pcLastSample=*pcSound;
-
-                        if(pcLastSample)
-                                SDL_turnOnPCSpeaker(pcLastSample*60);
-                        else
-                                SDL_turnOffPCSpeaker();
-                }
-                pcSound++;
-                pcLengthLeft--;
-                if(!pcLengthLeft)
-                {
-                        pcSound=0;
-                        SoundNumber=(soundnames)0;
-                        SoundPriority=0;
-                        SDL_turnOffPCSpeaker();
-                }
-        }
-
-        // [adlib sound stuff removed...]
-}
-
-static void SDL_DigitizedDoneInIRQ(void);
-
-void inline SDL_DoFast()
-{
-        count_fx++;
-        if(count_fx>=5)
-        {
-                count_fx=0;
-
-                SDL_DoFX();
-
-                count_time++;
-                if(count_time>=2)
-                {
-                        TimeCount++;
-                        count_time=0;
-                }
-        }
-
-        // [adlib music and soundsource stuff removed...]
-
-        TimerCount+=TimerDivisor;
-        if(*((word *)&TimerCount+1))
-        {
-                *((word *)&TimerCount+1)=0;
-                t0OldService();
-        }
-        else
-        {
-                outp(0x20,0x20);
-        }
-}
-
-// Timer 0 ISR for 7000Hz interrupts
-void __interrupt SDL_t0ExtremeAsmService(void)
-{
-        if(pcindicate)
-        {
-                if(pcSound)
-                {
-                        SDL_setPCSpeaker(((*pcSound++)&0x80)>>6);
-                        pcLengthLeft--;
-                        if(!pcLengthLeft)
-                        {
-                                pcSound=0;
-                                SDL_turnOffPCSpeaker();
-                                SDL_DigitizedDoneInIRQ();
-                        }
-                }
-        }
-        extreme++;
-        if(extreme>=10)
-        {
-                extreme=0;
-                SDL_DoFast();
-        }
-        else
-                outp(0x20,0x20);
-}
-
-// Timer 0 ISR for 700Hz interrupts
-void __interrupt SDL_t0FastAsmService(void)
-{
-        SDL_DoFast();
-}
-
-// Timer 0 ISR for 140Hz interrupts
-void __interrupt SDL_t0SlowAsmService(void)
-{
-        count_time++;
-        if(count_time>=2)
-        {
-                TimeCount++;
-                count_time=0;
-        }
-
-        SDL_DoFX();
-
-        TimerCount+=TimerDivisor;
-        if(*((word *)&TimerCount+1))
-        {
-                *((word *)&TimerCount+1)=0;
-                t0OldService();
-        }
-        else
-                outp(0x20,0x20);
-}
-
-void SDL_IndicatePC(boolean ind)
-{
-        pcindicate=ind;
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      SDL_SetTimer0() - Sets system timer 0 to the specified speed
-//
-///////////////////////////////////////////////////////////////////////////
-static void
-SDL_SetTimer0(word speed)
-{
-#ifndef TPROF   // If using Borland's profiling, don't screw with the timer
-//      _asm pushfd
-        _asm cli
-
-        outp(0x43,0x36);                                // Change timer 0
-        outp(0x40,(byte)speed);
-        outp(0x40,speed >> 8);
-        // Kludge to handle special case for digitized PC sounds
-        if (TimerDivisor == (1192030 / (TickBase * 100)))
-                TimerDivisor = (1192030 / (TickBase * 10));
-        else
-                TimerDivisor = speed;
-
-//      _asm popfd
-        _asm    sti
-#else
-        TimerDivisor = 0x10000;
-#endif
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      SDL_SetIntsPerSec() - Uses SDL_SetTimer0() to set the number of
-//              interrupts generated by system timer 0 per second
-//
-///////////////////////////////////////////////////////////////////////////
-static void
-SDL_SetIntsPerSec(word ints)
-{
-        TimerRate = ints;
-        SDL_SetTimer0(1192030 / ints);
-}
-
-static void
-SDL_SetTimerSpeed(void)
-{
-        word    rate;
-        void (_interrupt *isr)(void);
-
-        if ((DigiMode == sds_PC) && DigiPlaying)
-        {
-                rate = TickBase * 100;
-                isr = SDL_t0ExtremeAsmService;
-        }
-        else if ((MusicMode == smm_AdLib) || ((DigiMode == sds_SoundSource) && DigiPlaying)     )
-        {
-                rate = TickBase * 10;
-                isr = SDL_t0FastAsmService;
-        }
-        else
-        {
-                rate = TickBase * 2;
-                isr = SDL_t0SlowAsmService;
-        }
-
-        if (rate != TimerRate)
-        {
-                _dos_setvect(8,isr);
-                SDL_SetIntsPerSec(rate);
-                TimerRate = rate;
-        }
-}
-
-//
-//      PC Sound code
-//
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      SDL_PCPlaySample() - Plays the specified sample on the PC speaker
-//
-///////////////////////////////////////////////////////////////////////////
-#ifdef  _MUSE_
-void
-#else
-static void
-#endif
-SDL_PCPlaySample(byte *data,longword len,boolean inIRQ)
-{
-        if(!inIRQ)
-        {
-//              _asm    pushfd
-                _asm    cli
-        }
-
-        SDL_IndicatePC(true);
-
-        pcLengthLeft = len;
-        pcSound = (volatile byte *)data;
-
-        if(!inIRQ)
-        {
-//              _asm    popfd
-                _asm    sti
-        }
-}
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      SDL_PCStopSample() - Stops a sample playing on the PC speaker
-//
-///////////////////////////////////////////////////////////////////////////
-#ifdef  _MUSE_
-void
-#else
-static void
-#endif
-SDL_PCStopSampleInIRQ(void)
-{
-        pcSound = 0;
-
-        SDL_IndicatePC(false);
-
-        _asm    in      al,0x61                 // Turn the speaker off
-        _asm    and     al,0xfd                 // ~2
-        _asm    out     0x61,al
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -702,25 +404,10 @@ void SD_SetPosition(int channel, int leftpos, int rightpos)
     }
 }
 
-Sint16 GetSample(float csample, byte *samples, int size)
-{
-    float s0=0, s1=0, s2=0;
-    int cursample = (int) csample;
-    float sf = csample - (float) cursample;
-
-    if(cursample-1 >= 0) s0 = (float) (samples[cursample-1] - 128);
-    s1 = (float) (samples[cursample] - 128);
-    if(cursample+1 < size) s2 = (float) (samples[cursample+1] - 128);
-
-    float val = s0*sf*(sf-1)/2 - s1*(sf*sf-1) + s2*(sf+1)*sf/2;
-    int32_t intval = (int32_t) (val * 256);
-    if(intval < -32768) intval = -32768;
-    else if(intval > 32767) intval = 32767;
-    return (Sint16) intval;
-}
-
 void SD_PrepareSound(int which)
 {
+    SDL_AudioCVT cvt;
+
     if(DigiList == NULL)
         Quit("SD_PrepareSound(%i): DigiList not initialized!\n", which);
 
@@ -731,36 +418,30 @@ void SD_PrepareSound(int which)
     if(origsamples + size >= PM_GetEnd())
         Quit("SD_PrepareSound(%i): Sound reaches out of page file!\n", which);
 
-    longword destsamples = (int) ((float) size * (float) param_samplerate
-        / (float) ORIGSAMPLERATE);
-
-    byte *wavebuffer = (byte *) malloc(sizeof(headchunk) + sizeof(wavechunk)
-        + destsamples * 2);     // dest are 16-bit samples
-    if(wavebuffer == NULL)
-        Quit("Unable to allocate wave buffer for sound %i!\n", which);
-
-    headchunk head = {{'R','I','F','F'}, 0, {'W','A','V','E'},
-        {'f','m','t',' '}, 0x10, 0x0001, 1, param_samplerate, param_samplerate*2, 2, 16};
-    wavechunk dhead = {{'d', 'a', 't', 'a'}, destsamples*2};
-    head.filelenminus8 = sizeof(head) + destsamples*2;  // (sizeof(dhead)-8 = 0)
-    memcpy(wavebuffer, &head, sizeof(head));
-    memcpy(wavebuffer+sizeof(head), &dhead, sizeof(dhead));
-
-    // alignment is correct, as wavebuffer comes from malloc
-    // and sizeof(headchunk) % 4 == 0 and sizeof(wavechunk) % 4 == 0
-    Sint16 *newsamples = (Sint16 *)(void *) (wavebuffer + sizeof(headchunk)
-        + sizeof(wavechunk));
-    float cursample = 0.F;
-    float samplestep = (float) ORIGSAMPLERATE / (float) param_samplerate;
-    for(longword i=0; i<destsamples; i++, cursample+=samplestep)
+    if (SDL_BuildAudioCVT(&cvt,
+                          AUDIO_U8, 1, ORIGSAMPLERATE,
+                          mix_format, mix_channels, param_samplerate) < 0)
     {
-        newsamples[i] = GetSample((float)size * (float)i / (float)destsamples,
-            origsamples, size);
+      Quit("SDL_BuildAudioCVT: %s\n", SDL_GetError());
     }
-    SoundBuffers[which] = wavebuffer;
 
-    SoundChunks[which] = Mix_LoadWAV_RW(SDL_RWFromMem(wavebuffer,
-        sizeof(headchunk) + sizeof(wavechunk) + destsamples * 2), 1);
+    cvt.len = size;
+    cvt.buf = (Uint8 *)malloc(cvt.len * cvt.len_mult);
+    // [FG] clear buffer (cvt.len * cvt.len_mult >= cvt.len_cvt)
+    memset(cvt.buf, 0, cvt.len * cvt.len_mult);
+    memcpy(cvt.buf, origsamples, cvt.len);
+
+    if (SDL_ConvertAudio(&cvt) < 0)
+    {
+      free(cvt.buf);
+      Quit("SDL_ConvertAudio: %s\n", SDL_GetError());
+    }
+
+    Mix_Chunk *const chunk = &SoundChunks[which];
+    chunk->allocated = 1;
+    chunk->volume = MIX_MAX_VOLUME;
+    chunk->abuf = cvt.buf;
+    chunk->alen = cvt.len_cvt;
 }
 
 int SD_PlayDigitized(word which,int leftpos,int rightpos)
@@ -776,8 +457,8 @@ int SD_PlayDigitized(word which,int leftpos,int rightpos)
 
     DigiPlaying = true;
 
-    Mix_Chunk *sample = SoundChunks[which];
-    if(sample == NULL)
+    Mix_Chunk *sample = &SoundChunks[which];
+    if (sample->abuf == NULL)
     {
         printf("SoundChunks[%i] is NULL!\n", which);
         return 0;
@@ -1232,9 +913,6 @@ SD_Startup(void)
 {
     int     i;
 
-    static Uint16 mix_format;
-    static int mix_channels;
-
     if (SD_Started)
         return;
 
@@ -1313,8 +991,8 @@ SD_Shutdown(void)
 
     for(int i = 0; i < STARTMUSIC - STARTDIGISOUNDS; i++)
     {
-        if(SoundChunks[i]) Mix_FreeChunk(SoundChunks[i]);
-        if(SoundBuffers[i]) free(SoundBuffers[i]);
+        if (SoundChunks[i].abuf) free(SoundChunks[i].abuf);
+        memset(&SoundChunks[i], 0, sizeof(SoundChunks[i]));
     }
 
     free(DigiList);
