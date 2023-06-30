@@ -61,7 +61,7 @@
 #define CTL_X   24
 #define CTL_Y   86
 #define CTL_W   284
-#define CTL_H   (60+2*13) // [FG] toggle always run
+#define CTL_H   (60+3*13) // [FG] toggle always run
 
 #define LSM_X   85
 #define LSM_Y   55

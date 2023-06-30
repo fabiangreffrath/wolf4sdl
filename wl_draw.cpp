@@ -1052,6 +1052,25 @@ void DrawPlayerWeapon (void)
         SimpleScaleShape(viewwidth/2,SPR_DEMO,viewheight+1);
 }
 
+boolean crosshair = false;
+
+void DrawCrosshair (void)
+{
+    if (gamestate.victoryflag || gamestate.weapon < wp_pistol)
+        return;
+
+    const int c = (gamestate.health >= 50) ? 2 : (gamestate.health >= 25) ? 6 : 4;
+    const int h = (viewsize == 21 && ingame) ? screenHeight : screenHeight - scaleFactor * STATUSLINES;
+
+    VL_Hlin (screenWidth / 2 - 2 * scaleFactor,
+             h / 2,
+             4 * scaleFactor + 1,
+             c);
+    VL_Vlin (screenWidth / 2,
+             h / 2 - 2 * scaleFactor,
+             4 * scaleFactor + 1,
+             c);
+}
 
 //==========================================================================
 
@@ -1596,6 +1615,8 @@ void    ThreeDRefresh (void)
 #endif
 
     DrawPlayerWeapon ();    // draw player's hands
+    if (crosshair)
+        DrawCrosshair ();
 
     if(Keyboard[sc_Tab] && viewsize == 21 && gamestate.weapon != wp_none)
         ShowActStatus();

@@ -941,6 +941,7 @@ extern  int      param_audiobuffer;
 extern  int      param_mission;
 extern  boolean  param_ignorenumchunks;
 extern  boolean  always_run;
+extern  boolean  crosshair;
 
 
 void            NewGame (int difficulty,int episode);

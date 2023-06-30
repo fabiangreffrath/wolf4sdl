@@ -172,6 +172,12 @@ void ReadConfig(void)
             always_run = false;
         }
 
+        // [FG] toggle crosshair
+        if (read(file,&crosshair,sizeof(crosshair))<0)
+        {
+            crosshair = false;
+        }
+
         close(file);
 #undef read2
 
@@ -204,6 +210,7 @@ void ReadConfig(void)
         else if(viewsize>21) viewsize=21;
 
         always_run = !!always_run;
+        crosshair = !!crosshair;
 
         MainMenu[6].active=1;
         MainItems.curpos=0;
@@ -239,6 +246,7 @@ noconfig:
         viewsize = 19;                          // start with a good size
         mouseadjustment_v=mouseadjustment=5;
         always_run = false;
+        crosshair = false;
     }
 
     SD_SetMusicMode (sm);
@@ -297,6 +305,9 @@ void WriteConfig(void)
 
         // [FG] toggle always run
         write2(file,&always_run,sizeof(always_run));
+
+        // [FG] toggle crosshair
+        write2(file,&crosshair,sizeof(crosshair));
 
         close(file);
     }

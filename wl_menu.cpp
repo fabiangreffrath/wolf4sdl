@@ -66,7 +66,7 @@ CP_itemtype SndMenu[] = {
     {1, STR_ALSB, 0}
 };
 
-enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE, CTL_CUSTOMIZE2, CTL_ALWAYSRUN }; // [FG] extended "Customize" menus, toggle always run
+enum { CTL_MOUSEENABLE, CTL_MOUSESENS, CTL_JOYENABLE, CTL_CUSTOMIZE, CTL_CUSTOMIZE2, CTL_ALWAYSRUN, CTL_CROSSHAIR }; // [FG] extended "Customize" menus, toggle always run
 
 CP_itemtype CtlMenu[] = {
     {0, STR_MOUSEEN, 0},
@@ -74,7 +74,8 @@ CP_itemtype CtlMenu[] = {
     {0, STR_JOYEN, 0},
     {1, "Customize Keyboard", CustomControls}, // [FG] extended "Customize" menus
     {1, "Customize Mouse/JS", Custom2Controls}, // [FG] extended "Customize" menus
-    {1, "Always Run", 0} // [FG] toggle always run
+    {1, "Always Run", 0}, // [FG] toggle always run
+    {1, "Crosshair", 0} // [FG] toggle crosshair
 };
 
 #ifndef SPEAR
@@ -1677,6 +1678,14 @@ CP_Control (int)
                 Cus2Items.curpos = CusItems.curpos = -1;
                 ShootSnd ();
                 break;
+
+            // [FG] toggle crosshair
+            case CTL_CROSSHAIR:
+                crosshair ^= 1;
+                DrawCtlScreen ();
+                Cus2Items.curpos = CusItems.curpos = -1;
+                ShootSnd ();
+                break;
         }
     }
     while (which >= 0);
@@ -1912,6 +1921,13 @@ DrawCtlScreen (void)
     // [FG] toggle always run
     y = CTL_Y + 3 + 5*13;
     if (always_run)
+        VWB_DrawPic (x, y, C_SELECTEDPIC);
+    else
+        VWB_DrawPic (x, y, C_NOTSELECTEDPIC);
+
+    // [FG] toggle crosshair
+    y = CTL_Y + 3 + 6*13;
+    if (crosshair)
         VWB_DrawPic (x, y, C_SELECTEDPIC);
     else
         VWB_DrawPic (x, y, C_NOTSELECTEDPIC);
