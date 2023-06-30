@@ -1061,15 +1061,19 @@ void DrawCrosshair (void)
 
     const int c = (gamestate.health >= 50) ? 2 : (gamestate.health >= 25) ? 6 : 4;
     const int h = (viewsize == 21 && ingame) ? screenHeight : screenHeight - scaleFactor * STATUSLINES;
+    const int f = (int)scaleFactor - 1;
 
-    VL_Hlin (screenWidth / 2 - 2 * scaleFactor,
-             h / 2,
-             4 * scaleFactor + 1,
-             c);
-    VL_Vlin (screenWidth / 2,
-             h / 2 - 2 * scaleFactor,
-             4 * scaleFactor + 1,
-             c);
+    for (int i = -f; i <= f; i++)
+    {
+            VL_Hlin (screenWidth / 2 - 2 * scaleFactor,
+                     h / 2 + i,
+                     4 * scaleFactor + 1,
+                     c);
+            VL_Vlin (screenWidth / 2 + i,
+                     h / 2 - 2 * scaleFactor,
+                     4 * scaleFactor + 1,
+                     c);
+    }
 }
 
 //==========================================================================
