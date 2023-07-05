@@ -802,7 +802,7 @@ void GetBonus (statobj_t *check)
     }
 
     StartBonusFlash ();
-    check->shapenum = -1;                   // remove from list
+    check->shapenum = NULL;                   // remove from list
 }
 
 /*
