@@ -29,7 +29,7 @@
 
 #include "wl_def.h"
 #include <SDL_mixer.h>
-#include "dosbox/dbopl.h"
+#include "opl3.h"
 
 #define ORIGSAMPLERATE 7042
 
@@ -94,61 +94,9 @@ static  int                     sqHackLen;
 static  int                     sqHackSeqLen;
 static  longword                sqHackTime;
 
-DBOPL::Chip oplChip;
+opl3_chip oplChip;
 
-static inline bool YM3812Init(int numChips, int clock, int rate)
-{
-	oplChip.Setup(rate);
-	return false;
-}
-
-static inline void YM3812Write(DBOPL::Chip &which, Bit32u reg, Bit8u val)
-{
-	which.WriteReg(reg, val);
-}
-
-static inline void YM3812UpdateOne(DBOPL::Chip &which, int16_t *stream, int length)
-{
-	Bit32s buffer[512 * 2];
-	int i;
-
-	// length is at maximum samplesPerMusicTick = param_samplerate / 700
-	// so 512 is sufficient for a sample rate of 358.4 kHz (default 44.1 kHz)
-	if(length > 512)
-		length = 512;
-
-	if(which.opl3Active)
-	{
-		which.GenerateBlock3(length, buffer);
-
-		// GenerateBlock3 generates a number of "length" 32-bit stereo samples
-		// so we only need to convert them to 16-bit samples
-		for(i = 0; i < length * 2; i++)  // * 2 for left/right channel
-		{
-			// Multiply by 4 to match loudness of MAME emulator.
-			Bit32s sample = buffer[i] << 2;
-			if(sample > 32767) sample = 32767;
-			else if(sample < -32768) sample = -32768;
-			stream[i] = sample;
-		}
-	}
-	else
-	{
-		which.GenerateBlock2(length, buffer);
-
-		// GenerateBlock3 generates a number of "length" 32-bit mono samples
-		// so we need to convert them to 32-bit stereo samples
-		for(i = 0; i < length; i++)
-		{
-			// Multiply by 4 to match loudness of MAME emulator.
-			// Then upconvert to stereo.
-			Bit32s sample = buffer[i] << 2;
-			if(sample > 32767) sample = 32767;
-			else if(sample < -32768) sample = -32768;
-			stream[i * 2] = stream[i * 2 + 1] = (int16_t) sample;
-		}
-	}
-}
+#define alOut(n,b) OPL3_WriteRegBuffered(&oplChip, n, b)
 
 static void SDL_SoundFinished(void)
 {
@@ -165,19 +113,9 @@ static void SDL_SoundFinished(void)
 static void
 SDL_PCPlaySound(PCSound *sound)
 {
-/*
-//      _asm    pushfd
-        _asm    cli
-*/
-
         pcLastSample = -1;
         pcLengthLeft = sound->common.length;
         pcSound = sound->data;
-
-/*
-//      _asm    popfd
-        _asm    sti
-*/
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -188,21 +126,7 @@ SDL_PCPlaySound(PCSound *sound)
 static void
 SDL_PCStopSound(void)
 {
-/*
-//      _asm    pushfd
-        _asm    cli
-*/
-
         pcSound = 0;
-
-/*
-        _asm    in      al,0x61                 // Turn the speaker off
-        _asm    and     al,0xfd                 // ~2
-        _asm    out     0x61,al
-
-//      _asm    popfd
-        _asm    sti
-*/
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -213,21 +137,7 @@ SDL_PCStopSound(void)
 static void
 SDL_ShutPC(void)
 {
-/*
-//      _asm    pushfd
-        _asm    cli
-*/
-
         pcSound = 0;
-
-/*
-        _asm    in      al,0x61                 // Turn the speaker & gate off
-        _asm    and     al,0xfc                 // ~3
-        _asm    out     0x61,al
-
-//      _asm    popfd
-        _asm    sti
-*/
 }
 
 // Adapted from Chocolate Doom (chocolate-doom/pcsound/pcsound_sdl.c)
@@ -363,11 +273,9 @@ SD_StopDigitized(void)
     switch (DigiMode)
     {
         case sds_PC:
-//            SDL_PCStopSampleInIRQ();
             SDL_PCStopSound();
             break;
         case sds_SoundBlaster:
-//            SDL_SBStopSampleInIRQ();
             Mix_HaltChannel(-1);
             break;
         default:
@@ -395,7 +303,6 @@ void SD_SetPosition(int channel, int leftpos, int rightpos)
     switch (DigiMode)
     {
         case sds_SoundBlaster:
-//            SDL_PositionSBP(leftpos,rightpos);
             Mix_SetPanning(channel, ((15 - leftpos) << 4) + 15,
                 ((15 - rightpos) << 4) + 15);
             break;
@@ -788,8 +695,6 @@ SD_SetMusicMode(SMMode mode)
     if (result)
         MusicMode = mode;
 
-//    SDL_SetTimerSpeed();
-
     return(result);
 }
 
@@ -812,13 +717,13 @@ void SDL_IMFMusicPlayer(void *udata, Uint8 *stream, int len)
         {
             if(numreadysamples<sampleslen)
             {
-                YM3812UpdateOne(oplChip, stream16, numreadysamples);
+                OPL3_GenerateStream(&oplChip, stream16, numreadysamples);
                 stream16 += numreadysamples*2;
                 sampleslen -= numreadysamples;
             }
             else
             {
-                YM3812UpdateOne(oplChip, stream16, sampleslen);
+                OPL3_GenerateStream(&oplChip, stream16, sampleslen);
                 numreadysamples -= sampleslen;
                 return;
             }
@@ -911,8 +816,6 @@ static int GetSliceSize(void)
 void
 SD_Startup(void)
 {
-    int     i;
-
     if (SD_Started)
         return;
 
@@ -938,16 +841,7 @@ SD_Startup(void)
 
     samplesPerMusicTick = param_samplerate / 700;    // SDL_t0FastAsmService played at 700Hz
 
-    if(YM3812Init(1,3579545,param_samplerate))
-    {
-        printf("Unable to create virtual OPL!!\n");
-    }
-
-    for(i=1;i<0xf6;i++)
-        YM3812Write(oplChip,i,0);
-
-    YM3812Write(oplChip,1,0x20); // Set WSE=1
-//    YM3812Write(0,8,0); // Set CSM=0 & SEL=0		 // already set in for statement
+    OPL3_Reset(&oplChip, param_samplerate);
 
     Mix_HookMusic(SDL_IMFMusicPlayer, 0);
     Mix_ChannelFinished(SD_ChannelFinished);
