@@ -82,6 +82,7 @@ jobs:
           CFLAGS: -Wall -Werror
           Q: ""
         run: |
+          test -x "`command -v gsed`" && alias sed=gsed
           echo "Wolf3d Full v1.4 GT/ID/Activision"
           make BINARY=wolf4sdl-wl6
           make clean
