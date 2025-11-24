@@ -42,7 +42,7 @@ typedef struct
     uint32_t length;
 } digiinfo;
 
-static Mix_Chunk SoundChunks[STARTMUSIC - STARTDIGISOUNDS] = {0};
+static Mix_Chunk SoundChunks[STARTMUSIC - STARTDIGISOUNDS] = {{0}};
 
 // [DenisBelmondo] backport ecwolf/k1n9_duk3 fixes
 SDL_mutex *audioMutex;
