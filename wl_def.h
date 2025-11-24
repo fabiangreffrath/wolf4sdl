@@ -1329,19 +1329,19 @@ static inline fixed FixedMul(fixed a, fixed b)
     #define strcasecmp stricmp
     #define strncasecmp strnicmp
     #define snprintf _snprintf
-#else
-    static inline char* itoa(int value, char* string, int radix)
-    {
-	    sprintf(string, "%d", value);
-	    return string;
-    }
-
-    static inline char* ltoa(long value, char* string, int radix)
-    {
-	    sprintf(string, "%ld", value);
-	    return string;
-    }
 #endif
+
+static inline char* intoa(int value, size_t size, char* string)
+{
+    snprintf(string, size, "%d", value);
+    return string;
+}
+
+static inline char* lntoa(long value, size_t size, char* string)
+{
+    snprintf(string, size, "%ld", value);
+    return string;
+}
 
 #define lengthof(x) (sizeof(x) / sizeof(*(x)))
 #define endof(x)    ((x) + lengthof(x))

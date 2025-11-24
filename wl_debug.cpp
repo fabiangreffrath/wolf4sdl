@@ -77,7 +77,7 @@ void CountObjects (void)
     US_PrintUnsigned (total);
 
     char str[60];
-    sprintf(str,"\nlaststatobj=%.8X",(int32_t)(uintptr_t)laststatobj);
+    snprintf(str,sizeof(str),"\nlaststatobj=%.8X",(int32_t)(uintptr_t)laststatobj);
     US_Print(str);
 
     US_Print ("\nIn use statics:");
@@ -286,7 +286,7 @@ void ShapeTest (void)
 
         US_Print("\n Address: ");
         addr = (byte *) PM_GetPage(i);
-        sprintf(buf,"0x%08X",(int32_t) addr);
+        snprintf(buf,sizeof(buf),"0x%08X",(int32_t) addr);
         US_Print(buf);
 
         if (addr)
@@ -494,7 +494,7 @@ int DebugKeys (void)
         US_Print (" X:");    US_PrintUnsigned (player->tilex);
         US_Print (" Y:");    US_PrintUnsigned (player->tiley);
         US_Print ("\n1:");   US_PrintUnsigned (tilemap[player->tilex][player->tiley]);
-        sprintf(str," 2:%.8X",(unsigned)(uintptr_t)actorat[player->tilex][player->tiley]); US_Print(str);
+        snprintf(str,sizeof(str)," 2:%.8X",(unsigned)(uintptr_t)actorat[player->tilex][player->tiley]); US_Print(str);
         US_Print ("\nf 1:"); US_PrintUnsigned (player->areanumber);
         US_Print (" 2:");    US_PrintUnsigned (MAPSPOT(player->tilex,player->tiley,1));
         US_Print (" 3:");
@@ -715,12 +715,12 @@ again:
         US_PrintUnsigned(curSky->colorMapIndex);
         VW_UpdateScreen();
 
-        sprintf(defstr, "%u", curSky->seed);
+        snprintf(defstr, sizeof(defstr), "%u", curSky->seed);
         esc = !US_LineInput(seekpx, seekpy, str, defstr, true, 10, 0);
         if(esc) return 0;
         curSky->seed = (uint32_t) atoi(str);
 
-        sprintf(defstr, "%u", curSky->colorMapIndex);
+        snprintf(defstr, sizeof(defstr), "%u", curSky->colorMapIndex);
         esc = !US_LineInput(mappx, mappy, str, defstr, true, 10, 0);
         if(esc) return 0;
         uint32_t newInd = (uint32_t) atoi(str);

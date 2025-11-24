@@ -177,7 +177,7 @@ void
 US_PrintUnsigned(longword n)
 {
 	char	buffer[32];
-	sprintf(buffer, "%u", n);
+	snprintf(buffer, sizeof(buffer), "%u", n);
 
 	US_Print(buffer);
 }
@@ -192,7 +192,7 @@ US_PrintSigned(int32_t n)
 {
 	char	buffer[32];
 
-	US_Print(ltoa(n,buffer,10));
+	US_Print(lntoa(n,sizeof(buffer),buffer));
 }
 
 ///////////////////////////////////////////////////////////////////////////
