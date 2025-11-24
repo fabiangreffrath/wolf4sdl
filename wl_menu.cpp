@@ -565,6 +565,7 @@ DrawMainMenu (void)
     {
         strcpy (&MainMenu[backtodemo].string[8], STR_GAME);
         MainMenu[backtodemo].active = 2;
+        MainItems.curpos = backtodemo;
     }
     else
     {
