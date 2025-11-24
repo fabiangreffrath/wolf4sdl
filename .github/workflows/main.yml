@@ -1,0 +1,132 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ "master" ]
+    tags-ignore: ['*']
+    paths-ignore: ['**.md']
+  pull_request:
+    branches: [ "master" ]
+    paths-ignore: ['**.md']
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.config.shell }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: Linux GCC,
+              os: ubuntu-latest,
+              compiler: gcc,
+              shell: bash,
+            }
+          - {
+              name: macOS Clang,
+              os: macos-latest,
+              compiler: clang,
+              shell: bash,
+            }
+          - {
+              name: MSYS2 UCRT64,
+              os: windows-latest,
+              compiler: gcc,
+              shell: 'msys2 {0}',
+              msystem: ucrt64,
+              msys-env: mingw-w64-ucrt-x86_64,
+            }
+
+    steps:
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            libsdl2-dev \
+            libsdl2-mixer-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+        run: |
+          brew update || true
+          brew install \
+            sdl2 \
+            sdl2_mixer
+
+      - name: Install dependencies (MSYS2)
+        if: matrix.config.shell == 'msys2 {0}'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.config.msystem }}
+          update: false
+          install: >-
+            ${{ matrix.config.msys-env }}-gcc
+            ${{ matrix.config.msys-env }}-SDL2
+            ${{ matrix.config.msys-env }}-SDL2_mixer
+
+      - uses: actions/checkout@v3
+
+      - name: Build executables
+        env:
+          CC: ${{ matrix.config.compiler }}
+          CFLAGS: -Wall -Werror
+          Q: ""
+        run: |
+          echo "Wolf3d Full v1.4 GT/ID/Activision"
+          make BINARY=wolf4sdl-wl6
+          make clean
+          echo "Wolf3d Full v1.4 Apogee (with ReadThis)"
+          sed -e "s|^\(//\)\?\(#define GOODTIMES\)|//\2|" -i version.h
+          make BINARY=wolf4sdl-wl6a
+          make clean
+          echo "Wolf3d Full v1.1 Apogee (with ReadThis)"
+          sed -e "s|^\(//\)\?\(#define APOGEE_1_1\)|\2|" -i version.h
+          make BINARY=wolf4sdl-wl6a1
+          make clean
+          echo "Wolf3d Shareware v1.4"
+          sed -e "s|^\(//\)\?\(#define APOGEE_1_1\)|//\2|" -i version.h
+          sed -e "s|^\(//\)\?\(#define UPLOAD\)|\2|" -i version.h
+          make BINARY=wolf4sdl-wl1
+          make clean
+          echo "Spear of Destiny Full and Mission Disks (and GOODTIMES for no FormGen quiz)"
+          sed -e "s|^\(//\)\?\(#define UPLOAD\)|//\2|" -i version.h
+          sed -e "s|^\(//\)\?\(#define SPEAR\)|\2|" -i version.h
+          sed -e "s|^\(//\)\?\(#define GOODTIMES\)|\2|" -i version.h
+          BINARY=wolf4sdl-sod
+          make clean
+          echo "Spear of Destiny Demo"
+          sed -e "s|^\(//\)\?\(#define GOODTIMES\)|//\2|" -i version.h
+          sed -e "s|^\(//\)\?\(#define SPEARDEMO\)|\2|" -i version.h
+          make BINARY=wolf4sdl-sdm
+          make clean
+          sed -e "s|^\(//\)\?\(#define SPEAR\)|//\2|" -i version.h
+          sed -e "s|^\(//\)\?\(#define SPEARDEMO\)|//\2|" -i version.h
+          sed -e "s|^\(//\)\?\(#define GOODTIMES\)|\2|" -i version.h
+
+  cppcheck:
+    name: Cppcheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install cppcheck
+
+      - uses: actions/checkout@v3
+
+      - name: Run cppcheck
+        shell: bash
+        run: |
+          cppcheck -DO_BINARY=0 -DDEBUGKEYS -DARTSEXTERN -DDEMOSEXTERN -DPLAYDEMOLIKEORIGINAL \
+              -UUSE_FEATUREFLAGS -UUSE_SHADING -UUSE_DIR3DSPR -UUSE_FLOORCEILINGTEX -UUSE_HIRES \
+              -UUSE_PARALLAX -UUSE_CLOUDSKY -UUSE_STARSKY -UUSE_RAIN -UUSE_SNOW -UFIXRAINSNOWLEAKS \
+              -USPANISH -UNOTYET -U_MSC_VER --force .
+          cppcheck --version
