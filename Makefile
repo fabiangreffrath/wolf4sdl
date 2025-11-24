@@ -41,7 +41,7 @@ LDFLAGS += -static-libgcc
 endif
 
 SRCS :=
-SRCS += dosbox/dbopl.cpp
+SRCS += opl3.c
 SRCS += id_ca.cpp
 SRCS += id_in.cpp
 SRCS += id_pm.cpp
