@@ -68,6 +68,7 @@ jobs:
           update: false
           install: >-
             ${{ matrix.config.msys-env }}-gcc
+            ${{ matrix.config.msys-env }}-make
             ${{ matrix.config.msys-env }}-SDL2
             ${{ matrix.config.msys-env }}-SDL2_mixer
 
