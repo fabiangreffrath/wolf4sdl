@@ -222,8 +222,6 @@ static void CAL_HuffExpand(byte *source, byte *dest, int32_t length, huffnode *h
 
     headptr = hufftable+254;        // head node is always node 254
 
-    int written = 0;
-
     end=dest+length;
 
     byte val = *source++;
@@ -246,7 +244,6 @@ static void CAL_HuffExpand(byte *source, byte *dest, int32_t length, huffnode *h
         if(nodeval<256)
         {
             *dest++ = (byte) nodeval;
-            written++;
             huffptr = headptr;
             if(dest>=end) break;
         }
