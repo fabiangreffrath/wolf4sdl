@@ -1332,13 +1332,13 @@ static inline fixed FixedMul(fixed a, fixed b)
 #else
     static inline char* itoa(int value, char* string, int radix)
     {
-	    sprintf(string, "%d", value);
+	    snprintf(string, 16, "%d", value);
 	    return string;
     }
 
     static inline char* ltoa(long value, char* string, int radix)
     {
-	    sprintf(string, "%ld", value);
+	    snprintf(string, 16, "%ld", value);
 	    return string;
     }
 #endif

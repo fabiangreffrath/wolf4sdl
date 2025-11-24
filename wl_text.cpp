@@ -479,7 +479,7 @@ void PageLayout (boolean shownumber)
 
     if (shownumber)
     {
-        sprintf(str, "pg %d of %d", pagenum, numpages);
+        snprintf(str, sizeof(str), "pg %d of %d", pagenum, numpages);
         px = 213;
         py = 183;
         fontcolor = 0x4f;                          //12^BACKCOLOR;

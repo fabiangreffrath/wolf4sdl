@@ -1439,7 +1439,7 @@ void Quit (const char *errorStr, ...)
     {
         va_list vlist;
         va_start(vlist, errorStr);
-        vsprintf(error, errorStr, vlist);
+        vsnprintf(error, sizeof(error), errorStr, vlist);
         va_end(vlist);
     }
     else error[0] = 0;
