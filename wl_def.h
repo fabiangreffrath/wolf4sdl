@@ -1330,15 +1330,15 @@ static inline fixed FixedMul(fixed a, fixed b)
     #define strncasecmp strnicmp
     #define snprintf _snprintf
 #else
-    static inline char* itoa(int value, char* string, int radix)
+    static inline char* itoa(int value, size_t size, char* string)
     {
-	    snprintf(string, 16, "%d", value);
+	    snprintf(string, size, "%d", value);
 	    return string;
     }
 
-    static inline char* ltoa(long value, char* string, int radix)
+    static inline char* ltoa(long value, size_t size, char* string)
     {
-	    snprintf(string, 16, "%ld", value);
+	    snprintf(string, size, "%ld", value);
 	    return string;
     }
 #endif

@@ -217,15 +217,15 @@ Victory (void)
     VWB_DrawPic (i, TIMEY * 8, L_NUM0PIC + (sec % 10));
     VW_UpdateScreen ();
 
-    itoa (kr, tempstr, 10);
+    itoa (kr, sizeof(tempstr), tempstr);
     x = RATIOX + 24 - (int) strlen(tempstr) * 2;
     Write (x, RATIOY, tempstr);
 
-    itoa (sr, tempstr, 10);
+    itoa (sr, sizeof(tempstr), tempstr);
     x = RATIOX + 24 - (int) strlen(tempstr) * 2;
     Write (x, RATIOY + 2, tempstr);
 
-    itoa (tr, tempstr, 10);
+    itoa (tr, sizeof(tempstr), tempstr);
     x = RATIOX + 24 - (int) strlen(tempstr) * 2;
     Write (x, RATIOY + 4, tempstr);
 
@@ -568,7 +568,7 @@ LevelCompleted (void)
         Write (5, 16, STR_RAT2SECRET);
         Write (1, 18, STR_RAT2TREASURE);
 
-        Write (26, 2, itoa (gamestate.mapon + 1, tempstr, 10));
+        Write (26, 2, itoa (gamestate.mapon + 1, sizeof(tempstr), tempstr));
 
         Write (26, 12, parTimes[gamestate.episode * 10 + mapon].timestr);
 
@@ -621,7 +621,7 @@ LevelCompleted (void)
         {
             for (i = 0; i <= timeleft; i++)
             {
-                ltoa ((int32_t) i * PAR_AMOUNT, tempstr, 10);
+                ltoa ((int32_t) i * PAR_AMOUNT, sizeof(tempstr), tempstr);
                 x = 36 - (int) strlen(tempstr) * 2;
                 Write (x, 7, tempstr);
                 if (!(i % (PAR_AMOUNT / 10)))
@@ -648,7 +648,7 @@ LevelCompleted (void)
         ratio = kr;
         for (i = 0; i <= ratio; i++)
         {
-            itoa (i, tempstr, 10);
+            itoa (i, sizeof(tempstr), tempstr);
             x = RATIOXX - (int) strlen(tempstr) * 2;
             Write (x, 14, tempstr);
             if (!(i % 10))
@@ -665,7 +665,7 @@ LevelCompleted (void)
             VW_WaitVBL (VBLWAIT);
             SD_StopSound ();
             bonus += PERCENT100AMT;
-            ltoa (bonus, tempstr, 10);
+            ltoa (bonus, sizeof(tempstr), tempstr);
             x = (RATIOXX - 1) - (int) strlen(tempstr) * 2;
             Write (x, 7, tempstr);
             VW_UpdateScreen ();
@@ -690,7 +690,7 @@ LevelCompleted (void)
         ratio = sr;
         for (i = 0; i <= ratio; i++)
         {
-            itoa (i, tempstr, 10);
+            itoa (i, sizeof(tempstr), tempstr);
             x = RATIOXX - (int) strlen(tempstr) * 2;
             Write (x, 16, tempstr);
             if (!(i % 10))
@@ -707,7 +707,7 @@ LevelCompleted (void)
             VW_WaitVBL (VBLWAIT);
             SD_StopSound ();
             bonus += PERCENT100AMT;
-            ltoa (bonus, tempstr, 10);
+            ltoa (bonus, sizeof(tempstr), tempstr);
             x = (RATIOXX - 1) - (int) strlen(tempstr) * 2;
             Write (x, 7, tempstr);
             VW_UpdateScreen ();
@@ -731,7 +731,7 @@ LevelCompleted (void)
         ratio = tr;
         for (i = 0; i <= ratio; i++)
         {
-            itoa (i, tempstr, 10);
+            itoa (i, sizeof(tempstr), tempstr);
             x = RATIOXX - (int) strlen(tempstr) * 2;
             Write (x, 18, tempstr);
             if (!(i % 10))
@@ -747,7 +747,7 @@ LevelCompleted (void)
             VW_WaitVBL (VBLWAIT);
             SD_StopSound ();
             bonus += PERCENT100AMT;
-            ltoa (bonus, tempstr, 10);
+            ltoa (bonus, sizeof(tempstr), tempstr);
             x = (RATIOXX - 1) - (int) strlen(tempstr) * 2;
             Write (x, 7, tempstr);
             VW_UpdateScreen ();
@@ -769,15 +769,15 @@ LevelCompleted (void)
         //
         // JUMP STRAIGHT HERE IF KEY PRESSED
         //
-done:   itoa (kr, tempstr, 10);
+done:   itoa (kr, sizeof(tempstr), tempstr);
         x = RATIOXX - (int) strlen(tempstr) * 2;
         Write (x, 14, tempstr);
 
-        itoa (sr, tempstr, 10);
+        itoa (sr, sizeof(tempstr), tempstr);
         x = RATIOXX - (int) strlen(tempstr) * 2;
         Write (x, 16, tempstr);
 
-        itoa (tr, tempstr, 10);
+        itoa (tr, sizeof(tempstr), tempstr);
         x = RATIOXX - (int) strlen(tempstr) * 2;
         Write (x, 18, tempstr);
 
@@ -786,7 +786,7 @@ done:   itoa (kr, tempstr, 10);
             (PERCENT100AMT * (sr >= 100)) + (PERCENT100AMT * (tr >= 100));
 
         GivePoints (bonus);
-        ltoa (bonus, tempstr, 10);
+        ltoa (bonus, sizeof(tempstr), tempstr);
         x = 36 - (int) strlen(tempstr) * 2;
         Write (x, 7, tempstr);
 
@@ -1024,7 +1024,7 @@ DrawHighScores (void)
         //
         // level
         //
-        itoa (s->completed, buffer, 10);
+        itoa (s->completed, sizeof(buffer), buffer);
 #ifndef SPEAR
         for (str = buffer; *str; str++)
             *str = *str + (129 - '0');  // Used fixed-width numbers (129...)
@@ -1038,7 +1038,7 @@ DrawHighScores (void)
 #ifndef UPLOAD
 #ifndef SPEAR
         PrintX -= 6;
-        itoa (s->episode + 1, buffer1, 10);
+        itoa (s->episode + 1, sizeof(buffer1), buffer1);
         US_Print ("E");
         US_Print (buffer1);
         US_Print ("/L");
@@ -1055,7 +1055,7 @@ DrawHighScores (void)
         //
         // score
         //
-        itoa (s->score, buffer, 10);
+        itoa (s->score, sizeof(buffer), buffer);
 #ifndef SPEAR
         for (str = buffer; *str; str++)
             *str = *str + (129 - '0');  // Used fixed-width numbers (129...)
