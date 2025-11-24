@@ -60,6 +60,7 @@ jobs:
             gnu-sed \
             sdl2 \
             sdl2_mixer
+          cp -f `command -v gsed` `command -v sed`
 
       - name: Install dependencies (MSYS2)
         if: matrix.config.shell == 'msys2 {0}'
@@ -82,7 +83,6 @@ jobs:
           CFLAGS: -Wall -Werror
           Q: ""
         run: |
-          test -x "`command -v gsed`" && alias sed=gsed
           echo "Wolf3d Full v1.4 GT/ID/Activision"
           make BINARY=wolf4sdl-wl6
           make clean
