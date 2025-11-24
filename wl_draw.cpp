@@ -1056,7 +1056,7 @@ boolean crosshair = false;
 
 void DrawCrosshair (void)
 {
-    if (gamestate.victoryflag || gamestate.weapon < wp_pistol)
+    if (gamestate.victoryflag)
         return;
 
     const int c = (gamestate.health >= 50) ? 2 : (gamestate.health >= 25) ? 6 : 4;
