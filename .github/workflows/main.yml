@@ -57,6 +57,7 @@ jobs:
         run: |
           brew update || true
           brew install \
+            gnu-sed \
             sdl2 \
             sdl2_mixer
 
