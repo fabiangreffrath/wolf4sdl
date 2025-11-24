@@ -192,7 +192,7 @@ US_PrintSigned(int32_t n)
 {
 	char	buffer[32];
 
-	US_Print(ltoa(n,sizeof(buffer),buffer));
+	US_Print(lntoa(n,sizeof(buffer),buffer));
 }
 
 ///////////////////////////////////////////////////////////////////////////
