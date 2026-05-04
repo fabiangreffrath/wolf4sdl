@@ -745,13 +745,6 @@ void VL_LatchToScreenScaledCoord(SDL_Surface *source, int xsrc, int ysrc,
 			&& scydest >= 0 && scydest + height * scaleFactor <= screenHeight
 			&& "VL_LatchToScreenScaledCoord: Destination rectangle out of bounds!");
 
-	if(scaleFactor == 1)
-    {
-            SDL_Rect srcrect = { xsrc, ysrc, width, height };
-            SDL_Rect destrect = { scxdest, scydest, 0, 0 }; // width and height are ignored
-            SDL_BlitSurface(source, &srcrect, curSurface, &destrect);
-    }
-    else
     {
         byte *src, *dest;
         unsigned srcPitch;
