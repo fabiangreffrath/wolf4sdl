@@ -83,7 +83,7 @@ void CountObjects (void)
     US_Print ("\nIn use statics:");
     for (i=0;i<total;i++)
     {
-        if (statobjlist[i].shapenum != -1)
+        if (statobjlist[i].shapenum != NULL)
             count++;
         else
             doors++;        //debug

@@ -482,4 +482,6 @@ typedef enum
 	numstates
 } statenum_t;
 
+extern short *ShapePtr (short shapenum);
+
 #endif
