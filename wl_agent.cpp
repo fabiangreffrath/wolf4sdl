@@ -560,7 +560,7 @@ void GivePoints (int32_t points)
 void DrawWeapon (void)
 {
     if(viewsize == 21 && ingame) return;
-    StatusDrawPic (32,8,KNIFEPIC+gamestate.weapon);
+    StatusDrawPic (32,8,KNIFEPIC + (int)gamestate.weapon);
 }
 
 

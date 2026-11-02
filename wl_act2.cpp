@@ -382,7 +382,7 @@ void SpawnStand (enemy_t which, int tilex, int tiley, int dir)
         newobj->flags |= FL_AMBUSH;
     }
 
-    newobj->obclass = (classtype)(guardobj + which);
+    newobj->obclass = (classtype)(guardobj + (int)which);
     newobj->hitpoints = starthitpoints[gamestate.difficulty][which];
     newobj->dir = (dirtype)(dir * 2);
     newobj->flags |= FL_SHOOTABLE;
@@ -505,7 +505,7 @@ void SpawnPatrol (enemy_t which, int tilex, int tiley, int dir)
             break;
     }
 
-    newobj->obclass = (classtype)(guardobj+which);
+    newobj->obclass = (classtype)(guardobj + (int)which);
     newobj->dir = (dirtype)(dir*2);
     newobj->hitpoints = starthitpoints[gamestate.difficulty][which];
     newobj->distance = TILEGLOBAL;
