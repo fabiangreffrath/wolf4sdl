@@ -76,11 +76,11 @@ static  boolean                 DigiPlaying;
 
 //      PC Sound variables
 static  volatile byte           pcLastSample;
-static  byte * volatile         pcSound;
+static  byte *                  pcSound;
 static  longword                pcLengthLeft;
 
 //      AdLib variables
-static  byte * volatile         alSound;
+static  byte *                  alSound;
 static  byte                    alBlock;
 static  longword                alLengthLeft;
 static  longword                alTimeCount;
