@@ -24,8 +24,6 @@ CFLAGS += -Wall
 CFLAGS += -Wpointer-arith
 CFLAGS += -Wreturn-type
 CFLAGS += -Wwrite-strings
-CFLAGS += -Wcast-align
-
 
 CCFLAGS += $(CFLAGS)
 CCFLAGS += -std=gnu99
