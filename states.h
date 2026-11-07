@@ -38,7 +38,6 @@ typedef enum
 	s_boom1,
 	s_boom2,
 	s_boom3,
-#ifdef SPEAR
 	s_hrocket,
 	s_hsmoke1,
 	s_hsmoke2,
@@ -47,7 +46,6 @@ typedef enum
 	s_hboom1,
 	s_hboom2,
 	s_hboom3,
-#endif
 	s_grdstand,
 	s_grdpath1,
 	s_grdpath1s,
@@ -70,7 +68,6 @@ typedef enum
 	s_grddie2,
 	s_grddie3,
 	s_grddie4,
-#ifndef SPEAR
 	s_blinkychase1,
 	s_blinkychase2,
 	s_inkychase1,
@@ -79,7 +76,6 @@ typedef enum
 	s_pinkychase2,
 	s_clydechase1,
 	s_clydechase2,
-#endif
 	s_dogpath1,
 	s_dogpath1s,
 	s_dogpath2,
@@ -176,7 +172,6 @@ typedef enum
 	s_ssdie2,
 	s_ssdie3,
 	s_ssdie4,
-#ifndef SPEAR
 	s_bossstand,
 	s_bosschase1,
 	s_bosschase1s,
@@ -215,8 +210,6 @@ typedef enum
 	s_gretelshoot6,
 	s_gretelshoot7,
 	s_gretelshoot8,
-#endif
-#ifdef SPEAR
 	s_transstand,
 	s_transchase1,
 	s_transchase1s,
@@ -345,8 +338,6 @@ typedef enum
 	s_spectredie3,
 	s_spectredie4,
 	s_spectrewake,
-#endif
-#ifndef SPEAR
 	s_schabbstand,
 	s_schabbchase1,
 	s_schabbchase1s,
@@ -467,7 +458,6 @@ typedef enum
 	s_hitlershoot4,
 	s_hitlershoot5,
 	s_hitlershoot6,
-#endif
 	s_bjrun1,
 	s_bjrun1s,
 	s_bjrun2,

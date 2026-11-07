@@ -42,6 +42,7 @@ endif
 
 SRCS :=
 SRCS += opl3.c
+SRCS += layouts_gen.cpp
 SRCS += id_ca.cpp
 SRCS += id_in.cpp
 SRCS += id_pm.cpp

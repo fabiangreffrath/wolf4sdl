@@ -46,8 +46,12 @@ static inline byte *PM_GetTexture(int wallpic)
 
 static inline uint16_t *PM_GetSprite(int shapenum)
 {
+    const int physical = gamelayout->sprmap[shapenum];
+    if(physical == -1)
+        Quit("PM_GetSprite: Sprite %i is not in this game version", shapenum);
+
     // correct alignment is enforced by PM_Startup()
-    return (uint16_t *) (void *) PM_GetPage(PMSpriteStart + shapenum);
+    return (uint16_t *) (void *) PM_GetPage(PMSpriteStart + physical);
 }
 
 static inline byte *PM_GetSound(int soundpagenum)

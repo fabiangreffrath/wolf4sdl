@@ -69,6 +69,9 @@ word    RLEWtag;
 
 int     numEpisodesMissing = 0;
 
+// Selected game version, must be set before CA_Startup().
+const gamelayout_t *gamelayout;
+
 /*
 =============================================================================
 
@@ -111,6 +114,25 @@ static int32_t GRFILEPOS(const size_t idx)
 {
 	assert(idx < lengthof(grstarts));
 	return grstarts[idx];
+}
+
+// Maps a logical graphics chunk to its position in VGAGRAPH, or -1 if this version lacks it.
+static int physical_gr_chunk(const int chunk)
+{
+    return gamelayout->gfxmap[chunk];
+}
+
+// Maps a logical audio chunk to its position in AUDIOT, or -1 if this version lacks it.
+static int physical_audio_chunk(const int chunk)
+{
+    if (chunk < STARTMUSIC)
+    {
+        const int s = gamelayout->soundmap[chunk % LASTSOUND];
+        return s == -1 ? -1 : chunk / LASTSOUND * gamelayout->lastsound + s;
+    }
+
+    const int m = gamelayout->musicmap[chunk - STARTMUSIC];
+    return m == -1 ? -1 : 3 * gamelayout->lastsound + m;
 }
 
 /*
@@ -481,21 +503,17 @@ void CAL_SetupGrFile (void)
     long headersize = lseek(handle, 0, SEEK_END);
     lseek(handle, 0, SEEK_SET);
 
-#ifndef APOGEE_1_0
-	int expectedsize = lengthof(grstarts) - numEpisodesMissing;
-#else
-	int expectedsize = lengthof(grstarts);
-#endif
+    const int numoffsets = gamelayout->numchunks + 1;
+    const int expectedsize = numoffsets - numEpisodesMissing;
 
     if(!param_ignorenumchunks && headersize / 3 != (long) expectedsize)
-        Quit("Wolf4SDL was not compiled for these data files:\n"
-            "%s contains a wrong number of offsets (%i instead of %i)!\n\n"
-            "Please check whether you are using the right executable!\n"
-            "(For mod developers: perhaps you forgot to update NUMCHUNKS?)",
-            fname, headersize / 3, expectedsize);
+        Quit("%s does not match the detected game version (%s):\n"
+            "it contains %i offsets instead of %i!\n\n"
+            "(For mod developers: perhaps you forgot to update the layout tables?)",
+            fname, gamelayout->name, headersize / 3, expectedsize);
 
-    byte data[lengthof(grstarts) * 3];
-    if (read(handle, data, sizeof(data)) < 0)
+    byte data[(NUMCHUNKS + 1) * 3];
+    if (read(handle, data, numoffsets * 3) < 0)
     {
         close(handle);
         return;
@@ -503,7 +521,7 @@ void CAL_SetupGrFile (void)
     close(handle);
 
     const byte* d = data;
-    for (int32_t* i = grstarts; i != endof(grstarts); ++i)
+    for (int32_t* i = grstarts; i != grstarts + numoffsets; ++i)
     {
         const int32_t val = d[0] | d[1] << 8 | d[2] << 16;
         *i = (val == 0x00FFFFFF ? -1 : val);
@@ -525,7 +543,11 @@ void CAL_SetupGrFile (void)
 //
 // load the pic and sprite headers into the arrays in the data segment
 //
-    pictable=(pictabletype *) malloc(NUMPICS*sizeof(pictabletype));
+    // The table in the file is in physical order, pictable is indexed by logical chunk.
+    const int numpics = gamelayout->gfxmap[TILE8] - STARTPICS;
+    pictabletype *const filetable = (pictabletype *) malloc(numpics*sizeof(pictabletype));
+    CHECKMALLOCRESULT(filetable);
+    pictable=(pictabletype *) calloc(NUMPICS, sizeof(pictabletype));
     CHECKMALLOCRESULT(pictable);
     CAL_GetGrChunkLength(STRUCTPIC);                // position file pointer
     compseg=(byte *) malloc(chunkcomplen);
@@ -533,10 +555,19 @@ void CAL_SetupGrFile (void)
     if (read (grhandle,compseg,chunkcomplen) < 0)
     {
         free(compseg);
+        free(filetable);
         return;
     }
-    CAL_HuffExpand(compseg, (byte*)pictable, NUMPICS * sizeof(pictabletype), grhuffman);
+    CAL_HuffExpand(compseg, (byte*)filetable, numpics * sizeof(pictabletype), grhuffman);
     free(compseg);
+
+    for (int i = STARTPICS; i < TILE8; i++)
+    {
+        const int physical = gamelayout->gfxmap[i];
+        if (physical != -1)
+            pictable[i - STARTPICS] = filetable[physical - STARTPICS];
+    }
+    free(filetable);
 }
 
 //==========================================================================
@@ -688,6 +719,8 @@ void CA_Startup (void)
     profilehandle = open("PROFILE.TXT", O_CREAT | O_WRONLY | O_TEXT);
 #endif
 
+    assert(gamelayout != NULL);
+
     CAL_SetupMapFile ();
     CAL_SetupGrFile ();
     CAL_SetupAudioFile ();
@@ -751,8 +784,12 @@ void CA_Shutdown (void)
 
 int32_t CA_CacheAudioChunk (int chunk)
 {
-    int32_t pos = audiostarts[chunk];
-    int32_t size = audiostarts[chunk+1]-pos;
+    const int physical = physical_audio_chunk(chunk);
+    if (physical == -1)
+        return 0;                           // not in this version
+
+    const int32_t pos = audiostarts[physical];
+    const int32_t size = audiostarts[physical+1]-pos;
 
     if (audiosegs[chunk])
         return size;                        // already in memory
@@ -773,8 +810,12 @@ int32_t CA_CacheAudioChunk (int chunk)
 
 void CA_CacheAdlibSoundChunk (int chunk)
 {
-    int32_t pos = audiostarts[chunk];
-    int32_t size = audiostarts[chunk+1]-pos;
+    const int physical = physical_audio_chunk(chunk);
+    if (physical == -1)
+        return;                            // not in this version
+
+    const int32_t pos = audiostarts[physical];
+    const int32_t size = audiostarts[physical+1]-pos;
 
     if (audiosegs[chunk])
         return;                        // already in memory
@@ -961,11 +1002,15 @@ void CA_CacheGrChunk (int chunk)
 // load the chunk into a buffer, either the miscbuffer if it fits, or allocate
 // a larger buffer
 //
-    pos = GRFILEPOS(chunk);
+    const int physical = physical_gr_chunk(chunk);
+    if (physical == -1)
+        return;                             // not in this version
+
+    pos = GRFILEPOS(physical);
     if (pos<0)                              // $FFFFFFFF start is a sparse tile
         return;
 
-    next = chunk +1;
+    next = physical +1;
     while (GRFILEPOS(next) == -1)           // skip past any sparse tiles
         next++;
 
@@ -1025,8 +1070,12 @@ void CA_CacheScreen (int chunk)
 //
 // load the chunk into a buffer
 //
-    pos = GRFILEPOS(chunk);
-    next = chunk +1;
+    const int physical = physical_gr_chunk(chunk);
+    if (physical == -1)
+        return;
+
+    pos = GRFILEPOS(physical);
+    next = physical +1;
     while (GRFILEPOS(next) == -1)           // skip past any sparse tiles
         next++;
     compressed = GRFILEPOS(next)-pos;
