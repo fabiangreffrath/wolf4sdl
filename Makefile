@@ -24,8 +24,6 @@ CFLAGS += -Wall
 CFLAGS += -Wpointer-arith
 CFLAGS += -Wreturn-type
 CFLAGS += -Wwrite-strings
-CFLAGS += -Wcast-align
-
 
 CCFLAGS += $(CFLAGS)
 CCFLAGS += -std=gnu99
@@ -42,6 +40,7 @@ endif
 
 SRCS :=
 SRCS += opl3.c
+SRCS += layouts_gen.cpp
 SRCS += id_ca.cpp
 SRCS += id_in.cpp
 SRCS += id_pm.cpp

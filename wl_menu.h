@@ -1,27 +1,13 @@
 //
 // WL_MENU.H
 //
-#ifdef SPEAR
-
-#define BORDCOLOR       0x99
-#define BORD2COLOR      0x93
-#define DEACTIVE        0x9b
-#define BKGDCOLOR       0x9d
-//#define STRIPE                0x9c
-
-#define MenuFadeOut()   VL_FadeOut(0,255,0,0,51,10)
-
-#else
-
-#define BORDCOLOR       0x29
-#define BORD2COLOR      0x23
-#define DEACTIVE        0x2b
-#define BKGDCOLOR       0x2d
+#define BORDCOLOR       (gamelayout->spear ? 0x99 : 0x29)
+#define BORD2COLOR      (gamelayout->spear ? 0x93 : 0x23)
+#define DEACTIVE        (gamelayout->spear ? 0x9b : 0x2b)
+#define BKGDCOLOR       (gamelayout->spear ? 0x9d : 0x2d)
 #define STRIPE          0x2c
 
-#define MenuFadeOut()   VL_FadeOut(0,255,43,0,0,10)
-
-#endif
+#define MenuFadeOut()   (gamelayout->spear ? VL_FadeOut(0,255,0,0,51,10) : VL_FadeOut(0,255,43,0,0,10))
 
 #define READCOLOR       0x4a
 #define READHCOLOR      0x47
@@ -33,11 +19,7 @@
 
 #define MENUSONG        WONDERIN_MUS
 
-#ifndef SPEAR
-#define INTROSONG       NAZI_NOR_MUS
-#else
-#define INTROSONG       XTOWER2_MUS
-#endif
+#define INTROSONG       (gamelayout->spear ? XTOWER2_MUS : NAZI_NOR_MUS)
 
 #define SENSITIVE       60
 #define CENTERX         ((int) screenWidth / 2)
@@ -126,8 +108,8 @@ void DrawOutline(int x,int y,int w,int h,int color1,int color2);
 void WaitKeyUp(void);
 void ReadAnyControl(ControlInfo *ci);
 void TicDelay(int count);
-void CacheLump(int lumpstart,int lumpend);
-void UnCacheLump(int lumpstart,int lumpend);
+void CacheLump(int lump);
+void UnCacheLump(int lump);
 int StartCPMusic(int song);
 int  Confirm(const char *string);
 void Message(const char *string);

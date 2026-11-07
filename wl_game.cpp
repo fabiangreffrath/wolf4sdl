@@ -30,11 +30,9 @@ boolean         ingame,fizzlein;
 gametype        gamestate;
 byte            bordercol=VIEWCOLOR;        // color of the Change View/Ingame border
 
-#ifdef SPEAR
 int32_t         spearx,speary;
 unsigned        spearangle;
 boolean         spearflag;
-#endif
 
 #ifdef USE_FEATUREFLAGS
 int ffDataTopLeft, ffDataTopRight, ffDataBottomLeft, ffDataBottomRight;
@@ -298,13 +296,16 @@ static void ScanInfoPlane(void)
                 case 70:
                 case 71:
                 case 72:
-#ifdef SPEAR
                 case 73:                        // TRUCK AND SPEAR!
                 case 74:
-#elif defined(USE_DIR3DSPR)                     // just for the example
-                case 73:
+                    if (gamelayout->spear)
+                    {
+                        SpawnStatic(x,y,tile-23);
+                    }
+#ifdef USE_DIR3DSPR                             // just for the example
+                    else if (tile == 73)
+                        SpawnStatic(x,y,tile-23);
 #endif
-                    SpawnStatic(x,y,tile-23);
                     break;
 
 //
@@ -506,49 +507,85 @@ static void ScanInfoPlane(void)
 //
 // boss
 //
-#ifndef SPEAR
                 case 214:
-                    SpawnBoss (x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnBoss (x,y);
+                    }
                     break;
                 case 197:
-                    SpawnGretel (x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnGretel (x,y);
+                    }
                     break;
                 case 215:
-                    SpawnGift (x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnGift (x,y);
+                    }
                     break;
                 case 179:
-                    SpawnFat (x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnFat (x,y);
+                    }
                     break;
                 case 196:
-                    SpawnSchabbs (x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnSchabbs (x,y);
+                    }
                     break;
                 case 160:
-                    SpawnFakeHitler (x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnFakeHitler (x,y);
+                    }
                     break;
                 case 178:
-                    SpawnHitler (x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnHitler (x,y);
+                    }
                     break;
-#else
                 case 106:
-                    SpawnSpectre (x,y);
+                    if (gamelayout->spear)
+                    {
+                        SpawnSpectre (x,y);
+                    }
                     break;
                 case 107:
-                    SpawnAngel (x,y);
+                    if (gamelayout->spear)
+                    {
+                        SpawnAngel (x,y);
+                    }
                     break;
                 case 125:
-                    SpawnTrans (x,y);
+                    if (gamelayout->spear)
+                    {
+                        SpawnTrans (x,y);
+                    }
                     break;
                 case 142:
-                    SpawnUber (x,y);
+                    if (gamelayout->spear)
+                    {
+                        SpawnUber (x,y);
+                    }
                     break;
                 case 143:
-                    SpawnWill (x,y);
+                    if (gamelayout->spear)
+                    {
+                        SpawnWill (x,y);
+                    }
                     break;
                 case 161:
-                    SpawnDeath (x,y);
+                    if (gamelayout->spear)
+                    {
+                        SpawnDeath (x,y);
+                    }
                     break;
 
-#endif
 
 //
 // mutants
@@ -598,20 +635,30 @@ static void ScanInfoPlane(void)
 //
 // ghosts
 //
-#ifndef SPEAR
                 case 224:
-                    SpawnGhosts (en_blinky,x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnGhosts (en_blinky,x,y);
+                    }
                     break;
                 case 225:
-                    SpawnGhosts (en_clyde,x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnGhosts (en_clyde,x,y);
+                    }
                     break;
                 case 226:
-                    SpawnGhosts (en_pinky,x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnGhosts (en_pinky,x,y);
+                    }
                     break;
                 case 227:
-                    SpawnGhosts (en_inky,x,y);
+                    if (!gamelayout->spear)
+                    {
+                        SpawnGhosts (en_inky,x,y);
+                    }
                     break;
-#endif
             }
         }
     }
@@ -1081,15 +1128,18 @@ void RecordDemo (void)
     CA_CacheGrChunk(STARTFONT);
     fontnumber=0;
     SETFONTCOLOR(0,15);
-#ifndef SPEAR
-#ifdef UPLOAD
-    US_Print("  Demo which level(1-10): "); maps = 10;
-#else
-    US_Print("  Demo which level(1-60): "); maps = 60;
-#endif
-#else
-    US_Print("  Demo which level(1-21): "); maps = 21;
-#endif
+    if (gamelayout->spear)
+    {
+        US_Print("  Demo which level(1-21): "); maps = 21;
+    }
+    else if (gamelayout->upload)
+    {
+        US_Print("  Demo which level(1-10): "); maps = 10;
+    }
+    else
+    {
+        US_Print("  Demo which level(1-60): "); maps = 60;
+    }
     VW_UpdateScreen();
     VW_FadeIn ();
     esc = !US_LineInput (px,py,str,NULL,true,2,0);
@@ -1104,13 +1154,16 @@ void RecordDemo (void)
 
     VW_FadeOut ();
 
-#ifndef SPEAR
-    NewGame (gd_hard,level/10);
-    gamestate.mapon = level%10;
-#else
-    NewGame (gd_hard,0);
-    gamestate.mapon = level;
-#endif
+    if (!gamelayout->spear)
+    {
+        NewGame (gd_hard,level/10);
+        gamestate.mapon = level%10;
+    }
+    else
+    {
+        NewGame (gd_hard,0);
+        gamestate.mapon = level;
+    }
 
     StartDemoRecord (level);
 
@@ -1160,11 +1213,7 @@ void PlayDemo (int demonumber)
     int length;
 #ifdef DEMOSEXTERN
 // debug: load chunk
-#ifndef SPEARDEMO
     int dems[4]={T_DEMO0,T_DEMO1,T_DEMO2,T_DEMO3};
-#else
-    int dems[1]={T_DEMO0};
-#endif
 
     CA_CacheGrChunk(dems[demonumber]);
     demoptr = (int8_t *) grsegs[dems[demonumber]];
@@ -1389,13 +1438,14 @@ restartgame:
         if (!loadedgame)
             SetupGameLevel ();
 
-#ifdef SPEAR
-        if (gamestate.mapon == 20)      // give them the key allways
+        if (gamelayout->spear)
         {
-            gamestate.keys |= 1;
-            DrawKeys ();
+            if (gamestate.mapon == 20)      // give them the key allways
+            {
+                gamestate.keys |= 1;
+                DrawKeys ();
+            }
         }
-#endif
 
         ingame = true;
         if(loadedgame)
@@ -1415,36 +1465,35 @@ restartgame:
 
         DrawLevel ();
 
-#ifdef SPEAR
 startplayloop:
-#endif
         PlayLoop ();
 
-#ifdef SPEAR
-        if (spearflag)
+        if (gamelayout->spear)
         {
-            SD_StopSound();
-            SD_PlaySound(GETSPEARSND);
-            if (DigiMode != sds_Off)
+            if (spearflag)
             {
-                Delay(150);
-            }
-            else
-                SD_WaitSoundDone();
+                SD_StopSound();
+                SD_PlaySound(GETSPEARSND);
+                if (DigiMode != sds_Off)
+                {
+                    Delay(150);
+                }
+                else
+                    SD_WaitSoundDone();
 
-            ClearMemory ();
-            gamestate.oldscore = gamestate.score;
-            gamestate.mapon = 20;
-            SetupGameLevel ();
-            StartMusic ();
-            player->x = spearx;
-            player->y = speary;
-            player->angle = (short)spearangle;
-            spearflag = false;
-            Thrust (0,0);
-            goto startplayloop;
+                ClearMemory ();
+                gamestate.oldscore = gamestate.score;
+                gamestate.mapon = 20;
+                SetupGameLevel ();
+                StartMusic ();
+                player->x = spearx;
+                player->y = speary;
+                player->angle = (short)spearangle;
+                spearflag = false;
+                Thrust (0,0);
+                goto startplayloop;
+            }
         }
-#endif
 
         StopMusic ();
         ingame = false;
@@ -1469,66 +1518,74 @@ startplayloop:
                 LevelCompleted ();              // do the intermission
                 if(viewsize == 21) DrawPlayScreen();
 
-#ifdef SPEARDEMO
-                if (gamestate.mapon == 1)
+                if (gamelayout->spear_demo)
                 {
-                    died = true;                    // don't "get psyched!"
+                    if (gamestate.mapon == 1)
+                    {
+                        died = true;                    // don't "get psyched!"
 
-                    VW_FadeOut ();
+                        VW_FadeOut ();
 
-                    ClearMemory ();
+                        ClearMemory ();
 
-                    CheckHighScore (gamestate.score,gamestate.mapon+1);
-                    strcpy(MainMenu[viewscores].string,STR_VS);
-                    MainMenu[viewscores].routine = CP_ViewScores;
-                    return;
+                        CheckHighScore (gamestate.score,gamestate.mapon+1);
+                        strcpy(MainMenu[viewscores].string,STR_VS);
+                        MainMenu[viewscores].routine = CP_ViewScores;
+                        return;
+                    }
                 }
-#endif
 
                 gamestate.oldscore = gamestate.score;
-
-#ifndef SPEAR
-                //
-                // COMING BACK FROM SECRET LEVEL
-                //
-                if (gamestate.mapon == 9)
-                    gamestate.mapon = ElevatorBackTo[gamestate.episode];    // back from secret
-                else
-                    //
-                    // GOING TO SECRET LEVEL
-                    //
-                    if (playstate == ex_secretlevel)
-                        gamestate.mapon = 9;
-#else
 
 #define FROMSECRET1             3
 #define FROMSECRET2             11
 
-                //
-                // GOING TO SECRET LEVEL
-                //
-                if (playstate == ex_secretlevel)
-                    switch(gamestate.mapon)
+                if (!gamelayout->spear)
                 {
-                    case FROMSECRET1: gamestate.mapon = 18; break;
-                    case FROMSECRET2: gamestate.mapon = 19; break;
-                }
-                else
                     //
                     // COMING BACK FROM SECRET LEVEL
                     //
-                    if (gamestate.mapon == 18 || gamestate.mapon == 19)
-                        switch(gamestate.mapon)
-                    {
-                        case 18: gamestate.mapon = FROMSECRET1+1; break;
-                        case 19: gamestate.mapon = FROMSECRET2+1; break;
-                    }
-#endif
+                    if (gamestate.mapon == 9)
+                        gamestate.mapon = ElevatorBackTo[gamestate.episode];    // back from secret
                     else
                         //
-                        // GOING TO NEXT LEVEL
+                        // GOING TO SECRET LEVEL
                         //
-                        gamestate.mapon++;
+                        if (playstate == ex_secretlevel)
+                            gamestate.mapon = 9;
+                        else
+                            //
+                            // GOING TO NEXT LEVEL
+                            //
+                            gamestate.mapon++;
+                }
+                else
+                {
+                    //
+                    // GOING TO SECRET LEVEL
+                    //
+                    if (playstate == ex_secretlevel)
+                        switch(gamestate.mapon)
+                    {
+                        case FROMSECRET1: gamestate.mapon = 18; break;
+                        case FROMSECRET2: gamestate.mapon = 19; break;
+                    }
+                    else
+                        //
+                        // COMING BACK FROM SECRET LEVEL
+                        //
+                        if (gamestate.mapon == 18 || gamestate.mapon == 19)
+                            switch(gamestate.mapon)
+                        {
+                            case 18: gamestate.mapon = FROMSECRET1+1; break;
+                            case 19: gamestate.mapon = FROMSECRET2+1; break;
+                        }
+                        else
+                            //
+                            // GOING TO NEXT LEVEL
+                            //
+                            gamestate.mapon++;
+                }
                 break;
 
             case ex_died:
@@ -1551,11 +1608,14 @@ startplayloop:
 
             case ex_victorious:
                 if(viewsize == 21) DrawPlayScreen();
-#ifndef SPEAR
-                VW_FadeOut ();
-#else
-                VL_FadeOut (0,255,0,17,17,300);
-#endif
+                if (!gamelayout->spear)
+                {
+                    VW_FadeOut ();
+                }
+                else
+                {
+                    VL_FadeOut (0,255,0,17,17,300);
+                }
                 ClearMemory ();
 
                 Victory ();

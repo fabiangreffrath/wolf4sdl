@@ -71,7 +71,6 @@ statetype states[numstates] = {
 	{false,SPR_BOOM_1,6,NULL,NULL,s_boom2},	// s_boom1
 	{false,SPR_BOOM_2,6,NULL,NULL,s_boom3},	// s_boom2
 	{false,SPR_BOOM_3,6,NULL,NULL,s_null},	// s_boom3
-#ifdef SPEAR
 	{true,SPR_HROCKET_1,3,(statefunc)T_Projectile,(statefunc)A_Smoke,s_hrocket},	// s_hrocket
 	{false,SPR_HSMOKE_1,3,NULL,NULL,s_hsmoke2},	// s_hsmoke1
 	{false,SPR_HSMOKE_2,3,NULL,NULL,s_hsmoke3},	// s_hsmoke2
@@ -80,7 +79,6 @@ statetype states[numstates] = {
 	{false,SPR_HBOOM_1,6,NULL,NULL,s_hboom2},	// s_hboom1
 	{false,SPR_HBOOM_2,6,NULL,NULL,s_hboom3},	// s_hboom2
 	{false,SPR_HBOOM_3,6,NULL,NULL,s_null},	// s_hboom3
-#endif
 	{true,SPR_GRD_S_1,0,(statefunc)T_Stand,NULL,s_grdstand},	// s_grdstand
 	{true,SPR_GRD_W1_1,20,(statefunc)T_Path,NULL,s_grdpath1s},	// s_grdpath1
 	{true,SPR_GRD_W1_1,5,NULL,NULL,s_grdpath2},	// s_grdpath1s
@@ -103,7 +101,6 @@ statetype states[numstates] = {
 	{false,SPR_GRD_DIE_2,15,NULL,NULL,s_grddie3},	// s_grddie2
 	{false,SPR_GRD_DIE_3,15,NULL,NULL,s_grddie4},	// s_grddie3
 	{false,SPR_GRD_DEAD,0,NULL,NULL,s_grddie4},	// s_grddie4
-#ifndef SPEAR
 	{false,SPR_BLINKY_W1,10,(statefunc)T_Ghosts,NULL,s_blinkychase2},	// s_blinkychase1
 	{false,SPR_BLINKY_W2,10,(statefunc)T_Ghosts,NULL,s_blinkychase1},	// s_blinkychase2
 	{false,SPR_INKY_W1,10,(statefunc)T_Ghosts,NULL,s_inkychase2},	// s_inkychase1
@@ -112,7 +109,6 @@ statetype states[numstates] = {
 	{false,SPR_PINKY_W2,10,(statefunc)T_Ghosts,NULL,s_pinkychase1},	// s_pinkychase2
 	{false,SPR_CLYDE_W1,10,(statefunc)T_Ghosts,NULL,s_clydechase2},	// s_clydechase1
 	{false,SPR_CLYDE_W2,10,(statefunc)T_Ghosts,NULL,s_clydechase1},	// s_clydechase2
-#endif
 	{true,SPR_DOG_W1_1,20,(statefunc)T_Path,NULL,s_dogpath1s},	// s_dogpath1
 	{true,SPR_DOG_W1_1,5,NULL,NULL,s_dogpath2},	// s_dogpath1s
 	{true,SPR_DOG_W2_1,15,(statefunc)T_Path,NULL,s_dogpath3},	// s_dogpath2
@@ -209,7 +205,6 @@ statetype states[numstates] = {
 	{false,SPR_SS_DIE_2,15,NULL,NULL,s_ssdie3},	// s_ssdie2
 	{false,SPR_SS_DIE_3,15,NULL,NULL,s_ssdie4},	// s_ssdie3
 	{false,SPR_SS_DEAD,0,NULL,NULL,s_ssdie4},	// s_ssdie4
-#ifndef SPEAR
 	{false,SPR_BOSS_W1,0,(statefunc)T_Stand,NULL,s_bossstand},	// s_bossstand
 	{false,SPR_BOSS_W1,10,(statefunc)T_Chase,NULL,s_bosschase1s},	// s_bosschase1
 	{false,SPR_BOSS_W1,3,NULL,NULL,s_bosschase2},	// s_bosschase1s
@@ -248,8 +243,6 @@ statetype states[numstates] = {
 	{false,SPR_GRETEL_SHOOT2,10,NULL,(statefunc)T_Shoot,s_gretelshoot7},	// s_gretelshoot6
 	{false,SPR_GRETEL_SHOOT3,10,NULL,(statefunc)T_Shoot,s_gretelshoot8},	// s_gretelshoot7
 	{false,SPR_GRETEL_SHOOT1,10,NULL,NULL,s_gretelchase1},	// s_gretelshoot8
-#endif
-#ifdef SPEAR
 	{false,SPR_TRANS_W1,0,(statefunc)T_Stand,NULL,s_transstand},	// s_transstand
 	{false,SPR_TRANS_W1,10,(statefunc)T_Chase,NULL,s_transchase1s},	// s_transchase1
 	{false,SPR_TRANS_W1,3,NULL,NULL,s_transchase2},	// s_transchase1s
@@ -378,8 +371,6 @@ statetype states[numstates] = {
 	{false,SPR_SPECTRE_F3,10,NULL,NULL,s_spectredie4},	// s_spectredie3
 	{false,SPR_SPECTRE_F4,300,NULL,NULL,s_spectrewake},	// s_spectredie4
 	{false,SPR_SPECTRE_F4,10,NULL,(statefunc)A_Dormant,s_spectrewake},	// s_spectrewake
-#endif
-#ifndef SPEAR
 	{false,SPR_SCHABB_W1,0,(statefunc)T_Stand,NULL,s_schabbstand},	// s_schabbstand
 	{false,SPR_SCHABB_W1,10,(statefunc)T_Schabb,NULL,s_schabbchase1s},	// s_schabbchase1
 	{false,SPR_SCHABB_W1,3,NULL,NULL,s_schabbchase2},	// s_schabbchase1s
@@ -511,5 +502,4 @@ statetype states[numstates] = {
 	{false,SPR_BJ_JUMP3,14,(statefunc)T_BJJump,NULL,s_bjjump4},	// s_bjjump3
 	{false,SPR_BJ_JUMP4,300,NULL,(statefunc)T_BJDone,s_bjjump4},	// s_bjjump4
 	{false,0,0,NULL,NULL,s_null},	// s_deathcam
-#endif
 };
