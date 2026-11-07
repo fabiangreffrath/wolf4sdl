@@ -87,6 +87,7 @@ static const char gheadname[] = "vgahead.";
 static const char gfilename[] = "vgagraph.";
 static const char gdictname[] = "vgadict.";
 static const char mheadname[] = "maphead.";
+static bool carmacized;                 // maps are in gamemaps.* (Carmack and RLEW) instead of maptemp.* (RLEW only)
 static const char aheadname[] = "audiohed.";
 static const char afilename[] = "audiot.";
 
@@ -614,21 +615,23 @@ void CAL_SetupMapFile (void)
 //
 // open the data file
 //
-#ifdef CARMACIZED
     strcpy(fname, "gamemaps.");
     strcat(fname, extension);
 
     maphandle = open(fname, O_RDONLY | O_BINARY);
-    if (maphandle == -1)
-        CA_CannotOpen(fname);
-#else
-    strcpy(fname,"maptemp.");
-    strcat(fname,extension);
+    carmacized = maphandle != -1;
 
-    maphandle = open(fname, O_RDONLY | O_BINARY);
-    if (maphandle == -1)
-        CA_CannotOpen(fname);
-#endif
+    if (!carmacized)
+    {
+        char tempname[13];
+
+        strcpy(tempname, "maptemp.");
+        strcat(tempname, extension);
+
+        maphandle = open(tempname, O_RDONLY | O_BINARY);
+        if (maphandle == -1)
+            CA_CannotOpen(fname);
+    }
 
 //
 // load all map header
@@ -1140,10 +1143,8 @@ void CA_CacheMap (int mapnum)
     memptr    bigbufferseg = NULL;
     unsigned  size;
     word     *source;
-#ifdef CARMACIZED
     word     *buffer2seg;
     int32_t   expanded;
-#endif
 
     mapon = mapnum;
 
@@ -1177,27 +1178,29 @@ void CA_CacheMap (int mapnum)
             }
             return;
         }
-#ifdef CARMACIZED
-        //
-        // unhuffman, then unRLEW
-        // The huffman'd chunk has a two byte expanded length first
-        // The resulting RLEW chunk also does, even though it's not really
-        // needed
-        //
-        expanded = *source;
-        source++;
-        buffer2seg = (word *) malloc(expanded);
-        CHECKMALLOCRESULT(buffer2seg);
-        CAL_CarmackExpand((byte *) source, buffer2seg,expanded);
-        CA_RLEWexpand(buffer2seg+1,dest,size,RLEWtag);
-        free(buffer2seg);
-
-#else
-        //
-        // unRLEW, skipping expanded length
-        //
-        CA_RLEWexpand (source+1,dest,size,RLEWtag);
-#endif
+        if (carmacized)
+        {
+            //
+            // unhuffman, then unRLEW
+            // The huffman'd chunk has a two byte expanded length first
+            // The resulting RLEW chunk also does, even though it's not really
+            // needed
+            //
+            expanded = *source;
+            source++;
+            buffer2seg = (word *) malloc(expanded);
+            CHECKMALLOCRESULT(buffer2seg);
+            CAL_CarmackExpand((byte *) source, buffer2seg,expanded);
+            CA_RLEWexpand(buffer2seg+1,dest,size,RLEWtag);
+            free(buffer2seg);
+        }
+        else
+        {
+            //
+            // unRLEW, skipping expanded length
+            //
+            CA_RLEWexpand (source+1,dest,size,RLEWtag);
+        }
 
         if (compressed>BUFFERSIZE)
             free(bigbufferseg);
