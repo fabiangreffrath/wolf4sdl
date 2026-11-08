@@ -2731,18 +2731,14 @@ DrawCustom2Screen (void)
     //
     // MOUSE
     //
-    SETFONTCOLOR (READCOLOR, BKGDCOLOR);
-    WindowX = 0;
-    WindowW = 320;
-
     if (!gamelayout->spear)
     {
-        PrintY = CST_Y;
+        SETFONTCOLOR (READCOLOR, BKGDCOLOR);
         US_CPrint ("Mouse\n");
     }
     else
     {
-        PrintY = CST_Y + 13;
+        PrintY += 13;
         VWB_DrawPic (128, 48, C_MOUSEPIC);
     }
 
@@ -2755,7 +2751,6 @@ DrawCustom2Screen (void)
     US_Print (STR_CFIRE);
     PrintX = CST_START + CST_SPC * 3;
     US_Print (STR_CSTRAFE "\n");
-
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustMouse (0);
     US_Print ("\n");
@@ -2773,11 +2768,6 @@ DrawCustom2Screen (void)
     {
         PrintY += 13;
         VWB_DrawPic (40, 88, C_JOYSTICKPIC);
-    }
-
-    if (gamelayout->spear)
-    {
-        VWB_DrawPic (112, 120, C_KEYBOARDPIC);
     }
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
@@ -2806,6 +2796,7 @@ DrawCustom2Screen (void)
     DrawCust2Joy (0);
     US_Print ("\n");
 
+    SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
     PrintX = CST_START;
     US_Print ("StrLft");
     PrintX = CST_START + CST_SPC * 1;
@@ -2855,7 +2846,9 @@ DrawCustomScreen (void)
     else
     {
         PrintY += 13;
+        VWB_DrawPic (112, 42, C_KEYBOARDPIC);
     }
+
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
     PrintX = CST_START;
     US_Print (STR_CRUN);
