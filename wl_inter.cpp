@@ -894,7 +894,7 @@ PreloadUpdate (unsigned current, unsigned total)
     if (w)
     {
         VWB_BarScaledCoord (WindowX + scaleFactor * 5, WindowY + WindowH - scaleFactor * 3,
-            w, scaleFactor * 2, 0x37);       //SECONDCOLOR);
+            w, scaleFactor * 2, 0x37);       //SECONDCOLOR
         VWB_BarScaledCoord (WindowX + scaleFactor * 5, WindowY + WindowH - scaleFactor * 3,
             w - scaleFactor * 1, scaleFactor * 1, 0x32);
 

@@ -206,7 +206,7 @@ static const int spearsongs[] = {
     XFUNKIE_MUS,
     XDEATH_MUS,
     XGETYOU_MUS,                // DON'T KNOW
-    ULTIMATE_MUS,               // Trans Grîsse
+    ULTIMATE_MUS,               // Trans Gr√∂sse
 
     DUNGEON_MUS,
     GOINGAFT_MUS,
