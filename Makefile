@@ -55,6 +55,7 @@ SRCS += wl_agent.cpp
 SRCS += wl_atmos.cpp
 SRCS += wl_cloudsky.cpp
 SRCS += wl_debug.cpp
+SRCS += wl_shade.cpp
 SRCS += wl_draw.cpp
 SRCS += wl_floorceiling.cpp
 SRCS += wl_game.cpp

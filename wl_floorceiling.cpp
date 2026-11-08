@@ -66,16 +66,21 @@ void DrawFloorAndCeiling(byte *vbuf, unsigned vbufPitch, int min_wallheight)
                     v = (gv >> (TILESHIFT - TEXTURESHIFT)) & (TEXTURESIZE - 1);
                     unsigned texoffs = (u << TEXTURESHIFT) + (TEXTURESIZE - 1) - v;
 #ifdef USE_SHADING
+                    if (param_shading)
+                    {
                     if(curtoptex)
                         vbuf[top_add] = curshades[toptex[texoffs]];
                     if(curbottex)
                         vbuf[bot_add] = curshades[bottex[texoffs]];
-#else
+                    }
+                    else
+#endif
+                    {
                     if(curtoptex)
                         vbuf[top_add] = toptex[texoffs];
                     if(curbottex)
                         vbuf[bot_add] = bottex[texoffs];
-#endif
+                    }
                 }
             }
             gu += du;
