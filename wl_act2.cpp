@@ -173,11 +173,9 @@ void    T_Shoot (objtype *ob);
 void A_Smoke (objtype *ob)
 {
     GetNewActor ();
-#ifdef SPEAR
     if (ob->obclass == hrocketobj)
         newobj->state = &states[s_hsmoke1];
     else
-#endif
         newobj->state = &states[s_smoke1];
     newobj->ticcount = 6;
 
@@ -264,21 +262,17 @@ void T_Projectile (objtype *ob)
 
     if (!ProjectileTryMove (ob))
     {
-#ifndef APOGEE_1_0          // actually the whole method is never reached in shareware 1.0
         if (ob->obclass == rocketobj)
         {
             PlaySoundLocActor(MISSILEHITSND,ob);
             ob->state = &states[s_boom1];
         }
-#ifdef SPEAR
         else if (ob->obclass == hrocketobj)
         {
             PlaySoundLocActor(MISSILEHITSND,ob);
             ob->state = &states[s_hboom1];
         }
-#endif
         else
-#endif
             ob->state = NULL;               // mark for removal
 
         return;
@@ -410,7 +404,6 @@ void SpawnDeadGuard (int tilex, int tiley)
 
 
 
-#ifndef SPEAR
 /*
 ===============
 =
@@ -452,7 +445,6 @@ void SpawnGretel (int tilex, int tiley)
     if (!loadedgame)
         gamestate.killtotal++;
 }
-#endif
 
 /*
 ===============
@@ -545,12 +537,7 @@ void SpawnPatrol (enemy_t which, int tilex, int tiley, int dir)
 
 void A_DeathScream (objtype *ob)
 {
-#ifndef UPLOAD
-#ifndef SPEAR
-    if (mapon==9 && !US_RndT())
-#else
-    if ((mapon==18 || mapon==19) && !US_RndT())
-#endif
+    if (!gamelayout->upload && (gamelayout->spear ? (mapon==18 || mapon==19) : mapon==9) && !US_RndT())
     {
         switch(ob->obclass)
         {
@@ -565,7 +552,6 @@ void A_DeathScream (objtype *ob)
                 break;
         }
     }
-#endif
 
     switch (ob->obclass)
     {
@@ -578,20 +564,21 @@ void A_DeathScream (objtype *ob)
             int sounds[9]={ DEATHSCREAM1SND,
                 DEATHSCREAM2SND,
                 DEATHSCREAM3SND,
-#ifndef APOGEE_1_0
                 DEATHSCREAM4SND,
                 DEATHSCREAM5SND,
                 DEATHSCREAM7SND,
                 DEATHSCREAM8SND,
                 DEATHSCREAM9SND
-#endif
             };
 
-#ifndef UPLOAD
-            PlaySoundLocActor(sounds[US_RndT()%8],ob);
-#else
-            PlaySoundLocActor(sounds[US_RndT()%2],ob);
-#endif
+            if (!gamelayout->upload)
+            {
+                PlaySoundLocActor(sounds[US_RndT()%8],ob);
+            }
+            else
+            {
+                PlaySoundLocActor(sounds[US_RndT()%2],ob);
+            }
             break;
         }
         case officerobj:
@@ -603,7 +590,6 @@ void A_DeathScream (objtype *ob)
         case dogobj:
             PlaySoundLocActor(DOGDEATHSND,ob);      // JAB
             break;
-#ifndef SPEAR
         case bossobj:
             SD_PlaySound(MUTTISND);                         // JAB
             break;
@@ -619,7 +605,6 @@ void A_DeathScream (objtype *ob)
         case realhitlerobj:
             SD_PlaySound(EVASND);
             break;
-#ifndef APOGEE_1_0
         case gretelobj:
             SD_PlaySound(MEINSND);
             break;
@@ -629,8 +614,6 @@ void A_DeathScream (objtype *ob)
         case fatobj:
             SD_PlaySound(ROSESND);
             break;
-#endif
-#else
         case spectreobj:
             SD_PlaySound(GHOSTFADESND);
             break;
@@ -649,7 +632,6 @@ void A_DeathScream (objtype *ob)
         case deathobj:
             SD_PlaySound(KNIGHTDEATHSND);
             break;
-#endif
         default:
             break;
     }
@@ -664,7 +646,6 @@ void A_DeathScream (objtype *ob)
 =============================================================================
 */
 
-#ifdef SPEAR
 
 
 /*
@@ -1113,7 +1094,6 @@ moveok:
 }
 
 
-#endif
 
 /*
 =============================================================================
@@ -1123,7 +1103,6 @@ moveok:
 =============================================================================
 */
 
-#ifndef SPEAR
 /*
 ===============
 =
@@ -1320,9 +1299,7 @@ void T_GiftThrow (objtype *ob)
     newobj->flags = FL_NEVERMARK;
     newobj->active = ac_yes;
 
-#ifndef APOGEE_1_0          // T_GiftThrow will never be called in shareware v1.0
     PlaySoundLocActor (MISSILEFIRESND,newobj);
-#endif
 }
 
 
@@ -1706,11 +1683,6 @@ void A_MechaSound (objtype *ob)
         PlaySoundLocActor (MECHSTEPSND,ob);
 }
 
-void A_Slurpie (objtype *)
-{
-    SD_PlaySound(SLURPIESND);
-}
-
 /*
 =================
 =
@@ -1821,7 +1793,6 @@ void T_Fake (objtype *ob)
     }
 }
 
-#endif
 /*
 ============================================================================
 
@@ -1925,7 +1896,6 @@ void T_Chase (objtype *ob)
                 case ssobj:
                     NewState (ob,&states[s_ssshoot1]);
                     break;
-#ifndef SPEAR
                 case bossobj:
                     NewState (ob,&states[s_bossshoot1]);
                     break;
@@ -1938,7 +1908,6 @@ void T_Chase (objtype *ob)
                 case realhitlerobj:
                     NewState (ob,&states[s_hitlershoot1]);
                     break;
-#else
                 case angelobj:
                     NewState (ob,&states[s_angelshoot1]);
                     break;
@@ -1954,7 +1923,6 @@ void T_Chase (objtype *ob)
                 case deathobj:
                     NewState (ob,&states[s_deathshoot1]);
                     break;
-#endif
                 default:
                     break;
             }
@@ -2319,13 +2287,10 @@ void T_Shoot (objtype *ob)
         case ssobj:
             PlaySoundLocActor(SSFIRESND,ob);
             break;
-#ifndef SPEAR
-#ifndef APOGEE_1_0
         case giftobj:
         case fatobj:
             PlaySoundLocActor(MISSILEFIRESND,ob);
             break;
-#endif
         case mechahitlerobj:
         case realhitlerobj:
         case bossobj:
@@ -2337,7 +2302,6 @@ void T_Shoot (objtype *ob)
         case fakeobj:
             PlaySoundLocActor(FLAMETHROWERSND,ob);
             break;
-#endif
         default:
             PlaySoundLocActor(NAZIFIRESND,ob);
     }
@@ -2380,7 +2344,6 @@ void T_Bite (objtype *ob)
 }
 
 
-#ifndef SPEAR
 /*
 ============================================================================
 
@@ -2581,7 +2544,7 @@ void    A_StartDeathCam (objtype *ob)
     }
     else
     {
-        CacheLump(LEVELEND_LUMP_START,LEVELEND_LUMP_END);
+        CacheLump(LUMP_LEVELEND);
         Write(0,7,STR_SEEAGAIN);
     }
 
@@ -2635,7 +2598,6 @@ void    A_StartDeathCam (objtype *ob)
 
     switch (ob->obclass)
     {
-#ifndef SPEAR
         case schabbobj:
             NewState (ob,&states[s_schabbdeathcam]);
             break;
@@ -2650,8 +2612,6 @@ void    A_StartDeathCam (objtype *ob)
             break;
         default:
             break;
-#endif
     }
 }
 
-#endif

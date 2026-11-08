@@ -23,7 +23,7 @@
 =============================================================================
 */
 
-extern byte signon[];
+extern byte wolfsignon[], spearsignon[];
 
 /*
 =============================================================================
@@ -90,6 +90,7 @@ int     param_samplerate = 44100;
 int     param_audiobuffer = -1;
 
 int     param_mission = 0;
+const char *param_game = NULL;          // data file extension to use, NULL for automatic
 boolean param_ignorenumchunks = false;
 boolean always_run = false;
 
@@ -455,7 +456,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     ob = player;
     DiskFlopAnim(x,y);
     memcpy(&nullobj,ob,sizeof(nullobj));
-    nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
+    nullobj.state=(statetype *) (intptr_t) gamelayout->statemap[nullobj.state-states]; // number in the former separate build
     fwrite(&nullobj,sizeof(nullobj),1,file);
     ob = ob->next;
 
@@ -463,7 +464,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     for (; ob ; ob=ob->next)
     {
         memcpy(&nullobj,ob,sizeof(nullobj));
-        nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
+        nullobj.state=(statetype *) (intptr_t) gamelayout->statemap[nullobj.state-states]; // number in the former separate build
         fwrite(&nullobj,sizeof(nullobj),1,file);
     }
     nullobj.active = ac_badobject;          // end of file marker
@@ -479,6 +480,8 @@ boolean SaveTheGame(FILE *file,int x,int y)
     for(i=0;i<MAXSTATS;i++)
     {
         memcpy(&nullstat,statobjlist+i,sizeof(nullstat));
+        if (nullstat.shapenum >= 0)
+            nullstat.shapenum = gamelayout->sprmap[nullstat.shapenum];  // number in the former separate build
         nullstat.visspot=(byte *) ((uintptr_t) nullstat.visspot-(uintptr_t)spotvis);
         fwrite(&nullstat,sizeof(nullstat),1,file);
         checksum = DoChecksum((byte *)&nullstat,sizeof(nullstat),checksum);
@@ -516,6 +519,17 @@ boolean SaveTheGame(FILE *file,int x,int y)
 }
 
 //===========================================================================
+
+// Converts a state number of a savegame to the state, or returns NULL if there is no such state.
+static statetype *legacystate (const statetype *saved)
+{
+    const size_t index = (size_t) saved;
+
+    if (index >= (size_t) gamelayout->numlegacystates)
+        return NULL;
+
+    return &states[gamelayout->stateinv[index]];
+}
 
 /*
 ==================
@@ -571,8 +585,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
     InitActorList ();
     DiskFlopAnim(x,y);
     fread2 (player,sizeof(*player),1,file);
-    if ((size_t)player->state > numstates) goto fail; // [FG] detect unsupported savegame format
-    player->state=&states[(size_t)player->state]; // [FG] statetype states[] array
+    player->state = legacystate (player->state);
+    if (!player->state) goto fail; // [FG] detect unsupported savegame format
 
     while (1)
     {
@@ -581,8 +595,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
         if (nullobj.active == ac_badobject)
             break;
         GetNewActor ();
-        if ((size_t)nullobj.state > numstates) goto fail; // [FG] detect unsupported savegame format
-        nullobj.state=&states[(size_t)nullobj.state]; // [FG] statetype states[] array
+        nullobj.state = legacystate (nullobj.state);
+        if (!nullobj.state) goto fail; // [FG] detect unsupported savegame format
         // don't copy over the links
         memcpy (newobj,&nullobj,sizeof(nullobj)-8);
     }
@@ -598,6 +612,12 @@ boolean LoadTheGame(FILE *file,int x,int y)
     {
         fread2(&nullstat,sizeof(nullstat),1,file);
         checksum = DoChecksum((byte *)&nullstat,sizeof(nullstat),checksum);
+        if (nullstat.shapenum >= 0)
+        {
+            if (nullstat.shapenum >= gamelayout->numphysprites || gamelayout->sprinv[nullstat.shapenum] == -1)
+                goto fail;
+            nullstat.shapenum = gamelayout->sprinv[nullstat.shapenum];
+        }
         nullstat.visspot=(byte *) ((uintptr_t)nullstat.visspot+(uintptr_t)spotvis);
         memcpy(statobjlist+i,&nullstat,sizeof(nullstat));
     }
@@ -859,6 +879,8 @@ void SetupWalls (void)
 
 void SignonScreen (void)                        // VGA version
 {
+    byte *const signon = gamelayout->spear ? spearsignon : wolfsignon;
+
     VL_SetVGAPlaneMode ();
 
     VL_MungePic (signon,320,200);
@@ -876,37 +898,40 @@ void SignonScreen (void)                        // VGA version
 
 void FinishSignon (void)
 {
-#ifndef SPEAR
-    VW_Bar (0,189,300,11,VL_GetPixel(0,0));
-    WindowX = 0;
-    WindowW = 320;
-    PrintY = 190;
+    if (!gamelayout->spear)
+    {
+        VW_Bar (0,189,300,11,VL_GetPixel(0,0));
+        WindowX = 0;
+        WindowW = 320;
+        PrintY = 190;
 
-    SETFONTCOLOR(14,4);
+        SETFONTCOLOR(14,4);
 
-    US_CPrint ("Press a key");
+        US_CPrint ("Press a key");
 
-    VH_UpdateScreen();
+        VH_UpdateScreen();
 
-    if (!param_nowait)
-        IN_Ack ();
+        if (!param_nowait)
+            IN_Ack ();
 
-    VW_Bar (0,189,300,11,VL_GetPixel(0,0));
+        VW_Bar (0,189,300,11,VL_GetPixel(0,0));
 
-    PrintY = 190;
-    SETFONTCOLOR(10,4);
+        PrintY = 190;
+        SETFONTCOLOR(10,4);
 
-    US_CPrint ("Working...");
+        US_CPrint ("Working...");
 
-    VH_UpdateScreen();
+        VH_UpdateScreen();
 
-    SETFONTCOLOR(0,15);
-#else
-    VH_UpdateScreen();
+        SETFONTCOLOR(0,15);
+    }
+    else
+    {
+        VH_UpdateScreen();
 
-    if (!param_nowait)
-        VW_WaitVBL(3*70);
-#endif
+        if (!param_nowait)
+            VW_WaitVBL(3*70);
+    }
 }
 
 //===========================================================================
@@ -924,10 +949,9 @@ void FinishSignon (void)
 //   0: player weapons
 //   1: boss weapons
 
-static int wolfdigimap[] =
+static const int wolfdigimap[] =
     {
         // These first sounds are in the upload version
-#ifndef SPEAR
         HALTSND,                0,  -1,
         DOGBARKSND,             1,  -1,
         CLOSEDOORSND,           2,  -1,
@@ -952,7 +976,11 @@ static int wolfdigimap[] =
 
         YEAHSND,                32, -1,
 
-#ifndef UPLOAD
+        LASTSOUND
+    };
+
+static const int wolffulldigimap[] =
+    {
         // These are in all other episodes
         DOGDEATHSND,            16, -1,
         AHHHGSND,               17, -1,
@@ -983,11 +1011,11 @@ static int wolfdigimap[] =
         MEINSND,                44, -1,         // EPISODE 6 BOSS DIE
         ROSESND,                45, -1,         // EPISODE 5 BOSS DIE
 
-#endif
-#else
-//
-// SPEAR OF DESTINY DIGISOUNDS
-//
+        LASTSOUND
+    };
+
+static const int speardigimap[] =
+    {
         HALTSND,                0,  -1,
         CLOSEDOORSND,           2,  -1,
         OPENDOORSND,            3,  -1,
@@ -1015,7 +1043,11 @@ static int wolfdigimap[] =
         DEATHSCREAM9SND,        28, -1,         // AH GEEZ!
         GETGATLINGSND,          38, -1,         // Got Gat replacement
 
-#ifndef SPEARDEMO
+        LASTSOUND
+    };
+
+static const int spearfulldigimap[] =
+    {
         DOGBARKSND,             1,  -1,
         DOGDEATHSND,            14, -1,
         SPIONSND,               19, -1,
@@ -1031,17 +1063,13 @@ static int wolfdigimap[] =
         ANGELSIGHTSND,          36, -1,         // Angel Sight
         ANGELDEATHSND,          37, -1,         // Angel Death
         GETSPEARSND,            39, -1,         // Got Spear replacement
-#endif
-#endif
         LASTSOUND
     };
 
-
-void InitDigiMap (void)
+// Registers the digitized sounds of one map list.
+static void initdigimap (const int *map)
 {
-    int *map;
-
-    for (map = wolfdigimap; *map != LASTSOUND; map += 3)
+    for (; *map != LASTSOUND; map += 3)
     {
         DigiMap[map[0]] = map[1];
         DigiChannel[map[1]] = map[2];
@@ -1049,9 +1077,28 @@ void InitDigiMap (void)
     }
 }
 
-#ifndef SPEAR
-CP_iteminfo MusicItems={CTL_X,CTL_Y,6,0,32};
-CP_itemtype MusicMenu[]=
+void InitDigiMap (void)
+{
+    if (gamelayout->spear)
+    {
+        initdigimap (speardigimap);
+        if (!gamelayout->spear_demo)
+        {
+            initdigimap (spearfulldigimap);
+        }
+    }
+    else
+    {
+        initdigimap (wolfdigimap);
+        if (!gamelayout->upload)
+        {
+            initdigimap (wolffulldigimap);
+        }
+    }
+}
+
+static CP_iteminfo MusicItemsWolf={CTL_X,CTL_Y,6,0,32};
+static CP_itemtype MusicMenuWolf[]=
     {
         {1,"Get Them!",0},
         {1,"Searching",0},
@@ -1074,9 +1121,9 @@ CP_itemtype MusicMenu[]=
         {1,"Ultimate Conquest",0},
         {1,"Wolfpack",0}
     };
-#else
-CP_iteminfo MusicItems={CTL_X,CTL_Y-20,9,0,32};
-CP_itemtype MusicMenu[]=
+
+static CP_iteminfo MusicItemsSpear={CTL_X,CTL_Y-20,9,0,32};
+static CP_itemtype MusicMenuSpear[]=
     {
         {1,"Funky Colonel Bill",0},
         {1,"Death To The Nazis",0},
@@ -1088,16 +1135,13 @@ CP_itemtype MusicMenu[]=
         {1,"The SS Gonna Get You",0},
         {1,"Towering Above",0}
     };
-#endif
 
-#ifndef SPEARDEMO
 void DoJukebox(void)
 {
     int which,lastsong=-1;
     unsigned start;
-    unsigned songs[]=
+    static const unsigned wolfsongs[]=
         {
-#ifndef SPEAR
             GETTHEM_MUS,
             SEARCHN_MUS,
             POW_MUS,
@@ -1118,7 +1162,9 @@ void DoJukebox(void)
             ZEROHOUR_MUS,
             ULTIMATE_MUS,
             PACMAN_MUS
-#else
+        };
+    static const unsigned spearsongs[]=
+        {
             XFUNKIE_MUS,             // 0
             XDEATH_MUS,              // 2
             XTIPTOE_MUS,             // 4
@@ -1128,8 +1174,10 @@ void DoJukebox(void)
             XPUTIT_MUS,              // 21
             XGETYOU_MUS,             // 22
             XTOWER2_MUS              // 23
-#endif
         };
+    const unsigned *const songs = gamelayout->spear ? spearsongs : wolfsongs;
+    CP_iteminfo *const items = gamelayout->spear ? &MusicItemsSpear : &MusicItemsWolf;
+    CP_itemtype *const menu = gamelayout->spear ? MusicMenuSpear : MusicMenuWolf;
 
     IN_ClearKeysDown();
     if (!AdLibPresent && !SoundBlasterPresent)
@@ -1137,22 +1185,10 @@ void DoJukebox(void)
 
     MenuFadeOut();
 
-#ifndef SPEAR
-#ifndef UPLOAD
-    start = ((SDL_GetTicks()/10)%3)*6;
-#else
-    start = 0;
-#endif
-#else
-    start = 0;
-#endif
+    start = (!gamelayout->spear && !gamelayout->upload) ? ((SDL_GetTicks()/10)%3)*6 : 0;
 
     CA_CacheGrChunk (STARTFONT+1);
-#ifdef SPEAR
-    CacheLump (BACKDROP_LUMP_START,BACKDROP_LUMP_END);
-#else
-    CacheLump (CONTROLS_LUMP_START,CONTROLS_LUMP_END);
-#endif
+    CacheLump (gamelayout->spear ? LUMP_BACKDROP : LUMP_CONTROLS);
     CA_LoadAllSounds ();
 
     fontnumber=1;
@@ -1161,13 +1197,16 @@ void DoJukebox(void)
     DrawStripes (10);
     SETFONTCOLOR (TEXTCOLOR,BKGDCOLOR);
 
-#ifndef SPEAR
-    DrawWindow (CTL_X-2,CTL_Y-6,280,13*7,BKGDCOLOR);
-#else
-    DrawWindow (CTL_X-2,CTL_Y-26,280,13*10,BKGDCOLOR);
-#endif
+    if (!gamelayout->spear)
+    {
+        DrawWindow (CTL_X-2,CTL_Y-6,280,13*7,BKGDCOLOR);
+    }
+    else
+    {
+        DrawWindow (CTL_X-2,CTL_Y-26,280,13*10,BKGDCOLOR);
+    }
 
-    DrawMenu (&MusicItems,&MusicMenu[start]);
+    DrawMenu (items,&menu[start]);
 
     SETFONTCOLOR (READHCOLOR,BKGDCOLOR);
     PrintY=15;
@@ -1181,15 +1220,15 @@ void DoJukebox(void)
 
     do
     {
-        which = HandleMenu(&MusicItems,&MusicMenu[start],NULL);
+        which = HandleMenu(items,&menu[start],NULL);
         if (which>=0)
         {
             if (lastsong >= 0)
-                MusicMenu[start+lastsong].active = 1;
+                menu[start+lastsong].active = 1;
 
             StartCPMusic(songs[start + which]);
-            MusicMenu[start+which].active = 2;
-            DrawMenu (&MusicItems,&MusicMenu[start]);
+            menu[start+which].active = 2;
+            DrawMenu (items,&menu[start]);
             VW_UpdateScreen();
             lastsong = which;
         }
@@ -1197,13 +1236,8 @@ void DoJukebox(void)
 
     MenuFadeOut();
     IN_ClearKeysDown();
-#ifdef SPEAR
-    UnCacheLump (BACKDROP_LUMP_START,BACKDROP_LUMP_END);
-#else
-    UnCacheLump (CONTROLS_LUMP_START,CONTROLS_LUMP_END);
-#endif
+    UnCacheLump (gamelayout->spear ? LUMP_BACKDROP : LUMP_CONTROLS);
 }
-#endif
 
 /*
 ==========================
@@ -1217,9 +1251,7 @@ void DoJukebox(void)
 
 static void InitGame()
 {
-#ifndef SPEARDEMO
     boolean didjukebox=false;
-#endif
 
     // initialize SDL
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0)
@@ -1299,14 +1331,12 @@ static void InitGame()
 //
 	IN_ProcessEvents();
 
-#ifndef SPEARDEMO
-    if (Keyboard[sc_M])
+    if (!gamelayout->spear_demo && Keyboard[sc_M])
     {
         DoJukebox();
         didjukebox=true;
     }
     else
-#endif
 
 //
 // draw intro screen stuff
@@ -1330,9 +1360,7 @@ static void InitGame()
 // initialize variables
 //
     InitRedShifts ();
-#ifndef SPEARDEMO
     if(!didjukebox)
-#endif
         FinishSignon();
 
 #ifdef NOTYET
@@ -1530,13 +1558,16 @@ static void DemoLoop()
         EnableEndGameMenuItem();
         NewGame(param_difficulty,0);
 
-#ifndef SPEAR
-        gamestate.episode = param_tedlevel/10;
-        gamestate.mapon = param_tedlevel%10;
-#else
-        gamestate.episode = 0;
-        gamestate.mapon = param_tedlevel;
-#endif
+        if (!gamelayout->spear)
+        {
+            gamestate.episode = param_tedlevel/10;
+            gamestate.mapon = param_tedlevel%10;
+        }
+        else
+        {
+            gamestate.episode = 0;
+            gamestate.mapon = param_tedlevel;
+        }
         GameLoop();
         Quit (NULL);
     }
@@ -1566,27 +1597,30 @@ if (!param_demotest)
 if (!param_demotest)
 {
 
-#ifdef SPEAR
-            SDL_Color pal[256];
-            CA_CacheGrChunk (TITLEPALETTE);
-            VL_ConvertPalette(grsegs[TITLEPALETTE], pal, 256);
+            if (gamelayout->spear)
+            {
+                SDL_Color pal[256];
+                CA_CacheGrChunk (TITLEPALETTE);
+                VL_ConvertPalette(grsegs[TITLEPALETTE], pal, 256);
 
-            CA_CacheGrChunk (TITLE1PIC);
-            VWB_DrawPic (0,0,TITLE1PIC);
-            UNCACHEGRCHUNK (TITLE1PIC);
+                CA_CacheGrChunk (TITLE1PIC);
+                VWB_DrawPic (0,0,TITLE1PIC);
+                UNCACHEGRCHUNK (TITLE1PIC);
 
-            CA_CacheGrChunk (TITLE2PIC);
-            VWB_DrawPic (0,80,TITLE2PIC);
-            UNCACHEGRCHUNK (TITLE2PIC);
-            VW_UpdateScreen ();
-            VL_FadeIn(0,255,pal,30);
+                CA_CacheGrChunk (TITLE2PIC);
+                VWB_DrawPic (0,80,TITLE2PIC);
+                UNCACHEGRCHUNK (TITLE2PIC);
+                VW_UpdateScreen ();
+                VL_FadeIn(0,255,pal,30);
 
-            UNCACHEGRCHUNK (TITLEPALETTE);
-#else
-            CA_CacheScreen (TITLEPIC);
-            VW_UpdateScreen ();
-            VW_FadeIn();
-#endif
+                UNCACHEGRCHUNK (TITLEPALETTE);
+            }
+            else
+            {
+                CA_CacheScreen (TITLEPIC);
+                VW_UpdateScreen ();
+                VW_FadeIn();
+            }
             if (IN_UserInput(TickBase*15))
                 break;
             VW_FadeOut();
@@ -1613,11 +1647,14 @@ if (!param_demotest)
 // demo
 //
 
-            #ifndef SPEARDEMO
-            PlayDemo (LastDemo++%4);
-            #else
-            PlayDemo (LastDemo);
-            #endif
+            if (!gamelayout->spear_demo)
+            {
+                PlayDemo (LastDemo++%4);
+            }
+            else
+            {
+                PlayDemo (LastDemo);
+            }
 
             if (playstate == ex_abort)
                 break;
@@ -1663,11 +1700,8 @@ void CheckParameters(int argc, char *argv[])
     for(int i = 1; i < argc; i++)
     {
         char *arg = argv[i];
-#ifndef SPEAR
-        IFARG("--goobers")
-#else
-        IFARG("--debugmode")
-#endif
+        // The game version is not known yet, so accept both names.
+        if (!strcmp(arg, "--goobers") || !strcmp(arg, "--debugmode"))
             param_debugmode = true;
         else IFARG("--baby")
             param_difficulty = 0;
@@ -1782,6 +1816,16 @@ void CheckParameters(int argc, char *argv[])
                 }
             }
         }
+        else IFARG("--game")
+        {
+            if(++i >= argc)
+            {
+                printf("The game option is missing the game argument!\n");
+                hasError = true;
+            }
+            else
+                param_game = argv[i];
+        }
         else IFARG("--configdir")
         {
             if(++i >= argc)
@@ -1848,10 +1892,10 @@ void CheckParameters(int argc, char *argv[])
 #else
             "                        (default: $HOME/.wolf4sdl)\n"
 #endif
-#if defined(SPEAR) && !defined(SPEARDEMO)
+            " --game <name>         Data files to use: wl6, sod, wl3, wl1 or sdm\n"
+            "                        (default: the first one found, in that order)\n"
             " --mission <mission>    Mission number to play (0-3)\n"
-            "                        (default: 0 -> .sod, 1-3 -> .sd*)\n"
-#endif
+            "                        (default: 0 -> .sod, 1-3 -> .sd*, Spear of Destiny only)\n"
             , defaultSampleRate
         );
         exit(1);

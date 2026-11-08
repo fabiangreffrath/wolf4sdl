@@ -24,7 +24,6 @@ TEXT FORMATTING COMMANDS
 =============================================================================
 */
 
-#ifndef SPEAR
 
 #define BACKCOLOR       0x11
 
@@ -545,12 +544,10 @@ void CacheLayoutGraphics (void)
                 numpages++;
             if (ch == 'E')          // end of file, so load graphics and return
             {
-#ifndef SPEAR
                 CA_CacheGrChunk(H_TOPWINDOWPIC);
                 CA_CacheGrChunk(H_LEFTWINDOWPIC);
                 CA_CacheGrChunk(H_RIGHTWINDOWPIC);
                 CA_CacheGrChunk(H_BOTTOMINFOPIC);
-#endif
                 //                              CA_CacheMarks ();
                 text = textstart;
                 return;
@@ -678,9 +675,7 @@ void ShowArticle (char *article)
 
 #ifdef ARTSEXTERN
 int     endextern = T_ENDART1;
-#ifndef SPEAR
 int     helpextern = T_HELPART;
-#endif
 #endif
 char helpfilename[13] = "HELPART.",
     endfilename[13] = "ENDART1.";
@@ -692,7 +687,6 @@ char helpfilename[13] = "HELPART.",
 =
 =================
 */
-#ifndef SPEAR
 void HelpScreens (void)
 {
     int     artnum;
@@ -722,7 +716,6 @@ void HelpScreens (void)
 
     FreeMusic ();
 }
-#endif
 
 //
 // END ARTICLES
@@ -762,4 +755,3 @@ void EndText (void)
 
     FreeMusic ();
 }
-#endif

@@ -26,16 +26,30 @@ extern int numEpisodesMissing;
 #define STARTITEM       newgame
 
 // ENDSTRx constants are defined in foreign.h
-char endStrings[9][80] = {
-    ENDSTR1,
-    ENDSTR2,
-    ENDSTR3,
-    ENDSTR4,
-    ENDSTR5,
-    ENDSTR6,
-    ENDSTR7,
-    ENDSTR8,
-    ENDSTR9
+char endStrings[9][80];
+
+static const char *const wolfendstrings[9] = {
+    WOLF_ENDSTR1,
+    WOLF_ENDSTR2,
+    WOLF_ENDSTR3,
+    WOLF_ENDSTR4,
+    WOLF_ENDSTR5,
+    WOLF_ENDSTR6,
+    WOLF_ENDSTR7,
+    WOLF_ENDSTR8,
+    WOLF_ENDSTR9
+};
+
+static const char *const spearendstrings[9] = {
+    SPEAR_ENDSTR1,
+    SPEAR_ENDSTR2,
+    SPEAR_ENDSTR3,
+    SPEAR_ENDSTR4,
+    SPEAR_ENDSTR5,
+    SPEAR_ENDSTR6,
+    SPEAR_ENDSTR7,
+    SPEAR_ENDSTR8,
+    SPEAR_ENDSTR9
 };
 
 CP_itemtype MainMenu[] = {
@@ -78,7 +92,6 @@ CP_itemtype CtlMenu[] = {
     {1, "Crosshair", 0} // [FG] toggle crosshair
 };
 
-#ifndef SPEAR
 CP_itemtype NewEmenu[] = {
     {1, "Episode 1\n" "Escape from Wolfenstein", 0},
     {0, "", 0},
@@ -92,7 +105,6 @@ CP_itemtype NewEmenu[] = {
     {0, "", 0},
     {3, "Episode 6\n" "Confrontation", 0}
 };
-#endif
 
 
 CP_itemtype NewMenu[] = {
@@ -147,20 +159,18 @@ CP_iteminfo MainItems = { MENU_X, MENU_Y, lengthof(MainMenu), STARTITEM, 24 },
             CtlItems  = { CTL_X, CTL_Y, lengthof(CtlMenu), -1, 56 },
             CusItems  = { 8, CST_Y + 13 * 2, lengthof(CusMenu), -1, 0},
             Cus2Items = { 8, CST_Y + 13 * 2, lengthof(Cus2Menu), -1, 0}, // [FG] extended "Customize" menus
-#ifndef SPEAR
             NewEitems = { NE_X, NE_Y, lengthof(NewEmenu), 0, 88 },
-#endif
             NewItems  = { NM_X, NM_Y, lengthof(NewMenu), 2, 24 };
 
 int color_hlite[] = {
-    DEACTIVE,
+    0,                  // DEACTIVE, set in CheckForEpisodes()
     HIGHLIGHT,
     READHCOLOR,
     0x67
 };
 
 int color_norml[] = {
-    DEACTIVE,
+    0,                  // DEACTIVE, set in CheckForEpisodes()
     TEXTCOLOR,
     READCOLOR,
     0x6b
@@ -409,15 +419,17 @@ US_ControlPanel (ScanCode scancode)
 
         finishup:
             CleanupControlPanel ();
-#ifdef SPEAR
-            UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+            if (gamelayout->spear)
+            {
+                UnCacheLump (LUMP_OPTIONS);
+            }
             return;
     }
 
-#ifdef SPEAR
-    CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        CacheLump (LUMP_OPTIONS);
+    }
 
     DrawMainMenu ();
     MenuFadeIn ();
@@ -430,53 +442,52 @@ US_ControlPanel (ScanCode scancode)
     {
         which = HandleMenu (&MainItems, &MainMenu[0], NULL);
 
-#ifdef SPEAR
-#ifndef SPEARDEMO
-        IN_ProcessEvents();
-
-        //
-        // EASTER EGG FOR SPEAR OF DESTINY!
-        //
-        if (Keyboard[sc_I] && Keyboard[sc_D])
+        if (gamelayout->spear && !gamelayout->spear_demo)
         {
-            VW_FadeOut ();
-            StartCPMusic (XJAZNAZI_MUS);
-            UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-            UnCacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-            ClearMemory ();
+            IN_ProcessEvents();
+
+            //
+            // EASTER EGG FOR SPEAR OF DESTINY!
+            //
+            if (Keyboard[sc_I] && Keyboard[sc_D])
+            {
+                VW_FadeOut ();
+                StartCPMusic (XJAZNAZI_MUS);
+                UnCacheLump (LUMP_OPTIONS);
+                UnCacheLump (LUMP_BACKDROP);
+                ClearMemory ();
 
 
-            CA_CacheGrChunk (IDGUYS1PIC);
-            VWB_DrawPic (0, 0, IDGUYS1PIC);
-            UNCACHEGRCHUNK (IDGUYS1PIC);
+                CA_CacheGrChunk (IDGUYS1PIC);
+                VWB_DrawPic (0, 0, IDGUYS1PIC);
+                UNCACHEGRCHUNK (IDGUYS1PIC);
 
-            CA_CacheGrChunk (IDGUYS2PIC);
-            VWB_DrawPic (0, 80, IDGUYS2PIC);
-            UNCACHEGRCHUNK (IDGUYS2PIC);
+                CA_CacheGrChunk (IDGUYS2PIC);
+                VWB_DrawPic (0, 80, IDGUYS2PIC);
+                UNCACHEGRCHUNK (IDGUYS2PIC);
 
-            VW_UpdateScreen ();
+                VW_UpdateScreen ();
 
-            SDL_Color pal[256];
-            CA_CacheGrChunk (IDGUYSPALETTE);
-            VL_ConvertPalette(grsegs[IDGUYSPALETTE], pal, 256);
-            VL_FadeIn (0, 255, pal, 30);
-            UNCACHEGRCHUNK (IDGUYSPALETTE);
+                SDL_Color pal[256];
+                CA_CacheGrChunk (IDGUYSPALETTE);
+                VL_ConvertPalette(grsegs[IDGUYSPALETTE], pal, 256);
+                VL_FadeIn (0, 255, pal, 30);
+                UNCACHEGRCHUNK (IDGUYSPALETTE);
 
-            while (Keyboard[sc_I] || Keyboard[sc_D])
-                IN_WaitAndProcessEvents();
-            IN_ClearKeysDown ();
-            IN_Ack ();
+                while (Keyboard[sc_I] || Keyboard[sc_D])
+                    IN_WaitAndProcessEvents();
+                IN_ClearKeysDown ();
+                IN_Ack ();
 
-            VW_FadeOut ();
+                VW_FadeOut ();
 
-            CacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-            CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-            DrawMainMenu ();
-            StartCPMusic (MENUSONG);
-            MenuFadeIn ();
+                CacheLump (LUMP_BACKDROP);
+                CacheLump (LUMP_OPTIONS);
+                DrawMainMenu ();
+                StartCPMusic (MENUSONG);
+                MenuFadeIn ();
+            }
         }
-#endif
-#endif
 
         switch (which)
         {
@@ -532,9 +543,10 @@ US_ControlPanel (ScanCode scancode)
 
     // RETURN/START GAME EXECUTION
 
-#ifdef SPEAR
-    UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_OPTIONS);
+    }
 }
 
 void EnableEndGameMenuItem()
@@ -666,18 +678,21 @@ CP_CheckQuick (ScanCode scancode)
             }
             else
             {
-#ifndef SPEAR
-                CA_CacheGrChunk (STARTFONT + 1);
-                CA_CacheGrChunk (C_CURSOR1PIC);
-                CA_CacheGrChunk (C_CURSOR2PIC);
-                CA_CacheGrChunk (C_DISKLOADING1PIC);
-                CA_CacheGrChunk (C_DISKLOADING2PIC);
-                CA_CacheGrChunk (C_SAVEGAMEPIC);
-                CA_CacheGrChunk (C_MOUSELBACKPIC);
-#else
-                CacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-                CA_CacheGrChunk (C_CURSOR1PIC);
-#endif
+                if (!gamelayout->spear)
+                {
+                    CA_CacheGrChunk (STARTFONT + 1);
+                    CA_CacheGrChunk (C_CURSOR1PIC);
+                    CA_CacheGrChunk (C_CURSOR2PIC);
+                    CA_CacheGrChunk (C_DISKLOADING1PIC);
+                    CA_CacheGrChunk (C_DISKLOADING2PIC);
+                    CA_CacheGrChunk (C_SAVEGAMEPIC);
+                    CA_CacheGrChunk (C_MOUSELBACKPIC);
+                }
+                else
+                {
+                    CacheLump (LUMP_BACKDROP);
+                    CA_CacheGrChunk (C_CURSOR1PIC);
+                }
 
                 VW_FadeOut ();
                 if(screenHeight % 200 != 0)
@@ -699,16 +714,19 @@ CP_CheckQuick (ScanCode scancode)
                     playstate = ex_abort;
                 lasttimecount = GetTimeCount ();
 
-#ifndef SPEAR
-                UNCACHEGRCHUNK (C_CURSOR1PIC);
-                UNCACHEGRCHUNK (C_CURSOR2PIC);
-                UNCACHEGRCHUNK (C_DISKLOADING1PIC);
-                UNCACHEGRCHUNK (C_DISKLOADING2PIC);
-                UNCACHEGRCHUNK (C_SAVEGAMEPIC);
-                UNCACHEGRCHUNK (C_MOUSELBACKPIC);
-#else
-                UnCacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-#endif
+                if (!gamelayout->spear)
+                {
+                    UNCACHEGRCHUNK (C_CURSOR1PIC);
+                    UNCACHEGRCHUNK (C_CURSOR2PIC);
+                    UNCACHEGRCHUNK (C_DISKLOADING1PIC);
+                    UNCACHEGRCHUNK (C_DISKLOADING2PIC);
+                    UNCACHEGRCHUNK (C_SAVEGAMEPIC);
+                    UNCACHEGRCHUNK (C_MOUSELBACKPIC);
+                }
+                else
+                {
+                    UnCacheLump (LUMP_BACKDROP);
+                }
             }
             return 1;
 
@@ -734,18 +752,21 @@ CP_CheckQuick (ScanCode scancode)
             }
             else
             {
-#ifndef SPEAR
-                CA_CacheGrChunk (STARTFONT + 1);
-                CA_CacheGrChunk (C_CURSOR1PIC);
-                CA_CacheGrChunk (C_CURSOR2PIC);
-                CA_CacheGrChunk (C_DISKLOADING1PIC);
-                CA_CacheGrChunk (C_DISKLOADING2PIC);
-                CA_CacheGrChunk (C_LOADGAMEPIC);
-                CA_CacheGrChunk (C_MOUSELBACKPIC);
-#else
-                CA_CacheGrChunk (C_CURSOR1PIC);
-                CacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-#endif
+                if (!gamelayout->spear)
+                {
+                    CA_CacheGrChunk (STARTFONT + 1);
+                    CA_CacheGrChunk (C_CURSOR1PIC);
+                    CA_CacheGrChunk (C_CURSOR2PIC);
+                    CA_CacheGrChunk (C_DISKLOADING1PIC);
+                    CA_CacheGrChunk (C_DISKLOADING2PIC);
+                    CA_CacheGrChunk (C_LOADGAMEPIC);
+                    CA_CacheGrChunk (C_MOUSELBACKPIC);
+                }
+                else
+                {
+                    CA_CacheGrChunk (C_CURSOR1PIC);
+                    CacheLump (LUMP_BACKDROP);
+                }
 
                 VW_FadeOut ();
                 if(screenHeight % 200 != 0)
@@ -768,16 +789,19 @@ CP_CheckQuick (ScanCode scancode)
 
                 lasttimecount = GetTimeCount ();
 
-#ifndef SPEAR
-                UNCACHEGRCHUNK (C_CURSOR1PIC);
-                UNCACHEGRCHUNK (C_CURSOR2PIC);
-                UNCACHEGRCHUNK (C_DISKLOADING1PIC);
-                UNCACHEGRCHUNK (C_DISKLOADING2PIC);
-                UNCACHEGRCHUNK (C_LOADGAMEPIC);
-                UNCACHEGRCHUNK (C_MOUSELBACKPIC);
-#else
-                UnCacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-#endif
+                if (!gamelayout->spear)
+                {
+                    UNCACHEGRCHUNK (C_CURSOR1PIC);
+                    UNCACHEGRCHUNK (C_CURSOR2PIC);
+                    UNCACHEGRCHUNK (C_DISKLOADING1PIC);
+                    UNCACHEGRCHUNK (C_DISKLOADING2PIC);
+                    UNCACHEGRCHUNK (C_LOADGAMEPIC);
+                    UNCACHEGRCHUNK (C_MOUSELBACKPIC);
+                }
+                else
+                {
+                    UnCacheLump (LUMP_BACKDROP);
+                }
             }
             return 1;
 
@@ -845,12 +869,15 @@ CP_ViewScores (int)
 {
     fontnumber = 0;
 
-#ifdef SPEAR
-    UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-    StartCPMusic (XAWARD_MUS);
-#else
-    StartCPMusic (ROSTER_MUS);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_OPTIONS);
+        StartCPMusic (XAWARD_MUS);
+    }
+    else
+    {
+        StartCPMusic (ROSTER_MUS);
+    }
 
     DrawHighScores ();
     VW_UpdateScreen ();
@@ -862,10 +889,11 @@ CP_ViewScores (int)
     StartCPMusic (MENUSONG);
     MenuFadeOut ();
 
-#ifdef SPEAR
-    CacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-    CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        CacheLump (LUMP_BACKDROP);
+        CacheLump (LUMP_OPTIONS);
+    }
     return 0;
 }
 
@@ -880,92 +908,95 @@ CP_NewGame (int)
 {
     int which, episode;
 
-#ifdef SPEAR
-    UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_OPTIONS);
+    }
 
 
-#ifndef SPEAR
   firstpart:
 
-    DrawNewEpisode ();
-    do
+    if (!gamelayout->spear)
     {
-        which = HandleMenu (&NewEitems, &NewEmenu[0], NULL);
-        switch (which)
+        DrawNewEpisode ();
+        do
         {
-            case -1:
+            which = HandleMenu (&NewEitems, &NewEmenu[0], NULL);
+            switch (which)
+            {
+                case -1:
+                    MenuFadeOut ();
+                    return 0;
+
+                default:
+                    if (!EpisodeSelect[which / 2])
+                    {
+                        SD_PlaySound (NOWAYSND);
+                        Message ("Please select \"Read This!\"\n"
+                                 "from the Options menu to\n"
+                                 "find out how to order this\n" "episode from Apogee.");
+                        IN_ClearKeysDown ();
+                        IN_Ack ();
+                        DrawNewEpisode ();
+                        which = 0;
+                    }
+                    else
+                    {
+                        episode = which / 2;
+                        which = 1;
+                    }
+                    break;
+            }
+
+        }
+        while (!which);
+
+        ShootSnd ();
+
+        //
+        // ALREADY IN A GAME?
+        //
+        if (ingame)
+            if (!Confirm (CURGAME))
+            {
                 MenuFadeOut ();
                 return 0;
+            }
 
-            default:
-                if (!EpisodeSelect[which / 2])
-                {
-                    SD_PlaySound (NOWAYSND);
-                    Message ("Please select \"Read This!\"\n"
-                             "from the Options menu to\n"
-                             "find out how to order this\n" "episode from Apogee.");
-                    IN_ClearKeysDown ();
-                    IN_Ack ();
-                    DrawNewEpisode ();
-                    which = 0;
-                }
-                else
-                {
-                    episode = which / 2;
-                    which = 1;
-                }
-                break;
-        }
-
+        MenuFadeOut ();
     }
-    while (!which);
+    else
+    {
+        episode = 0;
 
-    ShootSnd ();
-
-    //
-    // ALREADY IN A GAME?
-    //
-    if (ingame)
-        if (!Confirm (CURGAME))
-        {
-            MenuFadeOut ();
-            return 0;
-        }
-
-    MenuFadeOut ();
-
-#else
-    episode = 0;
-
-    //
-    // ALREADY IN A GAME?
-    //
-    CacheLump (NEWGAME_LUMP_START, NEWGAME_LUMP_END);
-    DrawNewGame ();
-    if (ingame)
-        if (!Confirm (CURGAME))
-        {
-            MenuFadeOut ();
-            UnCacheLump (NEWGAME_LUMP_START, NEWGAME_LUMP_END);
-            CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-            return 0;
-        }
-
-#endif
+        //
+        // ALREADY IN A GAME?
+        //
+        CacheLump (LUMP_NEWGAME);
+        DrawNewGame ();
+        if (ingame)
+            if (!Confirm (CURGAME))
+            {
+                MenuFadeOut ();
+                UnCacheLump (LUMP_NEWGAME);
+                CacheLump (LUMP_OPTIONS);
+                return 0;
+            }
+    }
 
     DrawNewGame ();
     which = HandleMenu (&NewItems, &NewMenu[0], DrawNewGameDiff);
     if (which < 0)
     {
         MenuFadeOut ();
-#ifndef SPEAR
-        goto firstpart;
-#else
-        UnCacheLump (NEWGAME_LUMP_START, NEWGAME_LUMP_END);
-        CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
+        if (!gamelayout->spear)
+        {
+            goto firstpart;
+        }
+
+        UnCacheLump (LUMP_NEWGAME);
+        CacheLump (LUMP_OPTIONS);
         return 0;
-#endif
     }
 
     ShootSnd ();
@@ -975,16 +1006,16 @@ CP_NewGame (int)
 
     pickquick = 0;
 
-#ifdef SPEAR
-    UnCacheLump (NEWGAME_LUMP_START, NEWGAME_LUMP_END);
-    CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_NEWGAME);
+        CacheLump (LUMP_OPTIONS);
+    }
 
     return 0;
 }
 
 
-#ifndef SPEAR
 /////////////////////
 //
 // DRAW NEW EPISODE MENU
@@ -1013,7 +1044,6 @@ DrawNewEpisode (void)
     MenuFadeIn ();
     WaitKeyUp ();
 }
-#endif
 
 /////////////////////
 //
@@ -1029,11 +1059,14 @@ DrawNewGame (void)
     PrintX = NM_X + 20;
     PrintY = NM_Y - 32;
 
-#ifndef SPEAR
-    US_Print ("How tough are you?");
-#else
-    VWB_DrawPic (PrintX, PrintY, C_HOWTOUGHPIC);
-#endif
+    if (!gamelayout->spear)
+    {
+        US_Print ("How tough are you?");
+    }
+    else
+    {
+        VWB_DrawPic (PrintX, PrintY, C_HOWTOUGHPIC);
+    }
 
     DrawWindow (NM_X - 5, NM_Y - 10, NM_W, NM_H, BKGDCOLOR);
 
@@ -1067,10 +1100,11 @@ CP_Sound (int)
     int which;
 
 
-#ifdef SPEAR
-    UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-    CacheLump (SOUND_LUMP_START, SOUND_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_OPTIONS);
+        CacheLump (LUMP_SOUND);
+    }
 
     DrawSoundMenu ();
     MenuFadeIn ();
@@ -1169,10 +1203,11 @@ CP_Sound (int)
 
     MenuFadeOut ();
 
-#ifdef SPEAR
-    UnCacheLump (SOUND_LUMP_START, SOUND_LUMP_END);
-    CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_SOUND);
+        CacheLump (LUMP_OPTIONS);
+    }
     return 0;
 }
 
@@ -1362,10 +1397,11 @@ CP_LoadGame (int quick)
     }
 
 
-#ifdef SPEAR
-    UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-    CacheLump (LOADSAVE_LUMP_START, LOADSAVE_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_OPTIONS);
+        CacheLump (LUMP_LOADSAVE);
+    }
 
     DrawLoadSaveScreen (0);
 
@@ -1403,10 +1439,11 @@ CP_LoadGame (int quick)
 
     MenuFadeOut ();
 
-#ifdef SPEAR
-    UnCacheLump (LOADSAVE_LUMP_START, LOADSAVE_LUMP_END);
-    CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_LOADSAVE);
+        CacheLump (LUMP_OPTIONS);
+    }
 
     return exit;
 }
@@ -1532,10 +1569,11 @@ CP_SaveGame (int quick)
     }
 
 
-#ifdef SPEAR
-    UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-    CacheLump (LOADSAVE_LUMP_START, LOADSAVE_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_OPTIONS);
+        CacheLump (LUMP_LOADSAVE);
+    }
 
     DrawLoadSaveScreen (1);
 
@@ -1617,10 +1655,11 @@ CP_SaveGame (int quick)
 
     MenuFadeOut ();
 
-#ifdef SPEAR
-    UnCacheLump (LOADSAVE_LUMP_START, LOADSAVE_LUMP_END);
-    CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_LOADSAVE);
+        CacheLump (LUMP_OPTIONS);
+    }
 
     return exit;
 }
@@ -1635,10 +1674,11 @@ CP_Control (int)
 {
     int which;
 
-#ifdef SPEAR
-    UnCacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-    CacheLump (CONTROL_LUMP_START, CONTROL_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_OPTIONS);
+        CacheLump (LUMP_CONTROL);
+    }
 
     DrawCtlScreen ();
     MenuFadeIn ();
@@ -1693,10 +1733,11 @@ CP_Control (int)
 
     MenuFadeOut ();
 
-#ifdef SPEAR
-    UnCacheLump (CONTROL_LUMP_START, CONTROL_LUMP_END);
-    CacheLump (OPTIONS_LUMP_START, OPTIONS_LUMP_END);
-#endif
+    if (gamelayout->spear)
+    {
+        UnCacheLump (LUMP_CONTROL);
+        CacheLump (LUMP_OPTIONS);
+    }
     return 0;
 }
 
@@ -2512,13 +2553,16 @@ FixupCustom2 (int w)
 
     VWB_Hlin (7, 32, y - 1, DEACTIVE);
     VWB_Hlin (7, 32, y + 12, BORD2COLOR);
-#ifndef SPEAR
-    VWB_Hlin (7, 32, y - 2, BORDCOLOR);
-    VWB_Hlin (7, 32, y + 13, BORDCOLOR);
-#else
-    VWB_Hlin (7, 32, y - 2, BORD2COLOR);
-    VWB_Hlin (7, 32, y + 13, BORD2COLOR);
-#endif
+    if (!gamelayout->spear)
+    {
+        VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+        VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+    }
+    else
+    {
+        VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+        VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+    }
 
     switch (w)
     {
@@ -2544,13 +2588,16 @@ FixupCustom2 (int w)
         y = CST_Y + 26 + lastwhich * 13;
         VWB_Hlin (7, 32, y - 1, DEACTIVE);
         VWB_Hlin (7, 32, y + 12, BORD2COLOR);
-#ifndef SPEAR
-        VWB_Hlin (7, 32, y - 2, BORDCOLOR);
-        VWB_Hlin (7, 32, y + 13, BORDCOLOR);
-#else
-        VWB_Hlin (7, 32, y - 2, BORD2COLOR);
-        VWB_Hlin (7, 32, y + 13, BORD2COLOR);
-#endif
+        if (!gamelayout->spear)
+        {
+            VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+            VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+        }
+        else
+        {
+            VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+            VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+        }
 
         if (lastwhich != w)
             switch (lastwhich)
@@ -2584,13 +2631,16 @@ FixupCustom (int w)
 
     VWB_Hlin (7, 32, y - 1, DEACTIVE);
     VWB_Hlin (7, 32, y + 12, BORD2COLOR);
-#ifndef SPEAR
-    VWB_Hlin (7, 32, y - 2, BORDCOLOR);
-    VWB_Hlin (7, 32, y + 13, BORDCOLOR);
-#else
-    VWB_Hlin (7, 32, y - 2, BORD2COLOR);
-    VWB_Hlin (7, 32, y + 13, BORD2COLOR);
-#endif
+    if (!gamelayout->spear)
+    {
+        VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+        VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+    }
+    else
+    {
+        VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+        VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+    }
 
     switch (w)
     {
@@ -2620,13 +2670,16 @@ FixupCustom (int w)
         y = CST_Y + 26 + lastwhich * 13;
         VWB_Hlin (7, 32, y - 1, DEACTIVE);
         VWB_Hlin (7, 32, y + 12, BORD2COLOR);
-#ifndef SPEAR
-        VWB_Hlin (7, 32, y - 2, BORDCOLOR);
-        VWB_Hlin (7, 32, y + 13, BORDCOLOR);
-#else
-        VWB_Hlin (7, 32, y - 2, BORD2COLOR);
-        VWB_Hlin (7, 32, y + 13, BORD2COLOR);
-#endif
+        if (!gamelayout->spear)
+        {
+            VWB_Hlin (7, 32, y - 2, BORDCOLOR);
+            VWB_Hlin (7, 32, y + 13, BORDCOLOR);
+        }
+        else
+        {
+            VWB_Hlin (7, 32, y - 2, BORD2COLOR);
+            VWB_Hlin (7, 32, y + 13, BORD2COLOR);
+        }
 
         if (lastwhich != w)
             switch (lastwhich)
@@ -2678,17 +2731,16 @@ DrawCustom2Screen (void)
     //
     // MOUSE
     //
-    SETFONTCOLOR (READCOLOR, BKGDCOLOR);
-    WindowX = 0;
-    WindowW = 320;
-
-#ifndef SPEAR
-    PrintY = CST_Y;
-    US_CPrint ("Mouse\n");
-#else
-    PrintY = CST_Y + 13;
-    VWB_DrawPic (128, 48, C_MOUSEPIC);
-#endif
+    if (!gamelayout->spear)
+    {
+        SETFONTCOLOR (READCOLOR, BKGDCOLOR);
+        US_CPrint ("Mouse\n");
+    }
+    else
+    {
+        PrintY += 13;
+        VWB_DrawPic (128, 48, C_MOUSEPIC);
+    }
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
     PrintX = CST_START;
@@ -2699,7 +2751,6 @@ DrawCustom2Screen (void)
     US_Print (STR_CFIRE);
     PrintX = CST_START + CST_SPC * 3;
     US_Print (STR_CSTRAFE "\n");
-
     DrawWindow (5, PrintY - 1, 310, 13, BKGDCOLOR);
     DrawCustMouse (0);
     US_Print ("\n");
@@ -2708,17 +2759,16 @@ DrawCustom2Screen (void)
     //
     // JOYSTICK/PAD
     //
-#ifndef SPEAR
-    SETFONTCOLOR (READCOLOR, BKGDCOLOR);
-    US_CPrint ("Joystick/Gravis GamePad\n");
-#else
-    PrintY += 13;
-    VWB_DrawPic (40, 88, C_JOYSTICKPIC);
-#endif
-
-#ifdef SPEAR
-    VWB_DrawPic (112, 120, C_KEYBOARDPIC);
-#endif
+    if (!gamelayout->spear)
+    {
+        SETFONTCOLOR (READCOLOR, BKGDCOLOR);
+        US_CPrint ("Joystick/Gravis GamePad\n");
+    }
+    else
+    {
+        PrintY += 13;
+        VWB_DrawPic (40, 88, C_JOYSTICKPIC);
+    }
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
     PrintX = CST_START;
@@ -2746,6 +2796,7 @@ DrawCustom2Screen (void)
     DrawCust2Joy (0);
     US_Print ("\n");
 
+    SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
     PrintX = CST_START;
     US_Print ("StrLft");
     PrintX = CST_START + CST_SPC * 1;
@@ -2787,12 +2838,17 @@ DrawCustomScreen (void)
     //
     // KEYBOARD
     //
-#ifndef SPEAR
-    SETFONTCOLOR (READCOLOR, BKGDCOLOR);
-    US_CPrint ("Keyboard\n");
-#else
-    PrintY += 13;
-#endif
+    if (!gamelayout->spear)
+    {
+        SETFONTCOLOR (READCOLOR, BKGDCOLOR);
+        US_CPrint ("Keyboard\n");
+    }
+    else
+    {
+        PrintY += 13;
+        VWB_DrawPic (112, 42, C_KEYBOARDPIC);
+    }
+
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
     PrintX = CST_START;
     US_Print (STR_CRUN);
@@ -3316,19 +3372,9 @@ CP_Quit (int)
 void
 IntroScreen (void)
 {
-#ifdef SPEAR
-
-#define MAINCOLOR       0x4f
-#define EMSCOLOR        0x4f
-#define XMSCOLOR        0x4f
-
-#else
-
-#define MAINCOLOR       0x6c
-#define EMSCOLOR        0x6c    // 0x4f
-#define XMSCOLOR        0x6c    // 0x7f
-
-#endif
+#define MAINCOLOR       (gamelayout->spear ? 0x4f : 0x6c)
+#define EMSCOLOR        (gamelayout->spear ? 0x4f : 0x6c)
+#define XMSCOLOR        (gamelayout->spear ? 0x4f : 0x6c)
 #define FILLCOLOR       14
 
 //      long memory;
@@ -3415,11 +3461,14 @@ IntroScreen (void)
 void
 ClearMScreen (void)
 {
-#ifndef SPEAR
-    VWB_Bar (0, 0, 320, 200, BORDCOLOR);
-#else
-    VWB_DrawPic (0, 0, C_BACKDROPPIC);
-#endif
+    if (!gamelayout->spear)
+    {
+        VWB_Bar (0, 0, 320, 200, BORDCOLOR);
+    }
+    else
+    {
+        VWB_DrawPic (0, 0, C_BACKDROPPIC);
+    }
 }
 
 
@@ -3429,23 +3478,25 @@ ClearMScreen (void)
 //
 ////////////////////////////////////////////////////////////////////
 void
-CacheLump (int lumpstart, int lumpend)
+CacheLump (int lump)
 {
-    int i;
+    const short *const list = gamelayout->lumps[lump];
 
-    for (i = lumpstart; i <= lumpend; i++)
-        CA_CacheGrChunk (i);
+    if (list)
+        for (const short *i = list; *i != -1; i++)
+            CA_CacheGrChunk (*i);
 }
 
 
 void
-UnCacheLump (int lumpstart, int lumpend)
+UnCacheLump (int lump)
 {
-    int i;
+    const short *const list = gamelayout->lumps[lump];
 
-    for (i = lumpstart; i <= lumpend; i++)
-        if (grsegs[i])
-            UNCACHEGRCHUNK (i);
+    if (list)
+        for (const short *i = list; *i != -1; i++)
+            if (grsegs[*i])
+                UNCACHEGRCHUNK (*i);
 }
 
 
@@ -3484,11 +3535,7 @@ SetupControlPanel (void)
     // CACHE GRAPHICS & SOUNDS
     //
     CA_CacheGrChunk (STARTFONT + 1);
-#ifndef SPEAR
-    CacheLump (CONTROLS_LUMP_START, CONTROLS_LUMP_END);
-#else
-    CacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-#endif
+    CacheLump (gamelayout->spear ? LUMP_BACKDROP : LUMP_CONTROLS);
 
     SETFONTCOLOR (TEXTCOLOR, BKGDCOLOR);
     fontnumber = 1;
@@ -3550,11 +3597,7 @@ void SetupSaveGames()
 void
 CleanupControlPanel (void)
 {
-#ifndef SPEAR
-    UnCacheLump (CONTROLS_LUMP_START, CONTROLS_LUMP_END);
-#else
-    UnCacheLump (BACKDROP_LUMP_START, BACKDROP_LUMP_END);
-#endif
+    UnCacheLump (gamelayout->spear ? LUMP_BACKDROP : LUMP_CONTROLS);
 
     fontnumber = 0;
 
@@ -4243,13 +4286,16 @@ DrawMenuGun (CP_iteminfo * iteminfo)
 void
 DrawStripes (int y)
 {
-#ifndef SPEAR
-    VWB_Bar (0, y, 320, 24, 0);
-    VWB_Hlin (0, 319, y + 22, STRIPE);
-#else
-    VWB_Bar (0, y, 320, 22, 0);
-    VWB_Hlin (0, 319, y + 23, 0);
-#endif
+    if (!gamelayout->spear)
+    {
+        VWB_Bar (0, y, 320, 24, 0);
+        VWB_Hlin (0, 319, y + 22, STRIPE);
+    }
+    else
+    {
+        VWB_Bar (0, y, 320, 22, 0);
+        VWB_Hlin (0, 319, y + 23, 0);
+    }
 }
 
 void
@@ -4264,6 +4310,64 @@ ShootSnd (void)
 // CHECK FOR EPISODES
 //
 ///////////////////////////////////////////////////////////////////////////
+// Known sizes of vgagraph.*, they tell the releases that share an extension apart.
+///////////////////////////////////////////////////////////////////////////
+static const struct
+{
+    const char *ext;
+    long size;
+    int layout;
+} knowngraphs[] =
+{
+    { "wl6", 275774, LAYOUT_WL6 },
+    { "wl6", 276096, LAYOUT_WL6 },
+    { "wl6", 334506, LAYOUT_WL6A },
+    { "wl6", 302374, LAYOUT_WL6A1 },
+    { "wl1", 326568, LAYOUT_WL1 }
+};
+
+// Data sets in order of priority, named by the extension of their files.
+static const char *const gamenames[] = { "wl6", "sod", "wl3", "wl1", "sdm" };
+
+extern const char *param_game;
+
+// Returns the size of the file name.ext in the current directory, or -1 if it does not exist.
+static long datafilesize (const char *name, const char *ext)
+{
+    char path[32];
+    struct stat statbuf;
+
+    snprintf(path, sizeof(path), "%s.%s", name, ext);
+    return stat(path, &statbuf) ? -1 : (long) statbuf.st_size;
+}
+
+// Identifies the game version of the data files with this extension, or -1 if it is unknown.
+static int findlayout (const char *ext)
+{
+    const long graphsize = datafilesize("vgagraph", ext);
+    const long headsize = datafilesize("vgahead", ext);
+    int first = -1;
+
+    for (size_t i = 0; i < sizeof(knowngraphs) / sizeof(knowngraphs[0]); i++)
+        if (!strcmp(knowngraphs[i].ext, ext) && knowngraphs[i].size == graphsize)
+            return knowngraphs[i].layout;
+
+    // Unknown size: take the layout whose number of chunk offsets fits, else the first one.
+    for (int i = 0; i < NUMLAYOUTS; i++)
+    {
+        if (strcmp(gamelayouts[i].ext, ext))
+            continue;
+
+        if (first < 0)
+            first = i;
+
+        if (headsize / 3 == gamelayouts[i].numchunks + 1 - (gamelayouts[i].upload ? 5 : 0))
+            return i;
+    }
+
+    return first;
+}
+
 void
 CheckForEpisodes (void)
 {
@@ -4305,22 +4409,51 @@ CheckForEpisodes (void)
     }
 
 
-//
-// ENGLISH
-//
-#ifdef UPLOAD
-    if(!stat("vswap.wl1", &statbuf))
+    const char *name = NULL;
+    for (size_t i = 0; i < sizeof(gamenames) / sizeof(gamenames[0]); i++)
     {
-        strcpy (extension, "wl1");
-        numEpisodesMissing = 5;
+        const bool issod = !strcmp(gamenames[i], "sod");
+        char ext[5];
+
+        if (param_game && strcmp(param_game, gamenames[i]))
+            continue;
+
+        // The mission option only applies to Spear of Destiny
+        if (param_mission > 0 && !issod)
+            continue;
+
+        if (issod && param_mission > 0)
+            snprintf(ext, sizeof(ext), "sd%d", param_mission & 3);   // 1 to 3
+        else
+            snprintf(ext, sizeof(ext), "%s", gamenames[i]);
+
+        if (datafilesize("vswap", ext) >= 0)
+        {
+            name = gamenames[i];
+            strcpy (extension, ext);
+            break;
+        }
     }
-    else
-        Quit ("NO WOLFENSTEIN 3-D DATA FILES to be found!");
-#else
-#ifndef SPEAR
-    if(!stat("vswap.wl6", &statbuf))
+
+    if (!name)
     {
-        strcpy (extension, "wl6");
+        if (param_game)
+            Quit ("NO DATA FILES FOR \"%s\" TO BE FOUND!", param_game);
+        else
+            Quit ("NO WOLFENSTEIN 3-D OR SPEAR OF DESTINY DATA FILES TO BE FOUND!");
+    }
+
+    // The three episode release shares its layout with Apogee v1.4
+    const int layout = !strcmp(name, "wl3") ? LAYOUT_WL6A : findlayout(name);
+    gamelayout = &gamelayouts[layout];
+
+    // Values that depend on the game version are filled in here.
+    color_hlite[0] = color_norml[0] = DEACTIVE;
+    for (int i = 0; i < 9; i++)
+        strcpy (endStrings[i], gamelayout->spear ? spearendstrings[i] : wolfendstrings[i]);
+
+    if (!strcmp(name, "wl6"))
+    {
         NewEmenu[2].active =
             NewEmenu[4].active =
             NewEmenu[6].active =
@@ -4329,83 +4462,23 @@ CheckForEpisodes (void)
             EpisodeSelect[1] =
             EpisodeSelect[2] = EpisodeSelect[3] = EpisodeSelect[4] = EpisodeSelect[5] = 1;
     }
-    else
+    else if (!strcmp(name, "wl3"))
     {
-        if(!stat("vswap.wl3", &statbuf))
-        {
-            strcpy (extension, "wl3");
-            numEpisodesMissing = 3;
-            NewEmenu[2].active = NewEmenu[4].active = EpisodeSelect[1] = EpisodeSelect[2] = 1;
-        }
-        else
-        {
-            if(!stat("vswap.wl1", &statbuf))
-            {
-                strcpy (extension, "wl1");
-                numEpisodesMissing = 5;
-            }
-            else
-                Quit ("NO WOLFENSTEIN 3-D DATA FILES to be found!");
-        }
+        numEpisodesMissing = 3;
+        NewEmenu[2].active = NewEmenu[4].active = EpisodeSelect[1] = EpisodeSelect[2] = 1;
     }
-#endif
-#endif
+    else if (gamelayout->upload)
+        numEpisodesMissing = 5;
 
-
-#ifdef SPEAR
-#ifndef SPEARDEMO
-    if(param_mission == 0)
-    {
-        if(!stat("vswap.sod", &statbuf))
-            strcpy (extension, "sod");
-        else
-            Quit ("NO SPEAR OF DESTINY DATA FILES TO BE FOUND!");
-    }
-    else if(param_mission == 1)
-    {
-        if(!stat("vswap.sd1", &statbuf))
-            strcpy (extension, "sd1");
-        else
-            Quit ("NO SPEAR OF DESTINY DATA FILES TO BE FOUND!");
-    }
-    else if(param_mission == 2)
-    {
-        if(!stat("vswap.sd2", &statbuf))
-            strcpy (extension, "sd2");
-        else
-            Quit ("NO SPEAR OF DESTINY DATA FILES TO BE FOUND!");
-    }
-    else if(param_mission == 3)
-    {
-        if(!stat("vswap.sd3", &statbuf))
-            strcpy (extension, "sd3");
-        else
-            Quit ("NO SPEAR OF DESTINY DATA FILES TO BE FOUND!");
-    }
-    else
-        Quit ("UNSUPPORTED MISSION!");
-    strcpy (graphext, "sod");
-    strcpy (audioext, "sod");
-#else
-    if(!stat("vswap.sdm", &statbuf))
-    {
-        strcpy (extension, "sdm");
-    }
-    else
-        Quit ("NO SPEAR OF DESTINY DEMO DATA FILES TO BE FOUND!");
-    strcpy (graphext, "sdm");
-    strcpy (audioext, "sdm");
-#endif
-#else
-    strcpy (graphext, extension);
-    strcpy (audioext, extension);
-#endif
+    strcpy (graphext, name);
+    strcpy (audioext, name);
 
     strcat (configname, extension);
     strcat (SaveName, extension);
     strcat (demoname, extension);
 
-#ifndef SPEAR
-    strcat (endfilename, extension);
-#endif
+    if (!gamelayout->spear)
+    {
+        strcat (endfilename, extension);
+    }
 }

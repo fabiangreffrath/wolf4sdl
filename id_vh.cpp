@@ -278,6 +278,9 @@ void LoadLatchMem (void)
 
 	for (i=start;i<=end;i++)
 	{
+                if (gamelayout->gfxmap[i] == -1)
+                        continue;               // not in this version
+
 		width = pictable[i-STARTPICS].width;
 		height = pictable[i-STARTPICS].height;
 		surf = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);

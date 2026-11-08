@@ -1,33 +1,6 @@
 #ifndef _VERSION_H_
 #define _VERSION_H_
 
-#ifndef VERSIONALREADYCHOSEN              // used for batch compiling
-
-/* Defines used for different versions */
-
-//#define SPEAR
-//#define SPEARDEMO
-//#define UPLOAD
-#define GOODTIMES
-#define CARMACIZED
-//#define APOGEE_1_0
-//#define APOGEE_1_1
-//#define APOGEE_1_2
-
-/*
-    Wolf3d Full v1.1 Apogee                   - define CARMACIZED and APOGEE_1_1
-    Wolf3d Full v1.4 Apogee                   - define CARMACIZED
-    Wolf3d Full v1.4 GT/ID/Activision         - define CARMACIZED and GOODTIMES
-    Wolf3d Shareware v1.0                     - define UPLOAD and APOGEE_1_0
-    Wolf3d Shareware v1.1                     - define CARMACIZED and UPLOAD and APOGEE_1_1
-    Wolf3d Shareware v1.2                     - define CARMACIZED and UPLOAD and APOGEE_1_2
-    Wolf3d Shareware v1.4                     - define CARMACIZED and UPLOAD
-    Spear of Destiny Full and Mission Disks   - define CARMACIZED and SPEAR
-    Spear of Destiny Demo                     - define CARMACIZED and SPEAR and SPEARDEMO
-*/
-
-#endif
-
 //#define USE_FEATUREFLAGS    // Enables the level feature flags (see bottom of wl_def.h)
 //#define USE_SHADING         // Enables shading support (see wl_shade.cpp)
 //#define USE_DIR3DSPR        // Enables directional 3d sprites (see wl_dir3dspr.cpp)

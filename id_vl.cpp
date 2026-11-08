@@ -46,15 +46,18 @@ SDL_Color curpal[256];
 #define CASSERT(x) extern int ASSERT_COMPILE[((x) != 0) * 2 - 1];
 #define RGB(r, g, b) {(r)*255/63, (g)*255/63, (b)*255/63, 255}
 
-SDL_Color gamepal[]={
-#ifdef SPEAR
-    #include "sodpal.inc"
-#else
+static const SDL_Color wolfpal[]={
     #include "wolfpal.inc"
-#endif
 };
 
-CASSERT(lengthof(gamepal) == 256)
+static const SDL_Color sodpal[]={
+    #include "sodpal.inc"
+};
+
+SDL_Color gamepal[256];     // copied from the palette of the game version in VL_SetVGAPlaneMode()
+
+CASSERT(lengthof(wolfpal) == 256)
+CASSERT(lengthof(sodpal) == 256)
 
 //===========================================================================
 
@@ -85,11 +88,8 @@ void	VL_SetVGAPlaneMode (void)
 {
     const char *title;
     int actualHeight; // [FG] aspect ratio correction
-#ifdef SPEAR
-    title = "Spear of Destiny";
-#else
-    title = "Wolfenstein 3D";
-#endif
+    title = gamelayout->spear ? "Spear of Destiny" : "Wolfenstein 3D";
+    memcpy (gamepal, gamelayout->spear ? sodpal : wolfpal, sizeof(gamepal));
 
     // [FG] create rendering window
 
