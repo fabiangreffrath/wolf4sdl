@@ -93,6 +93,7 @@ int     param_mission = 0;
 const char *param_game = NULL;          // data file extension to use, NULL for automatic
 boolean param_ignorenumchunks = false;
 boolean always_run = false;
+boolean param_shading = false;
 
 /*
 =============================================================================
@@ -1728,6 +1729,10 @@ void CheckParameters(int argc, char *argv[])
             fullscreen = true;
         else IFARG("--nograbmouse")
             grabmouse = false;
+#ifdef USE_SHADING
+        else IFARG("--shading")
+            param_shading = true;
+#endif
         else IFARG("--res")
         {
             if(i + 2 >= argc)
@@ -1874,6 +1879,9 @@ void CheckParameters(int argc, char *argv[])
             " --demotest             Skips right into the demo loop\n"
             " --fullscreen           Starts the game in fullscreen mode\n"
             " --nograbmouse          Does not grab the mouse in windowed mode\n"
+#ifdef USE_SHADING
+            " --shading              Enables shading support\n"
+#endif
             " --res <width> <height> Sets the screen resolution\n"
             "                        (must be multiple of 320x200)\n"
             " --resf <w> <h>         Sets any screen resolution >= 320x200\n"

@@ -27,7 +27,7 @@ int LSHADE_flag;
 static inline int GetShadeDefID()
 {
     int shadeID = ffDataTopLeft & 0x00ff;
-    assert(shadeID >= 0 && shadeID < lengthof(shadeDefs));
+    assert(shadeID >= 0 && shadeID < (int)lengthof(shadeDefs));
     return shadeID;
 }
 
@@ -46,7 +46,7 @@ static int GetShadeDefID()
         case  5: shadeID = 2; break;
         default: shadeID = 3; break;
     }
-    assert(shadeID >= 0 && shadeID < lengthof(shadeDefs));
+    assert(shadeID >= 0 && shadeID < (int)lengthof(shadeDefs));
     return shadeID;
 }
 

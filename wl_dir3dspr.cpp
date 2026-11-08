@@ -101,10 +101,11 @@ void Scale3DShaper(int x1, int x2, int shapenum, uint32_t flags, fixed ny1, fixe
                         if(scrstarty!=screndy && screndy>0)
                         {
 #ifdef USE_SHADING
+                            if (param_shading)
                             col=curshades[((byte *)shape)[newstart+j]];
-#else
-                            col=((byte *)shape)[newstart+j];
+                            else
 #endif
+                            col=((byte *)shape)[newstart+j];
                             if(scrstarty<0) scrstarty=0;
                             if(screndy>viewheight) screndy=viewheight,j=endy;
 
