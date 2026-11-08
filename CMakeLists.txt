@@ -47,21 +47,37 @@ set(SRCS
     wl_act1.cpp
     wl_act2.cpp
     wl_agent.cpp
-    wl_atmos.cpp
-    wl_cloudsky.cpp
     wl_debug.cpp
     wl_draw.cpp
-    wl_floorceiling.cpp
     wl_game.cpp
     wl_inter.cpp
     wl_main.cpp
     wl_menu.cpp
-    wl_parallax.cpp
     wl_play.cpp
     wl_state.cpp
     wl_text.cpp
     states.cpp
 )
+
+# Files that only belong to a feature.
+if(USE_SHADING)
+    list(APPEND SRCS wl_shade.cpp)
+endif()
+if(USE_DIR3DSPR)
+    list(APPEND SRCS wl_dir3dspr.cpp)
+endif()
+if(USE_FLOORCEILINGTEX)
+    list(APPEND SRCS wl_floorceiling.cpp)
+endif()
+if(USE_PARALLAX)
+    list(APPEND SRCS wl_parallax.cpp)
+endif()
+if(USE_CLOUDSKY)
+    list(APPEND SRCS wl_cloudsky.cpp)
+endif()
+if(USE_STARSKY OR USE_RAIN OR USE_SNOW)
+    list(APPEND SRCS wl_atmos.cpp)
+endif()
 
 add_executable(wolf4sdl ${SRCS})
 
