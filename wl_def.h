@@ -599,7 +599,6 @@ extern  const char *param_game;
 extern  boolean  param_ignorenumchunks;
 extern  boolean  always_run;
 extern  boolean  crosshair;
-extern  boolean  param_shading;
 
 
 void            NewGame (int difficulty,int episode);

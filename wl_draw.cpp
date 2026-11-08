@@ -306,11 +306,10 @@ void ScalePost()
     if(yw < 0) return;
 
 #ifdef USE_SHADING
-    if (param_shading)
     col = curshades[postsource[yw]];
-    else
-#endif
+#else
     col = postsource[yw];
+#endif
     yendoffs = yendoffs * vbufPitch + postx;
     while(yoffs <= yendoffs)
     {
@@ -326,11 +325,10 @@ void ScalePost()
             while(ywcount <= 0);
             if(yw < 0) break;
 #ifdef USE_SHADING
-            if (param_shading)
             col = curshades[postsource[yw]];
-            else
-#endif
+#else
             col = postsource[yw];
+#endif
         }
         yendoffs -= vbufPitch;
     }
@@ -643,21 +641,16 @@ void VGAClearScreen (void)
     int y;
     byte *ptr = vbuf;
 #ifdef USE_SHADING
-    if (param_shading)
-    {
     for(y = 0; y < viewheight / 2; y++, ptr += vbufPitch)
         memset(ptr, shadetable[GetShade((viewheight / 2 - y) << 3)][ceiling], viewwidth);
     for(; y < viewheight; y++, ptr += vbufPitch)
         memset(ptr, shadetable[GetShade((y - viewheight / 2) << 3)][0x19], viewwidth);
-    }
-    else
-#endif
-    {
+#else
     for(y = 0; y < viewheight / 2; y++, ptr += vbufPitch)
         memset(ptr, ceiling, viewwidth);
     for(; y < viewheight; y++, ptr += vbufPitch)
         memset(ptr, 0x19, viewwidth);
-    }
+#endif
 }
 
 //==========================================================================
@@ -764,11 +757,10 @@ void ScaleShape (int xcenter, int shapenum, unsigned height, uint32_t flags)
                             if(scrstarty!=screndy && screndy>0)
                             {
 #ifdef USE_SHADING
-                                if (param_shading)
                                 col=curshades[((byte *)shape)[newstart+j]];
-                                else
-#endif
+#else
                                 col=((byte *)shape)[newstart+j];
+#endif
                                 if(scrstarty<0) scrstarty=0;
                                 if(screndy>viewheight) screndy=viewheight,j=endy;
 
