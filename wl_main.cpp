@@ -456,7 +456,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     ob = player;
     DiskFlopAnim(x,y);
     memcpy(&nullobj,ob,sizeof(nullobj));
-    nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
+    nullobj.state=(statetype *) (intptr_t) gamelayout->statemap[nullobj.state-states]; // number in the former separate build
     fwrite(&nullobj,sizeof(nullobj),1,file);
     ob = ob->next;
 
@@ -464,7 +464,7 @@ boolean SaveTheGame(FILE *file,int x,int y)
     for (; ob ; ob=ob->next)
     {
         memcpy(&nullobj,ob,sizeof(nullobj));
-        nullobj.state=(statetype *) (nullobj.state-states); // [FG] statetype states[] array
+        nullobj.state=(statetype *) (intptr_t) gamelayout->statemap[nullobj.state-states]; // number in the former separate build
         fwrite(&nullobj,sizeof(nullobj),1,file);
     }
     nullobj.active = ac_badobject;          // end of file marker
@@ -480,6 +480,8 @@ boolean SaveTheGame(FILE *file,int x,int y)
     for(i=0;i<MAXSTATS;i++)
     {
         memcpy(&nullstat,statobjlist+i,sizeof(nullstat));
+        if (nullstat.shapenum >= 0)
+            nullstat.shapenum = gamelayout->sprmap[nullstat.shapenum];  // number in the former separate build
         nullstat.visspot=(byte *) ((uintptr_t) nullstat.visspot-(uintptr_t)spotvis);
         fwrite(&nullstat,sizeof(nullstat),1,file);
         checksum = DoChecksum((byte *)&nullstat,sizeof(nullstat),checksum);
@@ -517,6 +519,17 @@ boolean SaveTheGame(FILE *file,int x,int y)
 }
 
 //===========================================================================
+
+// Converts a state number of a savegame to the state, or returns NULL if there is no such state.
+static statetype *legacystate (const statetype *saved)
+{
+    const size_t index = (size_t) saved;
+
+    if (index >= (size_t) gamelayout->numlegacystates)
+        return NULL;
+
+    return &states[gamelayout->stateinv[index]];
+}
 
 /*
 ==================
@@ -572,8 +585,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
     InitActorList ();
     DiskFlopAnim(x,y);
     fread2 (player,sizeof(*player),1,file);
-    if ((size_t)player->state > numstates) goto fail; // [FG] detect unsupported savegame format
-    player->state=&states[(size_t)player->state]; // [FG] statetype states[] array
+    player->state = legacystate (player->state);
+    if (!player->state) goto fail; // [FG] detect unsupported savegame format
 
     while (1)
     {
@@ -582,8 +595,8 @@ boolean LoadTheGame(FILE *file,int x,int y)
         if (nullobj.active == ac_badobject)
             break;
         GetNewActor ();
-        if ((size_t)nullobj.state > numstates) goto fail; // [FG] detect unsupported savegame format
-        nullobj.state=&states[(size_t)nullobj.state]; // [FG] statetype states[] array
+        nullobj.state = legacystate (nullobj.state);
+        if (!nullobj.state) goto fail; // [FG] detect unsupported savegame format
         // don't copy over the links
         memcpy (newobj,&nullobj,sizeof(nullobj)-8);
     }
@@ -599,6 +612,12 @@ boolean LoadTheGame(FILE *file,int x,int y)
     {
         fread2(&nullstat,sizeof(nullstat),1,file);
         checksum = DoChecksum((byte *)&nullstat,sizeof(nullstat),checksum);
+        if (nullstat.shapenum >= 0)
+        {
+            if (nullstat.shapenum >= gamelayout->numphysprites || gamelayout->sprinv[nullstat.shapenum] == -1)
+                goto fail;
+            nullstat.shapenum = gamelayout->sprinv[nullstat.shapenum];
+        }
         nullstat.visspot=(byte *) ((uintptr_t)nullstat.visspot+(uintptr_t)spotvis);
         memcpy(statobjlist+i,&nullstat,sizeof(nullstat));
     }

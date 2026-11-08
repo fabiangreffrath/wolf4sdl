@@ -240,6 +240,8 @@ typedef struct
     const short *gfxmap, *soundmap, *musicmap, *sprmap;
     const short *lumps[NUMLUMPS];
     short lumprange[NUMLUMPS][2];
+    const short *statemap, *stateinv, *sprinv;   // numbers of the former separate builds, used by savegames
+    int numlegacystates, numphysprites;
 } gamelayout_t;
 
 extern const gamelayout_t gamelayouts[NUMLAYOUTS];
