@@ -17,6 +17,7 @@ option(DEBUGKEYS "Enable the Tab debug keys" ON)
 option(ARTSEXTERN "Take the help and end texts from the graphics file" ON)
 option(DEMOSEXTERN "Take the demos from the graphics file" ON)
 option(PLAYDEMOLIKEORIGINAL "Do not apply bug fixes while playing or recording demos" ON)
+
 option(USE_FEATUREFLAGS "Enable the level feature flags (see the bottom of wl_def.h)" OFF)
 option(USE_SHADING "Enable shading support (wl_shade.cpp)" OFF)
 option(USE_DIR3DSPR "Enable directional 3D sprites (wl_dir3dspr.cpp)" OFF)
