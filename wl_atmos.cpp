@@ -1,4 +1,3 @@
-#include "version.h"
 
 #if defined(USE_STARSKY) || defined(USE_RAIN) || defined(USE_SNOW)
 

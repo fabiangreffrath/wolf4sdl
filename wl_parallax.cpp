@@ -1,4 +1,3 @@
-#include "version.h"
 
 #ifdef USE_PARALLAX
 

@@ -1,4 +1,3 @@
-#include "version.h"
 
 #ifdef USE_DIR3DSPR
 #include "wl_def.h"
