@@ -1,4 +1,3 @@
-
 #ifdef USE_PARALLAX
 
 #include "wl_def.h"

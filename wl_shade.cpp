@@ -1,4 +1,3 @@
-
 #ifdef USE_SHADING
 #include "wl_def.h"
 #include "wl_shade.h"

@@ -1,4 +1,3 @@
-
 #ifdef USE_FLOORCEILINGTEX
 
 #include "wl_def.h"

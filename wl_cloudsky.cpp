@@ -1,4 +1,3 @@
-
 #ifdef USE_CLOUDSKY
 
 #include "wl_def.h"
