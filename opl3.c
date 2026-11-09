@@ -979,7 +979,7 @@ static void OPL3_ChannelUpdateDelayedOuts(opl3_channel *channel)
         if (p != NULL && p != &chip->zeromod)
         {
             /* p is always &chip->slot[sn].out here; recover containing slot */
-            opl3_slot *sp = (opl3_slot *)((char *)p - offsetof(opl3_slot, out));
+            opl3_slot *sp = (opl3_slot *)(void *)((char *)p - offsetof(opl3_slot, out));
             uint8_t sn = (uint8_t)(sp - &chip->slot[0]);
             if (sn >= 15)
             {
@@ -1351,7 +1351,7 @@ static inline void OPL3_ProcessSlotMaybeInline(opl3_slot *slot, uint8_t fb, int 
             else
             {
                 /* m is &src->out for some slot src */
-                opl3_slot *src = (opl3_slot *)((char *)m - offsetof(opl3_slot, out));
+                opl3_slot *src = (opl3_slot *)(void *)((char *)m - offsetof(opl3_slot, out));
                 if (src->dormant_gen == write_gen)
                 {
                     slot->dormant_gen = write_gen;
