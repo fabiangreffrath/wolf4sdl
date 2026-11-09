@@ -12,7 +12,7 @@ void DrawFloorAndCeiling(byte *vbuf, unsigned vbufPitch, int min_wallheight)
     fixed tex_step;                            // global step per one screen pixel
     fixed gu, gv, du, dv;                      // global texture coordinates
     int u, v;                                  // local texture coordinates
-    byte *toptex, *bottex;
+    byte *toptex = NULL, *bottex = NULL;
     unsigned lasttoptex = 0xffffffff, lastbottex = 0xffffffff;
 
     int halfheight = viewheight >> 1;
@@ -64,14 +64,14 @@ void DrawFloorAndCeiling(byte *vbuf, unsigned vbufPitch, int min_wallheight)
                     v = (gv >> (TILESHIFT - TEXTURESHIFT)) & (TEXTURESIZE - 1);
                     unsigned texoffs = (u << TEXTURESHIFT) + (TEXTURESIZE - 1) - v;
 #ifdef USE_SHADING
-                    if(curtoptex)
+                    if(curtoptex && toptex)
                         vbuf[top_add] = curshades[toptex[texoffs]];
-                    if(curbottex)
+                    if(curbottex && bottex)
                         vbuf[bot_add] = curshades[bottex[texoffs]];
 #else
-                    if(curtoptex)
+                    if(curtoptex && toptex)
                         vbuf[top_add] = toptex[texoffs];
-                    if(curbottex)
+                    if(curbottex && bottex)
                         vbuf[bot_add] = bottex[texoffs];
 #endif
                 }

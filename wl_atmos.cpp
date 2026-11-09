@@ -84,7 +84,7 @@ void DrawStarSky(byte *vbuf, uint32_t vbufPitch)
         i = 0;
         if(xx < 0) i = -xx;
         if(xx > viewwidth - 11) stopx = viewwidth - xx;
-        if(yy < 0) startj = -yy;
+        if(yy < 0) starty = -yy;
         if(yy > viewheight - 11) stopy = viewheight - yy;
         for(; i < stopx; i++)
             for(int j = starty; j < stopy; j++)
@@ -100,7 +100,6 @@ void DrawRain(byte *vbuf, uint32_t vbufPitch)
 {
 #if defined(USE_FLOORCEILINGTEX) && defined(FIXRAINSNOWLEAKS)
     fixed dist;                                // distance to row projection
-    fixed tex_step;                            // global step per one screen pixel
     fixed gu, gv, floorx, floory;              // global texture coordinates
 #endif
 
@@ -164,7 +163,6 @@ void DrawSnow(byte *vbuf, uint32_t vbufPitch)
 {
 #if defined(USE_FLOORCEILINGTEX) && defined(FIXRAINSNOWLEAKS)
     fixed dist;                                // distance to row projection
-    fixed tex_step;                            // global step per one screen pixel
     fixed gu, gv, floorx, floory;              // global texture coordinates
 #endif
 

@@ -1249,7 +1249,7 @@ void PlayDemo (int demonumber)
 #ifdef DEMOSEXTERN
     UNCACHEGRCHUNK(dems[demonumber]);
 #else
-    MM_FreePtr (&demobuffer);
+    free(demobuffer);
 #endif
 
     demoplayback = false;

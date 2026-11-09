@@ -977,6 +977,7 @@ void VictoryTile (void)
 */
 
 // For player movement in demos exactly as in the original Wolf3D v1.4 source code
+#ifdef PLAYDEMOLIKEORIGINAL
 static fixed FixedByFracOrig(fixed a, fixed b)
 {
     int sign = 0;
@@ -994,6 +995,7 @@ static fixed FixedByFracOrig(fixed a, fixed b)
         res = -res;
     return res;
 }
+#endif
 
 void Thrust (int angle, int32_t speed)
 {

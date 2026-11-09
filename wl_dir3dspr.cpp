@@ -124,7 +124,7 @@ void Scale3DShape(byte *vbuf, unsigned vbufPitch, statobj_t *ob)
 {
     fixed nx1,nx2,ny1,ny2;
     int viewx1,viewx2;
-    fixed diradd;
+    fixed diradd = 0x8000;
     fixed playx = viewx;
     fixed playy = viewy;
 
