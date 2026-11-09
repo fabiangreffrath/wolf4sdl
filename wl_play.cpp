@@ -29,7 +29,9 @@ exit_t playstate;
 
 static musicnames lastmusicchunk = (musicnames) 0;
 
+#ifdef DEBUGKEYS
 static int DebugOk;
+#endif
 
 objtype objlist[MAXACTORS];
 objtype *newobj, *obj, *player, *lastobj, *objfreelist, *killerobj;

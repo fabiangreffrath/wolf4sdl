@@ -1,9 +1,6 @@
 #ifndef WL_DEF_H
 #define WL_DEF_H
 
-// Defines which version shall be built and configures supported extra features
-#include "version.h"
-
 #include <assert.h>
 #include <fcntl.h>
 #include <math.h>

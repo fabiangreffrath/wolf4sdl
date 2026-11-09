@@ -1,5 +1,3 @@
-#include "version.h"
-
 #ifdef USE_PARALLAX
 
 #include "wl_def.h"
@@ -36,7 +34,7 @@ void DrawParallax(byte *vbuf, unsigned vbufPitch)
     int midangle = player->angle * (FINEANGLES / ANGLES);
     int skyheight = viewheight >> 1;
     int curtex = -1;
-    byte *skytex;
+    byte *skytex = NULL;
 
     startpage += USE_PARALLAX - 1;
 
@@ -54,7 +52,7 @@ void DrawParallax(byte *vbuf, unsigned vbufPitch)
         }
         int texoffs = TEXTUREMASK - ((xtex & (TEXTURESIZE - 1)) << TEXTURESHIFT);
         int yend = skyheight - (wallheight[x] >> 3);
-        if(yend <= 0) continue;
+        if(yend <= 0 || skytex == NULL) continue;
 
         for(int y = 0, offs = x; y < yend; y++, offs += vbufPitch)
             vbuf[offs] = skytex[texoffs + (y * TEXTURESIZE) / skyheight];

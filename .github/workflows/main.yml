@@ -48,7 +48,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install \
             libsdl2-dev \
-            libsdl2-mixer-dev
+            libsdl2-mixer-dev \
+            ninja-build
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
@@ -57,7 +58,6 @@ jobs:
         run: |
           brew update || true
           brew install \
-            gnu-sed \
             sdl2 \
             sdl2_mixer
 
@@ -72,7 +72,8 @@ jobs:
             ${{ matrix.config.msys-env }}-pkgconf
             ${{ matrix.config.msys-env }}-SDL2
             ${{ matrix.config.msys-env }}-SDL2_mixer
-            make
+            ${{ matrix.config.msys-env }}-cmake
+            ${{ matrix.config.msys-env }}-ninja
 
       - uses: actions/checkout@v3
 
@@ -82,7 +83,8 @@ jobs:
           CFLAGS: -Wall -Werror
           Q: ""
         run: |
-          make
+          cmake -B build -G Ninja
+          cmake --build build
 
   cppcheck:
     name: Cppcheck

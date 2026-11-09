@@ -1,8 +1,29 @@
-*.d
+# Objects and binaries
 *.o
+*.d
 wolf3d*
 wolf4sdl*
+
+# CMake: build directories (out-of-source) and files of in-source builds
+/build/
+/build-*/
+/cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+.cache/
+
+# Game data
 *.wl[136]
 *.sod
 *.sd[123]
 *.sdm
+
+# Leftovers of patching and of the table generator
+*.orig
+*.rej
+__pycache__/

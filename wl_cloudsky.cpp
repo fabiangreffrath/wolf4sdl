@@ -1,5 +1,3 @@
-#include "version.h"
-
 #ifdef USE_CLOUDSKY
 
 #include "wl_def.h"
@@ -66,7 +64,7 @@ cloudsky_t *curSky = NULL;
 static int GetCloudSkyDefID()
 {
     int skyID = ffDataBottomLeft;
-    assert(skyID >= 0 && skyID < lengthof(cloudSkys));
+    assert(skyID >= 0 && skyID < (int)lengthof(cloudSkys));
     return skyID;
 }
 
@@ -89,7 +87,7 @@ static int GetCloudSkyDefID()
         case  9: skyID =  9; break;
         default: skyID =  9; break;
     }
-    assert(skyID >= 0 && skyID < lengthof(cloudSkys));
+    assert(skyID >= 0 && skyID < (int)lengthof(cloudSkys));
     return skyID;
 }
 
