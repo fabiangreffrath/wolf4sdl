@@ -296,6 +296,9 @@ static void ScanInfoPlane(void)
                 case 70:
                 case 71:
                 case 72:
+                    SpawnStatic(x,y,tile-23);
+                    break;
+
                 case 73:                        // TRUCK AND SPEAR!
                 case 74:
                     if (gamelayout->spear)
@@ -304,7 +307,9 @@ static void ScanInfoPlane(void)
                     }
 #ifdef USE_DIR3DSPR                             // just for the example
                     else if (tile == 73)
+                    {
                         SpawnStatic(x,y,tile-23);
+                    }
 #endif
                     break;
 
