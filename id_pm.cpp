@@ -16,12 +16,12 @@ uint8_t **PMPages;
 
 void PM_Startup()
 {
-    char fname[13] = "vswap.";
-    strcat(fname,extension);
+    char *const fname = DataFilePath("vswap.", extension);
 
     FILE *file = fopen(fname,"rb");
     if(!file)
         CA_CannotOpen(fname);
+    free(fname);
 
     ChunksInFile = 0;
     if (!fread(&ChunksInFile, sizeof(word), 1, file))
@@ -65,7 +65,7 @@ void PM_Startup()
     long fileSize = ftell(file);
     size_t pageDataSize = fileSize - pageOffsets[0];
     if(pageDataSize > (size_t) -1)
-        Quit("The page file \"%s\" is too large!", fname);
+        Quit("The page file \"vswap.%s\" is too large!", extension);
 
     pageOffsets[ChunksInFile] = fileSize;
 
