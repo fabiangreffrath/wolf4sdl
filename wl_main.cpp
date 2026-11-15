@@ -124,6 +124,8 @@ void ReadConfig(void)
     else
         strcpy(configpath, configname);
 
+    printf("Config file: %s\n", configpath);
+
 #define read2(a,b,c) if(read(a,b,c)<0){close(file);goto noconfig;}
     const int file = open(configpath, O_RDONLY | O_BINARY);
     if (file != -1)
@@ -1926,6 +1928,8 @@ void CheckParameters(int argc, char *argv[])
 
 int main (int argc, char *argv[])
 {
+    printf("%s %s\n", PROJECT_NAME, PROJECT_VERSION);
+
     CheckParameters(argc, argv);
 
     CheckForEpisodes();

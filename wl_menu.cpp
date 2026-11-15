@@ -4454,9 +4454,13 @@ CheckForEpisodes (void)
             Quit ("No complete Wolfenstein 3-D or Spear of Destiny data files found.\nSearched locations:%s", searched);
     }
 
+    printf("Data dir: %s (%s)\n", datadir, name);
+
     // The three episode release shares its layout with Apogee v1.4
     const int layout = !strcmp(name, "wl3") ? LAYOUT_WL6A : findlayout(name);
     gamelayout = &gamelayouts[layout];
+
+    printf("Game layout: %s\n", gamelayout->desc);
 
     // Values that depend on the game version are filled in here.
     color_hlite[0] = color_norml[0] = DEACTIVE;

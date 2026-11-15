@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
-project(wolf4sdl C CXX)
+project(
+    "wolf4sdl"
+    VERSION 20261115
+    LANGUAGES C CXX
+)
 
 # Name of the executable, like BINARY in the Makefile.
 set(BINARY wolf3d CACHE STRING "Name of the executable")
@@ -97,6 +101,9 @@ target_compile_options(wolf4sdl PRIVATE
 )
 
 target_link_libraries(wolf4sdl PRIVATE PkgConfig::SDL2)
+
+target_compile_definitions(wolf4sdl PRIVATE PROJECT_NAME="${PROJECT_NAME}")
+target_compile_definitions(wolf4sdl PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 foreach(flag IN ITEMS
         DEBUGKEYS ARTSEXTERN DEMOSEXTERN PLAYDEMOLIKEORIGINAL

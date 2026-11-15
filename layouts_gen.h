@@ -232,6 +232,7 @@ enum
 
 typedef struct
 {
+    const char *desc;
     const char *name;
     const char *ext;
     bool spear, spear_demo, upload, goodtimes, apogee_1_1;
