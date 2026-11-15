@@ -45,6 +45,7 @@
 #include "foreign.h"
 
 #include "layouts_gen.h"
+#include "datadir.h"
 #include "f_spear.h"
 
 typedef uint8_t byte;

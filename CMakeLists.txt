@@ -9,9 +9,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     add_compile_options(-O2 -g)
 endif()
 
-# Directory with the game data, e.g. /usr/share/games/wolf3d/ for a distribution package.
-set(DATADIR "" CACHE STRING "Directory with the game data, empty for the current directory")
-
 # Features that were switched in version.h.
 option(DEBUGKEYS "Enable the Tab debug keys" ON)
 option(ARTSEXTERN "Take the help and end texts from the graphics file" ON)
@@ -35,6 +32,7 @@ pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2 SDL2_mixer)
 
 set(SRCS
     opl3.c
+    datadir.cpp
     id_ca.cpp
     id_in.cpp
     id_pm.cpp
@@ -111,10 +109,6 @@ endforeach()
 
 if(USE_PARALLAX)
     target_compile_definitions(wolf4sdl PRIVATE USE_PARALLAX=${USE_PARALLAX})
-endif()
-
-if(DATADIR)
-    target_compile_definitions(wolf4sdl PRIVATE "DATADIR=\"${DATADIR}\"")
 endif()
 
 if(MINGW)

@@ -4331,21 +4331,22 @@ static const char *const gamenames[] = { "wl6", "sod", "wl3", "wl1", "sdm" };
 
 extern const char *param_game;
 
-// Returns the size of the file name.ext in the current directory, or -1 if it does not exist.
+// Returns the size of the data file name.ext, or -1 if it does not exist.
 static long datafilesize (const char *name, const char *ext)
 {
-    char path[32];
+    char *const path = DataFilePath(name, ext);
     struct stat statbuf;
+    const long size = stat(path, &statbuf) ? -1 : (long) statbuf.st_size;
 
-    snprintf(path, sizeof(path), "%s.%s", name, ext);
-    return stat(path, &statbuf) ? -1 : (long) statbuf.st_size;
+    free(path);
+    return size;
 }
 
 // Identifies the game version of the data files with this extension, or -1 if it is unknown.
 static int findlayout (const char *ext)
 {
-    const long graphsize = datafilesize("vgagraph", ext);
-    const long headsize = datafilesize("vgahead", ext);
+    const long graphsize = datafilesize("vgagraph.", ext);
+    const long headsize = datafilesize("vgahead.", ext);
     int first = -1;
 
     for (size_t i = 0; i < sizeof(knowngraphs) / sizeof(knowngraphs[0]); i++)
@@ -4409,8 +4410,12 @@ CheckForEpisodes (void)
     }
 
 
+    BuildDataDirList ();
+
+    // The first game in the order of priority that has a complete set of game files wins.
+    // Its data directory is the first one in the list that has this set.
     const char *name = NULL;
-    for (size_t i = 0; i < sizeof(gamenames) / sizeof(gamenames[0]); i++)
+    for (size_t i = 0; i < sizeof(gamenames) / sizeof(gamenames[0]) && name == NULL; i++)
     {
         const bool issod = !strcmp(gamenames[i], "sod");
         char ext[5];
@@ -4427,20 +4432,33 @@ CheckForEpisodes (void)
         else
             snprintf(ext, sizeof(ext), "%s", gamenames[i]);
 
-        if (datafilesize("vswap", ext) >= 0)
+        for (int d = 0; d < numdatadirs; d++)
         {
-            name = gamenames[i];
-            strcpy (extension, ext);
-            break;
+            if (DataSetComplete(datadirs[d], ext, gamenames[i]))
+            {
+                name = gamenames[i];
+                datadir = datadirs[d];
+                strcpy (extension, ext);
+                break;
+            }
         }
     }
 
     if (!name)
     {
+        char searched[1024] = "";
+
+        for (int d = 0; d < numdatadirs; d++)
+        {
+            const size_t length = strlen(searched);
+
+            snprintf(searched + length, sizeof(searched) - length, "\n  %s", datadirs[d]);
+        }
+
         if (param_game)
-            Quit ("NO DATA FILES FOR \"%s\" TO BE FOUND!", param_game);
+            Quit ("NO COMPLETE DATA FILES FOR \"%s\" TO BE FOUND! SEARCHED IN:%s", param_game, searched);
         else
-            Quit ("NO WOLFENSTEIN 3-D OR SPEAR OF DESTINY DATA FILES TO BE FOUND!");
+            Quit ("NO COMPLETE WOLFENSTEIN 3-D OR SPEAR OF DESTINY DATA FILES TO BE FOUND! SEARCHED IN:%s", searched);
     }
 
     // The three episode release shares its layout with Apogee v1.4
