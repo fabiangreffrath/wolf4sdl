@@ -4449,9 +4449,9 @@ CheckForEpisodes (void)
         char *const searched = DataDirListString ();
 
         if (param_game)
-            Quit ("NO COMPLETE DATA FILES FOR \"%s\" TO BE FOUND! SEARCHED IN:%s", param_game, searched);
+            Quit ("No complete data files found for \"%s\".\nSearched locations:%s", param_game, searched);
         else
-            Quit ("NO COMPLETE WOLFENSTEIN 3-D OR SPEAR OF DESTINY DATA FILES TO BE FOUND! SEARCHED IN:%s", searched);
+            Quit ("No complete Wolfenstein 3-D or Spear of Destiny data files found.\nSearched locations:%s", searched);
     }
 
     // The three episode release shares its layout with Apogee v1.4
