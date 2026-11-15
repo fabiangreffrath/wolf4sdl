@@ -1462,15 +1462,29 @@ void Quit (const char *errorStr, ...)
 #ifdef NOTYET
     byte *screen;
 #endif
-    char error[256];
+    char buffer[256];
+    char *error = buffer;
+    buffer[0] = 0;
     if(errorStr != NULL)
     {
-        va_list vlist;
+        va_list vlist, vcopy;
         va_start(vlist, errorStr);
-        vsnprintf(error, sizeof(error), errorStr, vlist);
+        va_copy(vcopy, vlist);
+        const int length = vsnprintf(buffer, sizeof(buffer), errorStr, vcopy);
+        va_end(vcopy);
+
+        // A longer message gets a buffer of its own, if there is any memory left.
+        if (length >= (int) sizeof(buffer))
+        {
+            char *const longer = (char *) malloc(length + 1);
+            if (longer != NULL)
+            {
+                vsnprintf(longer, length + 1, errorStr, vlist);
+                error = longer;
+            }
+        }
         va_end(vlist);
     }
-    else error[0] = 0;
 
     if (!pictable)  // don't try to display the red box before it's loaded
     {

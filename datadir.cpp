@@ -295,3 +295,24 @@ char *DataFilePath (const char *name, const char *ext)
     free(path);
     return found;
 }
+
+// Returns a newly allocated string that lists the directories, each one in a line of its own.
+char *DataDirListString (void)
+{
+    size_t length = 1;      // start with 1 for the null terminator
+
+    for (int i = 0; i < numdatadirs; i++)
+        length += strlen(datadirs[i]) + 3;      // a newline and two spaces of indentation
+
+    char *const result = (char *) malloc(length);
+    if (result == NULL)
+        Quit("Out of memory");
+
+    char *end = result;
+    *end = '\0';
+
+    for (int i = 0; i < numdatadirs; i++)
+        end += snprintf(end, result + length - end, "\n  %s", datadirs[i]);
+
+    return result;
+}

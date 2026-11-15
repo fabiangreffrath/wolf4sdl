@@ -14,5 +14,6 @@ char *FileCaseExists (const char *path);
 void BuildDataDirList (void);
 bool DataSetComplete (const char *dir, const char *ext, const char *graphext);
 char *DataFilePath (const char *name, const char *ext);
+char *DataDirListString (void);
 
 #endif

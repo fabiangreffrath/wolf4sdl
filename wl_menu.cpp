@@ -4446,14 +4446,7 @@ CheckForEpisodes (void)
 
     if (!name)
     {
-        char searched[1024] = "";
-
-        for (int d = 0; d < numdatadirs; d++)
-        {
-            const size_t length = strlen(searched);
-
-            snprintf(searched + length, sizeof(searched) - length, "\n  %s", datadirs[d]);
-        }
+        char *const searched = DataDirListString ();
 
         if (param_game)
             Quit ("NO COMPLETE DATA FILES FOR \"%s\" TO BE FOUND! SEARCHED IN:%s", param_game, searched);
