@@ -1,6 +1,7 @@
 // WL_MAIN.C
 
 #ifdef _WIN32
+    #include <stdio.h>
     #include <io.h>
 #else
     #include <unistd.h>
@@ -1459,11 +1460,18 @@ void NewViewSize (int width)
 ==========================
 */
 
+static int isatty_stdout(void)
+{
+    return
+#ifdef _WIN32
+    _isatty(_fileno(stdout));
+#else
+    isatty(fileno(stdout)) && isatty(fileno(stderr));
+#endif
+}
+
 void Quit (const char *errorStr, ...)
 {
-#ifdef NOTYET
-    byte *screen;
-#endif
     char buffer[256];
     char *error = buffer;
     buffer[0] = 0;
@@ -1488,61 +1496,25 @@ void Quit (const char *errorStr, ...)
         va_end(vlist);
     }
 
-    if (!pictable)  // don't try to display the red box before it's loaded
-    {
-        ShutdownId();
-        if (*error)
-        {
-#ifdef NOTYET
-            SetTextCursor(0,0);
-#endif
-            puts(error);
-#ifdef NOTYET
-            SetTextCursor(0,2);
-#endif
-            VW_WaitVBL(100);
-        }
-        exit(1);
-    }
-
     if (!*error)
     {
-#ifdef NOTYET
-        CA_CacheGrChunk (ORDERSCREEN);
-        screen = grsegs[ORDERSCREEN];
-#endif
         WriteConfig ();
     }
-#ifdef NOTYET
-    else
-    {
-        CA_CacheGrChunk (ERRORSCREEN);
-        screen = grsegs[ERRORSCREEN];
-    }
-#endif
 
     ShutdownId ();
 
     if (*error)
     {
-#ifdef NOTYET
-        memcpy((byte *)0xb8000,screen+7,7*160);
-        SetTextCursor(9,3);
-#endif
-        puts(error);
-#ifdef NOTYET
-        SetTextCursor(0,7);
-#endif
-        VW_WaitVBL(200);
+        fputs(error, stderr);
+
+        if (!isatty_stdout())
+        {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROJECT_NAME,
+                                     error, NULL);
+        }
+
+        VW_WaitVBL(100);
         exit(1);
-    }
-    else
-    if (!*error)
-    {
-#ifdef NOTYET
-        memcpy((byte *)0xb8000,screen+7,24*160); // 24 for SPEAR/UPLOAD compatibility
-        SetTextCursor(0,23);
-#endif
     }
 
     exit(0);
