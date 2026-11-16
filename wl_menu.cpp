@@ -1521,6 +1521,50 @@ PrintLSEntry (int w, int color)
     fontnumber = 1;
 }
 
+// Check whether the given savegame name starts with a level identifier:
+// "E<digit>M<digit>" for Wolfenstein 3D, "MAP<digit><digit>" for Spear of Destiny.
+// Case-insensitive.
+static bool StartsWithMapIdentifier(const char *name)
+{
+    size_t len;
+
+    if (name == NULL || name[0] == '\0')
+        return false;
+
+    len = strlen(name);
+
+    // Wolfenstein 3D: E<digit>M<digit>
+    if (len >= 4 &&
+        (name[0] == 'E' || name[0] == 'e') &&
+        name[1] >= '0' && name[1] <= '9' &&
+        (name[2] == 'M' || name[2] == 'm') &&
+        name[3] >= '0' && name[3] <= '9')
+    {
+        return true;
+    }
+
+    // Spear of Destiny: MAP<digit><digit>
+    if (len >= 5 &&
+        (name[0] == 'M' || name[0] == 'm') &&
+        (name[1] == 'A' || name[1] == 'a') &&
+        (name[2] == 'P' || name[2] == 'p') &&
+        name[3] >= '0' && name[3] <= '9' &&
+        name[4] >= '0' && name[4] <= '9')
+    {
+        return true;
+    }
+
+    return false;
+}
+
+// Fill the given savegame name buffer with the current level identifier.
+static void FillSaveGameNameWithLevel(char *name)
+{
+    if (gamelayout->spear)
+        sprintf(name, "MAP%02d", gamestate.mapon + 1);
+    else
+        sprintf(name, "E%dM%d", gamestate.episode + 1, gamestate.mapon + 1);
+}
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -1559,6 +1603,14 @@ CP_SaveGame (int quick)
 
             strcpy (input, &SaveGameNames[which][0]);
 
+            // Update the name to the current level if the user left it
+            // empty or it already contains a level identifier pattern.
+            if (input[0] == '\0' || StartsWithMapIdentifier(input))
+            {
+                FillSaveGameNameWithLevel(input);
+                strcpy (&SaveGameNames[which][0], input);
+            }
+
             fwrite (input, 1, 32, file);
             fseek (file, 32, SEEK_SET);
             SaveTheGame (file, 0, 0);
@@ -1582,6 +1634,7 @@ CP_SaveGame (int quick)
         which = HandleMenu (&LSItems, &LSMenu[0], TrackWhichGame);
         if (which >= 0)
         {
+            char *savegamename = &SaveGameNames[which][0];
             //
             // OVERWRITE EXISTING SAVEGAME?
             //
@@ -1594,10 +1647,20 @@ CP_SaveGame (int quick)
                 }
                 else
                 {
+                    // Update the name to the current level if the user left it
+                    // empty or it already contains a level identifier pattern.
+                    if (*savegamename == '\0' || StartsWithMapIdentifier(savegamename))
+                    {
+                        FillSaveGameNameWithLevel(savegamename);
+                    }
                     DrawLoadSaveScreen (1);
                     PrintLSEntry (which, HIGHLIGHT);
                     VW_UpdateScreen ();
                 }
+            }
+            else
+            {
+                FillSaveGameNameWithLevel(savegamename);
             }
 
             ShootSnd ();
