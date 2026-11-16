@@ -299,7 +299,7 @@ char *DataFilePath (const char *name, const char *ext)
 // Returns a newly allocated string that lists the directories, each one in a line of its own.
 char *DataDirListString (void)
 {
-    size_t length = 1;      // start with 1 for the null terminator
+    size_t length = 2;      // start with 2 for the \n and null terminator
 
     for (int i = 0; i < numdatadirs; i++)
         length += strlen(datadirs[i]) + 3;      // a newline and two spaces of indentation
@@ -313,6 +313,8 @@ char *DataDirListString (void)
 
     for (int i = 0; i < numdatadirs; i++)
         end += snprintf(end, result + length - end, "\n  %s", datadirs[i]);
+
+    end += snprintf(end, result + length - end, "\n");
 
     return result;
 }
