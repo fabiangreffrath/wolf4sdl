@@ -4326,9 +4326,6 @@ static const struct
     { "wl1", 326568, LAYOUT_WL1 }
 };
 
-// Data sets in order of priority, named by the extension of their files.
-static const char *const gamenames[] = { "wl6", "sod", "wl3", "wl1", "sdm" };
-
 extern const char *param_game;
 
 // Returns the size of the data file name.ext, or -1 if it does not exist.
@@ -4408,7 +4405,6 @@ CheckForEpisodes (void)
             }
         }
     }
-
 
     BuildDataDirList ();
 

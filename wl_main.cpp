@@ -1706,6 +1706,23 @@ if (!param_demotest)
 
 //===========================================================================
 
+void CheckExeSuffix(char *argv[])
+{
+    const char *dash = strrchr(argv[0], '-');
+
+    if (dash)
+    {
+        for (size_t i = 0; i < sizeof(gamenames) / sizeof(gamenames[0]); i++)
+        {
+            if (!strncmp(dash + 1, gamenames[i], 3))
+            {
+                param_game = gamenames[i];
+                break;
+            }
+        }
+    }
+}
+
 #define IFARG(str) if(!strcmp(arg, (str)))
 
 void CheckParameters(int argc, char *argv[])
@@ -1930,6 +1947,7 @@ int main (int argc, char *argv[])
 {
     printf("%s %s\n", PROJECT_NAME, PROJECT_VERSION);
 
+    CheckExeSuffix(argv);
     CheckParameters(argc, argv);
 
     CheckForEpisodes();

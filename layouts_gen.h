@@ -230,6 +230,9 @@ enum
     NUMLAYOUTS
 };
 
+// Data sets in order of priority, named by the extension of their files.
+static const char *const gamenames[] = { "wl6", "sod", "wl3", "wl1", "sdm" };
+
 typedef struct
 {
     const char *desc;
