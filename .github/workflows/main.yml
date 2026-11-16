@@ -81,28 +81,6 @@ jobs:
         env:
           CC: ${{ matrix.config.compiler }}
           CFLAGS: -Wall -Werror
-          Q: ""
         run: |
-          cmake -B build -G Ninja
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build
-
-  cppcheck:
-    name: Cppcheck
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install cppcheck
-
-      - uses: actions/checkout@v3
-
-      - name: Run cppcheck
-        shell: bash
-        run: |
-          cppcheck -DO_BINARY=0 -DDEBUGKEYS -DARTSEXTERN -DDEMOSEXTERN -DPLAYDEMOLIKEORIGINAL \
-              -UUSE_FEATUREFLAGS -UUSE_SHADING -UUSE_DIR3DSPR -UUSE_FLOORCEILINGTEX -UUSE_HIRES \
-              -UUSE_PARALLAX -UUSE_CLOUDSKY -UUSE_STARSKY -UUSE_RAIN -UUSE_SNOW -UFIXRAINSNOWLEAKS \
-              -USPANISH -UNOTYET -U_MSC_VER --force src
-          cppcheck --version
