@@ -1706,7 +1706,7 @@ if (!param_demotest)
 
 //===========================================================================
 
-void CheckExeSuffix(char *argv[])
+static void CheckExeSuffix(char *argv[])
 {
     const char *dash = strrchr(argv[0], '-');
 
@@ -1725,7 +1725,21 @@ void CheckExeSuffix(char *argv[])
 
 #define IFARG(str) if(!strcmp(arg, (str)))
 
-void CheckParameters(int argc, char *argv[])
+static bool CheckParameter(int argc, char *argv[], const char *str)
+{
+    for (int i = 1; i < argc; i++)
+    {
+        char *arg = argv[i];
+        IFARG(str)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static void CheckParameters(int argc, char *argv[])
 {
     bool hasError = false, showHelp = false;
     int defaultSampleRate = param_samplerate;
@@ -1898,6 +1912,7 @@ void CheckParameters(int argc, char *argv[])
             "Usage: Wolf4SDL [options]\n"
             "Options:\n"
             " --help                 This help page\n"
+            " --version              Print version information and exit\n"
             " --tedlevel <level>     Starts the game in the given level\n"
             " --baby                 Sets the difficulty to baby for tedlevel\n"
             " --easy                 Sets the difficulty to easy for tedlevel\n"
@@ -1946,6 +1961,10 @@ void CheckParameters(int argc, char *argv[])
 int main (int argc, char *argv[])
 {
     printf("%s %s\n", PROJECT_NAME, PROJECT_VERSION);
+    if (CheckParameter(argc, argv, "--version"))
+    {
+        return 0;
+    }
 
     CheckExeSuffix(argv);
     CheckParameters(argc, argv);
