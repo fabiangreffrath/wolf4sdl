@@ -157,6 +157,8 @@ static void adddir (const char *dir)
     datadirs[numdatadirs++] = copy;
 }
 
+#ifndef _WIN32
+
 // Adds the directories of a list separated by PATH_SEPARATOR, each one with the suffix appended.
 static void adddirs (const char *paths, const char *suffix)
 {
@@ -182,8 +184,6 @@ static void adddirs (const char *paths, const char *suffix)
 
     free(copy);
 }
-
-#ifndef _WIN32
 
 // Returns the home directory of the user, or NULL if it is not known.
 static const char *homedir (void)

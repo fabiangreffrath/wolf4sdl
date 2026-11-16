@@ -1561,9 +1561,9 @@ static bool StartsWithMapIdentifier(const char *name)
 static void FillSaveGameNameWithLevel(char *name)
 {
     if (gamelayout->spear)
-        sprintf(name, "MAP%02d", gamestate.mapon + 1);
+        snprintf(name, sizeof(SaveGameNames[0]), "MAP%02d", gamestate.mapon + 1);
     else
-        sprintf(name, "E%dM%d", gamestate.episode + 1, gamestate.mapon + 1);
+        snprintf(name, sizeof(SaveGameNames[0]), "E%dM%d", gamestate.episode + 1, gamestate.mapon + 1);
 }
 
 ////////////////////////////////////////////////////////////////////
