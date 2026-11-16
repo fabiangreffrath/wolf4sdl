@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Intenseflow
+GenericName=First-person shooter
+Comment=Source port of Wolfenstein 3D and Spear of Destiny
+Icon=intenseflow
+TryExec=intenseflow
+Exec=intenseflow
+Terminal=false
+Categories=Game;ActionGame;
+Keywords=wolfenstein;wolf3d;spear of destiny;wolf4sdl;shooter;fps;

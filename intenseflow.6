@@ -1,0 +1,182 @@
+.TH INTENSEFLOW 6 "November 2026" "Intenseflow" "Games"
+
+.SH NAME
+intenseflow \- source port of id Software's Wolfenstein 3D and Spear of Destiny
+
+.SH SYNOPSIS
+.B intenseflow
+.RI [ options ]
+
+.SH DESCRIPTION
+.B Intenseflow
+is an open-source port of id Software's classic first-person shooter
+.B Wolfenstein 3D
+and its prequel
+.B Spear of Destiny
+to the cross-platform multimedia library
+.BR "Simple DirectMedia Layer (SDL)" .
+It is meant to keep the original feel while taking advantage of some improvements.
+Intenseflow is based on Wolf4SDL.
+
+The game files are not part of Intenseflow. At startup, the engine looks for a complete set of
+game files and picks the first game that is found, in this order:
+.BR wl6 ,
+.BR sod ,
+.BR wl3 ,
+.B wl1
+and
+.BR sdm .
+The game is identified by the file name extension of its data files:
+.TP
+.B wl6
+Wolfenstein 3D, full version (six episodes)
+.TP
+.B sod
+Spear of Destiny, full version
+.TP
+.B wl3
+Wolfenstein 3D, three episode Apogee release
+.TP
+.B wl1
+Wolfenstein 3D, shareware version (one episode)
+.TP
+.B sdm
+Spear of Destiny, demo version
+.PP
+The additional Spear of Destiny mission disks use the extensions
+.BR sd1 ,
+.B sd2
+and
+.BR sd3 ,
+see the
+.B \-\-mission
+option.
+
+If the name of the executable contains a dash followed by one of the above game names, for
+example when it is started through a symbolic link called
+.BR intenseflow\-sod ,
+this game is chosen as if the
+.B \-\-game
+option had been given.
+
+.SH OPTIONS
+.TP
+.B \-\-help
+Prints a short help page and exits.
+.TP
+.B \-\-version
+Prints version information and exits.
+.TP
+\fB\-\-game\fR <name>
+Uses the data files of the given game, one of
+.BR wl6 ,
+.BR sod ,
+.BR wl3 ,
+.B wl1
+or
+.BR sdm .
+By default, the first game found is used, in that order.
+.TP
+\fB\-\-mission\fR <mission>
+Plays the given mission of Spear of Destiny, from 0 to 3
+(default: 0, which uses the files with the extension
+.BR sod ,
+while 1 to 3 use
+.BR sd1 ,
+.B sd2
+or
+.BR sd3 ).
+.TP
+\fB\-\-tedlevel\fR <level>
+Starts the game in the given level.
+.TP
+.B \-\-baby
+Sets the difficulty to baby for
+.BR \-\-tedlevel .
+.TP
+.B \-\-easy
+Sets the difficulty to easy for
+.BR \-\-tedlevel .
+.TP
+.B \-\-normal
+Sets the difficulty to normal for
+.BR \-\-tedlevel .
+.TP
+.B \-\-hard
+Sets the difficulty to hard for
+.BR \-\-tedlevel .
+.TP
+.B \-\-nowait
+Skips the intro screens.
+.TP
+.B \-\-demotest
+Skips right into the demo loop.
+.TP
+.B \-\-fullscreen
+Starts the game in fullscreen mode.
+.TP
+.B \-\-nograbmouse
+Does not grab the mouse in windowed mode.
+.TP
+\fB\-\-res\fR <width> <height>
+Sets the screen resolution, which must be a multiple of 320x200.
+.TP
+\fB\-\-resf\fR <w> <h>
+Sets any screen resolution of at least 320x200, which may result in graphic errors.
+.TP
+\fB\-\-joystick\fR <index>
+Uses the index\-th joystick if available
+(\-1 disables the joystick, default: 0).
+.TP
+\fB\-\-joystickhat\fR <index>
+Enables movement with the given coolie hat.
+.TP
+\fB\-\-samplerate\fR <rate>
+Sets the sound sample rate in Hz (default: 44100).
+.TP
+\fB\-\-audiobuffer\fR <size>
+Sets the size of the audio buffer, which determines the sound latency,
+in bytes (default: 2048 / (44100 / samplerate)).
+.TP
+.B \-\-ignorenumchunks
+Ignores the number of chunks in the VGAHEAD file, which may be useful for some broken mods.
+.TP
+\fB\-\-configdir\fR <dir>
+Sets the directory where the configuration file and the saved games are stored
+(default: $HOME/.intenseflow).
+.TP
+.BR \-\-goobers ", " \-\-debugmode
+Enables the debug keys, which are accessed with the Tab key.
+
+.SH FILES
+.TP
+.I ./
+The current directory is searched for game files first.
+.TP
+.I $XDG_DATA_HOME/games/wolf3d
+Searched for game files after the current directory. If
+.B XDG_DATA_HOME
+is not set, it defaults to
+.IR $HOME/.local/share .
+.TP
+.I $XDG_DATA_DIRS/games/wolf3d
+Searched for game files last, once for each directory of the list. If
+.B XDG_DATA_DIRS
+is not set, it defaults to
+.IR /usr/local/share:/usr/share .
+.TP
+.I $HOME/.intenseflow
+The default directory for the configuration file and the saved games. The names of these
+files carry the extension of the game that is played.
+
+.SH AUTHORS
+Intenseflow is maintained by Fabian Greffrath <fabian@debian.org>.
+.PP
+It is based on Wolf4SDL by Moritz "Ripper" Kroll and the SDL port by Chaos-Software.
+.PP
+Original Wolfenstein 3D by id Software.
+.PP
+This manual page was written by Fabian Greffrath for the Debian project (but may be used by others).
+
+.SH COPYRIGHT
+Copyright \(co 2010\-2026 Fabian Greffrath.

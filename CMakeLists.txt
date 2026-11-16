@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.13)
 project(
-    "wolf4sdl"
+    "Intenseflow"
     VERSION 20261115
     LANGUAGES C CXX
 )
 
-# Name of the executable, like BINARY in the Makefile.
-set(BINARY wolf3d CACHE STRING "Name of the executable")
+# Name of the executable.
+set(BINARY intenseflow CACHE STRING "Name of the executable")
 
 # The Makefile used -O2 -g unless a configuration said otherwise.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -81,15 +81,15 @@ if(USE_STARSKY OR USE_RAIN OR USE_SNOW)
     list(APPEND SRCS wl_atmos.cpp)
 endif()
 
-add_executable(wolf4sdl ${SRCS})
+add_executable(intenseflow ${SRCS})
 
-set_target_properties(wolf4sdl PROPERTIES
+set_target_properties(intenseflow PROPERTIES
     OUTPUT_NAME ${BINARY}
     C_STANDARD 99
     C_EXTENSIONS ON
 )
 
-target_compile_options(wolf4sdl PRIVATE
+target_compile_options(intenseflow PRIVATE
     -Wall
     -Wpointer-arith
     -Wreturn-type
@@ -100,31 +100,38 @@ target_compile_options(wolf4sdl PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
 )
 
-target_link_libraries(wolf4sdl PRIVATE PkgConfig::SDL2)
+target_link_libraries(intenseflow PRIVATE PkgConfig::SDL2)
 
-target_compile_definitions(wolf4sdl PRIVATE PROJECT_NAME="${PROJECT_NAME}")
-target_compile_definitions(wolf4sdl PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(intenseflow PRIVATE PROJECT_NAME="${PROJECT_NAME}")
+target_compile_definitions(intenseflow PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 foreach(flag IN ITEMS
         DEBUGKEYS ARTSEXTERN DEMOSEXTERN PLAYDEMOLIKEORIGINAL
         USE_FEATUREFLAGS USE_SHADING USE_DIR3DSPR USE_FLOORCEILINGTEX USE_HIRES
         USE_CLOUDSKY USE_STARSKY USE_RAIN USE_SNOW FIXRAINSNOWLEAKS)
     if(${flag})
-        target_compile_definitions(wolf4sdl PRIVATE ${flag})
+        target_compile_definitions(intenseflow PRIVATE ${flag})
     endif()
 endforeach()
 
 if(USE_PARALLAX)
-    target_compile_definitions(wolf4sdl PRIVATE USE_PARALLAX=${USE_PARALLAX})
+    target_compile_definitions(intenseflow PRIVATE USE_PARALLAX=${USE_PARALLAX})
 endif()
 
 if(MINGW)
-    target_link_options(wolf4sdl PRIVATE -static-libgcc)
+    target_link_options(intenseflow PRIVATE -static-libgcc)
 endif()
 
 # The Makefile installed the stripped binary with mode 555, use "cmake --install --strip".
 include(GNUInstallDirs)
-install(TARGETS wolf4sdl
+install(TARGETS intenseflow
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
+
+# Desktop integration files.
+if(NOT WIN32)
+    install(FILES intenseflow.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES intenseflow.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+    install(FILES intenseflow.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
+endif()

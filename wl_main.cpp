@@ -1878,10 +1878,9 @@ static void CheckParameters(int argc, char *argv[])
     {
         if(hasError) printf("\n");
         printf(
-            "Wolf4SDL v1.7 ($Revision: 257 $)\n"
-            "Ported by Chaos-Software (http://www.chaos-software.de.vu)\n"
+            "Based on Wolf4SDL by Moritz \"Ripper\" Kroll\n"
             "Original Wolfenstein 3D by id Software\n\n"
-            "Usage: Wolf4SDL [options]\n"
+            "Usage: intenseflow [options]\n"
             "Options:\n"
             " --help                 This help page\n"
             " --version              Print version information and exit\n"
@@ -1910,9 +1909,9 @@ static void CheckParameters(int argc, char *argv[])
 #if defined(_WIN32)
             "                        (default: current directory)\n"
 #else
-            "                        (default: $HOME/.wolf4sdl)\n"
+            "                        (default: $HOME/.intenseflow)\n"
 #endif
-            " --game <name>         Data files to use: wl6, sod, wl3, wl1 or sdm\n"
+            " --game <name>          Data files to use: wl6, sod, wl3, wl1 or sdm\n"
             "                        (default: the first one found, in that order)\n"
             " --mission <mission>    Mission number to play (0-3)\n"
             "                        (default: 0 -> .sod, 1-3 -> .sd*, Spear of Destiny only)\n"

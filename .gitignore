@@ -2,7 +2,8 @@
 *.o
 *.d
 wolf3d*
-wolf4sdl*
+/intenseflow
+/intenseflow.exe
 
 # CMake: build directories (out-of-source) and files of in-source builds
 /build/
