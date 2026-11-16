@@ -35,7 +35,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2 SDL2_mixer)
 
 set(SRCS
-    opl3.c
+    opl3/opl3.c
     datadir.cpp
     id_ca.cpp
     id_in.cpp
@@ -81,6 +81,8 @@ if(USE_STARSKY OR USE_RAIN OR USE_SNOW)
     list(APPEND SRCS wl_atmos.cpp)
 endif()
 
+list(TRANSFORM SRCS PREPEND src/)
+
 add_executable(intenseflow ${SRCS})
 
 set_target_properties(intenseflow PROPERTIES
@@ -99,6 +101,8 @@ target_compile_options(intenseflow PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-Wimplicit-int>
     $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
 )
+
+target_include_directories(intenseflow PRIVATE src src/opl3)
 
 target_link_libraries(intenseflow PRIVATE PkgConfig::SDL2)
 
@@ -131,7 +135,7 @@ install(TARGETS intenseflow
 
 # Desktop integration files.
 if(NOT WIN32)
-    install(FILES intenseflow.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-    install(FILES intenseflow.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
-    install(FILES intenseflow.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
+    install(FILES dist/intenseflow.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES dist/intenseflow.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+    install(FILES dist/intenseflow.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
 endif()

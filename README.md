@@ -109,7 +109,7 @@ The following features are switched on or off with CMake options, for example `c
 | `ARTSEXTERN` | ON | Take the help and end texts from the graphics file |
 | `DEMOSEXTERN` | ON | Take the demos from the graphics file |
 | `PLAYDEMOLIKEORIGINAL` | ON | Do not apply bug fixes while playing or recording demos, so the demos stay in sync |
-| `USE_FEATUREFLAGS` | OFF | Level feature flags, see the end of `wl_def.h` |
+| `USE_FEATUREFLAGS` | OFF | Level feature flags, see the end of `src/wl_def.h` |
 | `USE_SHADING` | OFF | Shading |
 | `USE_DIR3DSPR` | OFF | Directional 3D sprites |
 | `USE_FLOORCEILINGTEX` | OFF | Floor and ceiling textures in the third map plane |
@@ -123,9 +123,18 @@ The following features are switched on or off with CMake options, for example `c
 - If your frame rate is low, consider using the original screen resolution (`--res 320 200`) or lowering the sound quality (`--samplerate 22050`).
 - If the game does not find your data files, the error message lists all directories that were searched. The first lines of the console output show the data directory and the game version that were detected.
 
+## Repository layout
+
+| Directory | Content |
+| --- | --- |
+| `src` | The source code, `src/opl3` holds the third-party OPL3 emulator |
+| `dist` | Desktop file, icon and manual page |
+| `doc` | The history of Wolf4SDL |
+| `tools` | `gen_layouts.py`, which generates `src/layouts_gen.cpp` and `src/layouts_gen.h`, and the old headers it reads |
+
 ## History
 
-[CHANGELOG.md](CHANGELOG.md) lists the changes since the last tag. [Changes.txt](Changes.txt) holds the history of Wolf4SDL up to its last release.
+[CHANGELOG.md](CHANGELOG.md) lists the changes since the last tag. [doc/Changes.txt](doc/Changes.txt) holds the history of Wolf4SDL up to its last release.
 
 ## Credits
 
@@ -149,4 +158,4 @@ Intenseflow is maintained by Fabian Greffrath.
 
 The source code of Wolfenstein 3D and of Intenseflow is available, at your choice, under [license-id.txt](license-id.txt) or [license-gpl.txt](license-gpl.txt).
 
-The OPL3 emulator (`opl3.c`, `opl3.h`, `wf_rom.h`) is licensed under the GNU Lesser General Public License, version 2.1 or later, see the headers of the files.
+The OPL3 emulator (`src/opl3`) is licensed under the GNU Lesser General Public License, version 2.1 or later, see the headers of the files.

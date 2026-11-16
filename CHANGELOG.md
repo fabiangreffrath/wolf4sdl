@@ -8,6 +8,7 @@
   Existing files have to be moved by hand.
 - The manual page, the desktop file and the icon are part of the repository
   and are installed by CMake.
+- The files are sorted into `src`, `src/opl3`, `dist`, `doc` and `tools`.
 
 ## Build system
 
