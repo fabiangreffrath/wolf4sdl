@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
+#include <direct.h>
 #define DIR_SEPARATOR_S "\\"
 #define PATH_SEPARATOR ';'
 #else
@@ -317,4 +318,77 @@ char *DataDirListString (void)
     end += snprintf(end, result + length - end, "\n");
 
     return result;
+}
+
+// Returns the default config directory without a trailing separator in a newly allocated string, or NULL if SDL does not know one.
+static char *defaultconfigdir (void)
+{
+#ifdef _WIN32
+    char *const sdlpath = SDL_GetBasePath();
+#else
+    char *const sdlpath = SDL_GetPrefPath("", CONFIGDIRNAME);
+#endif
+    if (sdlpath == NULL)
+        return NULL;
+
+    char *const path = strdup(sdlpath);
+    SDL_free(sdlpath);
+    if (path == NULL)
+        Quit("Out of memory");
+
+    size_t length = strlen(path);
+    while (length > 1 && (path[length - 1] == '/' || path[length - 1] == '\\'))
+        path[--length] = '\0';
+
+    return path;
+}
+
+// Sets the config directory unless --configdir gave one and creates it if it does not exist.
+// The default is the directory of the executable on Windows and the preferences directory of SDL elsewhere.
+void SetupConfigDir (void)
+{
+    if (configdir[0] == '\0')
+    {
+        char *const dir = defaultconfigdir();
+
+        if (dir == NULL)
+        {
+            printf("The config directory is not known, using the current directory.\n");
+        }
+        else
+        {
+            if (strlen(dir) >= sizeof(configdir))
+                Quit("The path of the config directory \"%s\" is too long.", dir);
+
+            strcpy(configdir, dir);
+            free(dir);
+        }
+    }
+
+    if (configdir[0] != '\0')
+    {
+        struct stat statbuf;
+
+        if (stat(configdir, &statbuf) != 0)
+        {
+#ifdef _WIN32
+            if (_mkdir(configdir) != 0)
+#else
+            if (mkdir(configdir, 0755) != 0)
+#endif
+                Quit("The configuration directory \"%s\" could not be created.", configdir);
+        }
+    }
+}
+
+// Returns the path of the config file, which has the same name for all games.
+// The string is allocated on the first call and must not be freed.
+const char *ConfigFilePath (void)
+{
+    static char *path;
+
+    if (path == NULL)
+        path = joinpath(configdir[0] != '\0' ? configdir : ".", CONFIGFILENAME, "");
+
+    return path;
 }

@@ -47,7 +47,7 @@ A game is only used if its data files are complete. If several games are found, 
 
 On Windows, the SDL2 and SDL2_mixer DLLs must be available next to the executable.
 
-The configuration file and the saved games are stored in `$HOME/.intenseflow` on Linux like systems and in the current directory on Windows. Their names carry the extension of the game that is played. The location can be changed with the `--configdir` option.
+The configuration file `intenseflow.cfg` is the same for all games. It is stored together with the saved games in the user data directory of SDL on Linux like systems (`$XDG_DATA_HOME/intenseflow`, default `$HOME/.local/share/intenseflow`) and in the directory of the executable on Windows. The names of the saved games carry the extension of the game that is played. The location can be changed with the `--configdir` option.
 
 ## Usage
 
@@ -79,8 +79,8 @@ Intenseflow supports the following command line options:
  --ignorenumchunks      Ignores the number of chunks in VGAHEAD.*
                         (may be useful for some broken mods)
  --configdir <dir>      Directory where config file and save games are stored
-                        (Windows default: current directory,
-                        others: $HOME/.intenseflow)
+                        (Windows default: directory of the executable,
+                        others: user data directory of SDL)
  --game <name>          Data files to use: wl6, sod, wl3, wl1 or sdm
                         (default: the first one found, in that order)
  --mission <mission>    Mission number to play (0-3)

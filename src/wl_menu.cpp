@@ -4432,42 +4432,7 @@ static int findlayout (const char *ext)
 void
 CheckForEpisodes (void)
 {
-    struct stat statbuf;
-
-    // On Linux like systems, the configdir defaults to $HOME/.intenseflow
-#if !defined(_WIN32)
-    if(configdir[0] == 0)
-    {
-        // Set config location to home directory for multi-user support
-        char *homedir = getenv("HOME");
-        if(homedir == NULL)
-        {
-            Quit("Your $HOME directory is not defined. You must set this before playing.");
-        }
-        #define WOLFDIR "/.intenseflow"
-        if(strlen(homedir) + sizeof(WOLFDIR) > sizeof(configdir))
-        {
-            Quit("Your $HOME directory path is too long. It cannot be used for saving games.");
-        }
-        snprintf(configdir, sizeof(configdir), "%s" WOLFDIR, homedir);
-    }
-#endif
-
-    if(configdir[0] != 0)
-    {
-        // Ensure config directory exists and create if necessary
-        if(stat(configdir, &statbuf) != 0)
-        {
-#ifdef _WIN32
-            if(_mkdir(configdir) != 0)
-#else
-            if(mkdir(configdir, 0755) != 0)
-#endif
-            {
-                Quit("The configuration directory \"%s\" could not be created.", configdir);
-            }
-        }
-    }
+    SetupConfigDir ();
 
     BuildDataDirList ();
 
@@ -4547,7 +4512,6 @@ CheckForEpisodes (void)
     strcpy (graphext, name);
     strcpy (audioext, name);
 
-    strcat (configname, extension);
     strcat (SaveName, extension);
     strcat (demoname, extension);
 

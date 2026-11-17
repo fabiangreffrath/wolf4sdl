@@ -143,7 +143,8 @@ Ignores the number of chunks in the VGAHEAD file, which may be useful for some b
 .TP
 \fB\-\-configdir\fR <dir>
 Sets the directory where the configuration file and the saved games are stored
-(default: $HOME/.intenseflow).
+(default: the user data directory of SDL, see
+.BR FILES ).
 .TP
 .BR \-\-goobers ", " \-\-debugmode
 Enables the debug keys, which are accessed with the Tab key.
@@ -165,9 +166,14 @@ Searched for game files last, once for each directory of the list. If
 is not set, it defaults to
 .IR /usr/local/share:/usr/share .
 .TP
-.I $HOME/.intenseflow
-The default directory for the configuration file and the saved games. The names of these
-files carry the extension of the game that is played.
+.I $XDG_DATA_HOME/intenseflow
+The default directory for the configuration file
+.I intenseflow.cfg
+and the saved games, unless the
+.B \-\-configdir
+option is given. The configuration file is the same for all games, the names of the saved
+games carry the extension of the game that is played. On Windows, the directory of the
+executable is used instead.
 
 .SH AUTHORS
 Intenseflow is maintained by Fabian Greffrath <fabian@debian.org>.

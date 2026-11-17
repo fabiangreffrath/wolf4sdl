@@ -74,7 +74,6 @@ boolean loadedgame;
 int     mouseadjustment, mouseadjustment_v;
 
 char    configdir[256] = "";
-char    configname[13] = "config.";
 
 //
 // Command line parameter variables
@@ -118,12 +117,7 @@ void ReadConfig(void)
     SMMode  sm;
     SDSMode sds;
 
-    char configpath[300];
-
-    if(configdir[0])
-        snprintf(configpath, sizeof(configpath), "%s/%s", configdir, configname);
-    else
-        strcpy(configpath, configname);
+    const char *const configpath = ConfigFilePath();
 
     printf("Config file: %s\n", configpath);
 
@@ -268,12 +262,7 @@ noconfig:
 
 void WriteConfig(void)
 {
-    char configpath[300];
-
-    if(configdir[0])
-        snprintf(configpath, sizeof(configpath), "%s/%s", configdir, configname);
-    else
-        strcpy(configpath, configname);
+    const char *const configpath = ConfigFilePath();
 
 #define write2(a,b,c) if(write(a,b,c)<0){close(file);return;}
     const int file = open(configpath, O_CREAT | O_WRONLY | O_BINARY, 0644);
@@ -1863,8 +1852,6 @@ static void CheckParameters(int argc, char *argv[])
                 else
                 {
                     strcpy(configdir, argv[i]);
-                    if(argv[i][len] != '/' && argv[i][len] != '\\')
-                        strcat(configdir, "/");
                 }
             }
         }
@@ -1907,9 +1894,9 @@ static void CheckParameters(int argc, char *argv[])
             "                        (may be useful for some broken mods)\n"
             " --configdir <dir>      Directory where config file and save games are stored\n"
 #if defined(_WIN32)
-            "                        (default: current directory)\n"
+            "                        (default: directory of the executable)\n"
 #else
-            "                        (default: $HOME/.intenseflow)\n"
+            "                        (default: user data directory of SDL)\n"
 #endif
             " --game <name>          Data files to use: wl6, sod, wl3, wl1 or sdm\n"
             "                        (default: the first one found, in that order)\n"

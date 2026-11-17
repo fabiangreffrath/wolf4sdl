@@ -3,9 +3,13 @@
 ## Rename
 
 - Wolf4SDL is now called Intenseflow, the executable is called `intenseflow`.
-- The default directory of the configuration file and the saved games on
-  Linux like systems is now `$HOME/.intenseflow` instead of `$HOME/.wolf4sdl`.
-  Existing files have to be moved by hand.
+- The configuration file is called `intenseflow.cfg` for all games instead of
+  `config.<extension>`. A file of Wolf4SDL can be renamed to use it.
+- The configuration file and the saved games are stored in the directory given
+  by `--configdir`. The default is the user data directory of SDL, for example
+  `$HOME/.local/share/intenseflow`, or the directory of the executable on
+  Windows. Existing files of Wolf4SDL have to be moved by hand.
+- The `--configdir` option no longer appends a slash to the directory.
 - The manual page, the desktop file and the icon are part of the repository
   and are installed by CMake.
 - The files are sorted into `src`, `src/opl3`, `dist`, `doc` and `tools`.

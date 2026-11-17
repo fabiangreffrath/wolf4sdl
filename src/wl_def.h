@@ -579,7 +579,6 @@ extern  unsigned screenofs;
 extern  boolean  startgame;
 extern  char     str[80];
 extern  char     configdir[256];
-extern  char     configname[13];
 
 //
 // Command line parameter variables
