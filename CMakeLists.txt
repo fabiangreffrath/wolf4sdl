@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
+
+# Automatically installs dependencies.
+set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
+
 project(
     "Intenseflow"
     VERSION 20261115
@@ -102,9 +106,20 @@ target_compile_options(intenseflow PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
 )
 
+if(MSVC)
+    # silence warnings about POSIX functions
+    target_compile_options(intenseflow PUBLIC -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
+    # silence unsigned/signed and integer truncation warnings
+    target_compile_options(intenseflow PRIVATE /wd4267 /wd4244)
+endif()
+
 target_include_directories(intenseflow PRIVATE src src/opl3)
 
-target_link_libraries(intenseflow PRIVATE PkgConfig::SDL2)
+target_link_libraries(intenseflow PRIVATE
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
+)
 
 target_compile_definitions(intenseflow PRIVATE PROJECT_NAME="${PROJECT_NAME}")
 target_compile_definitions(intenseflow PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
