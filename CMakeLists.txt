@@ -145,16 +145,35 @@ if(MINGW)
     target_link_options(intenseflow PRIVATE -static-libgcc)
 endif()
 
-# The Makefile installed the stripped binary with mode 555, use "cmake --install --strip".
 include(GNUInstallDirs)
-install(TARGETS intenseflow
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
-
-# Desktop integration files.
-if(NOT WIN32)
+if(WIN32)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.21 AND NOT VCPKG_TOOLCHAIN)
+        install(
+            TARGETS intenseflow
+            RUNTIME_DEPENDENCIES
+            PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
+            POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+            DIRECTORIES $<TARGET_FILE_DIR:intenseflow> $ENV{PATH}
+            RUNTIME DESTINATION .
+        )
+    else()
+        install(TARGETS intenseflow RUNTIME DESTINATION .)
+    endif()
+    install(FILES README.md DESTINATION .)
+else()
     install(FILES dist/intenseflow.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
     install(FILES dist/intenseflow.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
     install(FILES dist/intenseflow.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
+    install(FILES README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
+    install(TARGETS intenseflow
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
 endif()
+
+set(CPACK_GENERATOR ZIP)
+set(CPACK_PACKAGE_NAME ${PROJECT_LOWERNAME})
+set(CPACK_SOURCE_GENERATOR TGZ ZIP)
+set(CPACK_SOURCE_IGNORE_FILES "/.git/;/cmake-build/;/build/;/.vs/;/out/;CMakeSettings.json")
+set(CPACK_STRIP_FILES TRUE)
+include(CPack)
