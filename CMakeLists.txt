@@ -86,6 +86,10 @@ endif()
 
 list(TRANSFORM SRCS PREPEND src/)
 
+if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    list(APPEND SRCS dist/intenseflow.rc)
+endif()
+
 add_executable(intenseflow ${SRCS})
 
 set_target_properties(intenseflow PROPERTIES
