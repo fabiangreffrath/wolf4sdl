@@ -320,14 +320,44 @@ char *DataDirListString (void)
     return result;
 }
 
+#ifdef _WIN32
+
+// Returns true if a file can be created in the directory.
+static bool dirwritable (const char *dir)
+{
+    char *const path = joinpath(dir, CONFIGFILENAME, ".tmp");
+    FILE *const file = fopen(path, "wb");
+    const bool writable = file != NULL;
+
+    if (writable)
+    {
+        fclose(file);
+        remove(path);
+    }
+
+    free(path);
+    return writable;
+}
+
+#endif // _WIN32
+
 // Returns the default config directory without a trailing separator in a newly allocated string, or NULL if SDL does not know one.
+// On Windows the directory of the executable is used if it is writable, otherwise the preferences directory of SDL like elsewhere.
 static char *defaultconfigdir (void)
 {
+    char *sdlpath = NULL;
+
 #ifdef _WIN32
-    char *const sdlpath = SDL_GetBasePath();
-#else
-    char *const sdlpath = SDL_GetPrefPath("", CONFIGDIRNAME);
+    char *const base = SDL_GetBasePath();
+
+    if (base != NULL && dirwritable(base))
+        sdlpath = base;
+    else
+        SDL_free(base);
 #endif
+
+    if (sdlpath == NULL)
+        sdlpath = SDL_GetPrefPath("", CONFIGDIRNAME);
     if (sdlpath == NULL)
         return NULL;
 
@@ -344,7 +374,7 @@ static char *defaultconfigdir (void)
 }
 
 // Sets the config directory unless --configdir gave one and creates it if it does not exist.
-// The default is the directory of the executable on Windows and the preferences directory of SDL elsewhere.
+// The default is the preferences directory of SDL, see defaultconfigdir() for Windows.
 void SetupConfigDir (void)
 {
     if (configdir[0] == '\0')

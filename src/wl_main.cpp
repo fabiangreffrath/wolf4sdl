@@ -1894,7 +1894,7 @@ static void CheckParameters(int argc, char *argv[])
             "                        (may be useful for some broken mods)\n"
             " --configdir <dir>      Directory where config file and save games are stored\n"
 #if defined(_WIN32)
-            "                        (default: directory of the executable)\n"
+            "                        (default: directory of the executable if writable)\n"
 #else
             "                        (default: user data directory of SDL)\n"
 #endif

@@ -8,7 +8,7 @@
 - The configuration file and the saved games are stored in the directory given
   by `--configdir`. The default is the user data directory of SDL, for example
   `$HOME/.local/share/intenseflow`, or the directory of the executable on
-  Windows. Existing files of Wolf4SDL have to be moved by hand.
+  Windows if it is writable. Existing files of Wolf4SDL have to be moved by hand.
 - The `--configdir` option no longer appends a slash to the directory.
 - The manual page, the desktop file and the icon are part of the repository
   and are installed by CMake.
