@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
+
+# Automatically installs dependencies.
+set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
+
 project(
     "Intenseflow"
     VERSION 20261115
@@ -30,9 +34,6 @@ option(USE_RAIN "Enable rain support (wl_atmos.cpp)" OFF)
 option(USE_SNOW "Enable snow support (wl_atmos.cpp)" OFF)
 option(FIXRAINSNOWLEAKS "Fix leaking ceilings, only needed for maps with rain or snow and ceilings" OFF)
 set(USE_PARALLAX "" CACHE STRING "Enable the parallax sky with this many textures per sky, for example 16")
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2 SDL2_mixer)
 
 set(SRCS
     opl3/opl3.c
@@ -91,20 +92,34 @@ set_target_properties(intenseflow PROPERTIES
     C_EXTENSIONS ON
 )
 
-target_compile_options(intenseflow PRIVATE
-    -Wall
-    -Wpointer-arith
-    -Wreturn-type
-    -Wwrite-strings
-    -Wcast-align
-    $<$<COMPILE_LANGUAGE:C>:-Werror-implicit-function-declaration>
-    $<$<COMPILE_LANGUAGE:C>:-Wimplicit-int>
-    $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
-)
+if(MSVC)
+    # silence warnings about POSIX functions
+    target_compile_options(intenseflow PUBLIC -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
+    # silence unsigned/signed and integer truncation warnings
+    target_compile_options(intenseflow PRIVATE /wd4267 /wd4244)
+else()
+    target_compile_options(intenseflow PRIVATE
+        -Wall
+        -Wpointer-arith
+        -Wreturn-type
+        -Wwrite-strings
+        -Wcast-align
+        $<$<COMPILE_LANGUAGE:C>:-Werror-implicit-function-declaration>
+        $<$<COMPILE_LANGUAGE:C>:-Wimplicit-int>
+        $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
+    )
+endif()
 
 target_include_directories(intenseflow PRIVATE src src/opl3)
 
-target_link_libraries(intenseflow PRIVATE PkgConfig::SDL2)
+find_package(SDL2 REQUIRED CONFIG)
+find_package(SDL2_mixer REQUIRED CONFIG)
+
+target_link_libraries(intenseflow PRIVATE
+    $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
+)
 
 target_compile_definitions(intenseflow PRIVATE PROJECT_NAME="${PROJECT_NAME}")
 target_compile_definitions(intenseflow PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
@@ -130,16 +145,35 @@ if(MINGW)
     target_link_options(intenseflow PRIVATE -static-libgcc)
 endif()
 
-# The Makefile installed the stripped binary with mode 555, use "cmake --install --strip".
 include(GNUInstallDirs)
-install(TARGETS intenseflow
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
-
-# Desktop integration files.
-if(NOT WIN32)
+if(WIN32)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.21 AND NOT VCPKG_TOOLCHAIN)
+        install(
+            TARGETS intenseflow
+            RUNTIME_DEPENDENCIES
+            PRE_EXCLUDE_REGEXES "api-ms-" "ext-ms-"
+            POST_EXCLUDE_REGEXES ".*system32/.*\\.dll"
+            DIRECTORIES $<TARGET_FILE_DIR:intenseflow> $ENV{PATH}
+            RUNTIME DESTINATION .
+        )
+    else()
+        install(TARGETS intenseflow RUNTIME DESTINATION .)
+    endif()
+    install(FILES README.md DESTINATION .)
+else()
     install(FILES dist/intenseflow.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
     install(FILES dist/intenseflow.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
     install(FILES dist/intenseflow.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
+    install(FILES README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
+    install(TARGETS intenseflow
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
 endif()
+
+set(CPACK_GENERATOR ZIP)
+set(CPACK_PACKAGE_NAME ${PROJECT_LOWERNAME})
+set(CPACK_SOURCE_GENERATOR TGZ ZIP)
+set(CPACK_SOURCE_IGNORE_FILES "/.git/;/cmake-build/;/build/;/.vs/;/out/;CMakeSettings.json")
+set(CPACK_STRIP_FILES TRUE)
+include(CPack)

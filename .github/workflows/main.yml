@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [ "master" ]
     paths-ignore: ['**.md']
+  workflow_dispatch:
+
+env:
+  VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/vcpkg_cache,readwrite"
 
 jobs:
   build:
@@ -20,26 +24,33 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {
-              name: Linux GCC,
-              os: ubuntu-latest,
-              compiler: gcc,
-              shell: bash,
-            }
-          - {
-              name: macOS Clang,
-              os: macos-latest,
-              compiler: clang,
-              shell: bash,
-            }
-          - {
-              name: MSYS2 UCRT64,
-              os: windows-latest,
-              compiler: gcc,
-              shell: 'msys2 {0}',
-              msystem: ucrt64,
-              msys-env: mingw-w64-ucrt-x86_64,
-            }
+          - name: Linux GCC
+            os: ubuntu-latest
+            compiler: gcc
+            shell: bash
+
+          - name: macOS Clang
+            os: macos-latest
+            compiler: clang
+            shell: bash
+
+          - name: MSYS2 UCRT64
+            os: windows-latest
+            compiler: gcc
+            shell: 'msys2 {0}'
+            msystem: ucrt64
+            msys-env: mingw-w64-ucrt-x86_64
+
+          - name: MSVC x64
+            os: windows-latest
+            compiler: cl
+            shell: pwsh
+            extra-options: >-
+              -A x64
+              -DCMAKE_TOOLCHAIN_FILE="${env:VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+              -DVCPKG_TARGET_TRIPLET=x64-windows-static-release
+              -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+              -DCMAKE_IGNORE_PATH="C:/Strawberry/perl/bin;C:/Strawberry/c/lib"
 
     steps:
       - name: Install dependencies (Linux)
@@ -47,16 +58,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install \
+            cmake \
             libsdl2-dev \
-            libsdl2-mixer-dev \
-            ninja-build
+            libsdl2-mixer-dev
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
-        env:
-          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
-          brew update || true
           brew install \
             sdl2 \
             sdl2_mixer
@@ -69,18 +77,55 @@ jobs:
           update: false
           install: >-
             ${{ matrix.config.msys-env }}-gcc
-            ${{ matrix.config.msys-env }}-pkgconf
+            ${{ matrix.config.msys-env }}-cmake
             ${{ matrix.config.msys-env }}-SDL2
             ${{ matrix.config.msys-env }}-SDL2_mixer
-            ${{ matrix.config.msys-env }}-cmake
-            ${{ matrix.config.msys-env }}-ninja
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Build executables
+      - name: Restore vcpkg cache
+        if: ${{ matrix.config.name == 'MSVC x64' }}
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: vcpkg-x64-windows-static-release
+
+      - name: Configure executable
         env:
           CC: ${{ matrix.config.compiler }}
-          CFLAGS: -Wall -Werror
+        run: >-
+          cmake -B build
+          ${{ matrix.config.extra-options }}
+
+      # Delete the old cache on hit to emulate a cache update.
+      - name: Delete old cache
+        if: steps.cache.outputs.cache-hit
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh cache delete --repo ${{ github.repository }} ${{ steps.cache.outputs.cache-primary-key }}
+
+      - name: Save cache
+        if: ${{ matrix.config.name == 'MSVC x64' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+      - name: Build executable
+        run: cmake --build build --config Release
+
+      - name: Install executable
+        if: ${{ matrix.config.name == 'MSVC x64' }}
         run: |
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-          cmake --build build
+          cd build
+          cpack
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.config.name == 'MSVC x64' }}
+        with:
+          name: intenseflow-${{ github.sha }}-win64
+          path: |
+            build/*.zip
