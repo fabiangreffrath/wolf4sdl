@@ -17,6 +17,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     add_compile_options(-O2 -g)
 endif()
 
+option(WARNINGS_AS_ERRORS "Treat all compiler warnings as errors" OFF)
+
 # Features that were switched in version.h.
 option(DEBUGKEYS "Enable the Tab debug keys" ON)
 option(ARTSEXTERN "Take the help and end texts from the graphics file" ON)
@@ -108,6 +110,14 @@ else()
         $<$<COMPILE_LANGUAGE:C>:-Wimplicit-int>
         $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
     )
+endif()
+
+if(${WARNINGS_AS_ERRORS})
+    if(MSVC)
+        target_compile_options(intenseflow PRIVATE /WX)
+    else()
+        target_compile_options(intenseflow PRIVATE -Werror)
+    endif()
 endif()
 
 target_include_directories(intenseflow PRIVATE src src/opl3)
