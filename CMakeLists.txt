@@ -124,6 +124,19 @@ if(${WARNINGS_AS_ERRORS})
     endif()
 endif()
 
+if(WIN32)
+    if(MSVC)
+        target_link_options(intenseflow PRIVATE
+            "/MANIFEST:NO"
+            "$<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,/SUBSYSTEM:CONSOLE,/SUBSYSTEM:WINDOWS>"
+        )
+    else()
+        target_link_options(intenseflow PRIVATE
+            "$<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,-mconsole,-mwindows>"
+        )
+    endif()
+endif()
+
 target_include_directories(intenseflow PRIVATE src src/opl3)
 
 find_package(SDL2 REQUIRED CONFIG)
