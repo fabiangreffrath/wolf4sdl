@@ -96,6 +96,7 @@ jobs:
           CC: ${{ matrix.config.compiler }}
         run: >-
           cmake -B build
+          ${{ matrix.config.extra-options }}
 
       # Delete the old cache on hit to emulate a cache update.
       - name: Delete old cache
