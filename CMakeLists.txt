@@ -112,6 +112,9 @@ endif()
 
 target_include_directories(intenseflow PRIVATE src src/opl3)
 
+find_package(SDL2 REQUIRED CONFIG)
+find_package(SDL2_mixer REQUIRED CONFIG)
+
 target_link_libraries(intenseflow PRIVATE
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
