@@ -92,22 +92,22 @@ set_target_properties(intenseflow PROPERTIES
     C_EXTENSIONS ON
 )
 
-target_compile_options(intenseflow PRIVATE
-    -Wall
-    -Wpointer-arith
-    -Wreturn-type
-    -Wwrite-strings
-    -Wcast-align
-    $<$<COMPILE_LANGUAGE:C>:-Werror-implicit-function-declaration>
-    $<$<COMPILE_LANGUAGE:C>:-Wimplicit-int>
-    $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
-)
-
 if(MSVC)
     # silence warnings about POSIX functions
     target_compile_options(intenseflow PUBLIC -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
     # silence unsigned/signed and integer truncation warnings
     target_compile_options(intenseflow PRIVATE /wd4267 /wd4244)
+else()
+    target_compile_options(intenseflow PRIVATE
+        -Wall
+        -Wpointer-arith
+        -Wreturn-type
+        -Wwrite-strings
+        -Wcast-align
+        $<$<COMPILE_LANGUAGE:C>:-Werror-implicit-function-declaration>
+        $<$<COMPILE_LANGUAGE:C>:-Wimplicit-int>
+        $<$<COMPILE_LANGUAGE:C>:-Wsequence-point>
+    )
 endif()
 
 target_include_directories(intenseflow PRIVATE src src/opl3)
