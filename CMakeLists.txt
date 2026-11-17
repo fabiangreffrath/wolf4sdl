@@ -35,9 +35,6 @@ option(USE_SNOW "Enable snow support (wl_atmos.cpp)" OFF)
 option(FIXRAINSNOWLEAKS "Fix leaking ceilings, only needed for maps with rain or snow and ceilings" OFF)
 set(USE_PARALLAX "" CACHE STRING "Enable the parallax sky with this many textures per sky, for example 16")
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2 SDL2_mixer)
-
 set(SRCS
     opl3/opl3.c
     datadir.cpp
