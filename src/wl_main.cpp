@@ -1498,7 +1498,7 @@ void Quit (const char *errorStr, ...)
 
         if (!isatty_stdout())
         {
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROJECT_NAME,
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROJECT_STRING,
                                      error, NULL);
         }
 

@@ -16,8 +16,8 @@ bool DataSetComplete (const char *dir, const char *ext, const char *graphext);
 char *DataFilePath (const char *name, const char *ext);
 char *DataDirListString (void);
 
-#define CONFIGDIRNAME "intenseflow"
-#define CONFIGFILENAME "intenseflow.cfg"
+#define CONFIGDIRNAME PROJECT_LOWERNAME
+#define CONFIGFILENAME PROJECT_LOWERNAME ".cfg"
 
 void SetupConfigDir (void);
 const char *ConfigFilePath (void);

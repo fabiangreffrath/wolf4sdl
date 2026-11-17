@@ -108,6 +108,10 @@ target_link_libraries(intenseflow PRIVATE PkgConfig::SDL2)
 
 target_compile_definitions(intenseflow PRIVATE PROJECT_NAME="${PROJECT_NAME}")
 target_compile_definitions(intenseflow PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(intenseflow PRIVATE PROJECT_STRING="${PROJECT_NAME} ${PROJECT_VERSION}")
+
+string(TOLOWER ${PROJECT_NAME} PROJECT_LOWERNAME)
+target_compile_definitions(intenseflow PRIVATE PROJECT_LOWERNAME="${PROJECT_LOWERNAME}")
 
 foreach(flag IN ITEMS
         DEBUGKEYS ARTSEXTERN DEMOSEXTERN PLAYDEMOLIKEORIGINAL
