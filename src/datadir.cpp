@@ -56,6 +56,10 @@ static char *joinpath (const char *dir, const char *name, const char *ext)
     return joinstrings(parts, sizeof(parts) / sizeof(parts[0]));
 }
 
+#ifndef S_ISDIR
+#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+#endif
+
 // Returns true if the path exists and is not a directory.
 static bool fileexists (const char *path)
 {
