@@ -1822,6 +1822,7 @@ static void CheckParameters(int argc, char *argv[])
                     printf("The mission option must be between 0 and 3!\n");
                     hasError = true;
                 }
+                param_game = "sod";
             }
         }
         else IFARG("--game")
