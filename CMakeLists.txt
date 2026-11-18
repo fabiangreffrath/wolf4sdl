@@ -9,36 +9,40 @@ project(
     LANGUAGES C CXX
 )
 
+string(TOLOWER ${PROJECT_NAME} PROJECT_LOWERNAME)
+
+# --- Options ---------------------------------------------------------------
+
 # Name of the executable.
 set(BINARY intenseflow CACHE STRING "Name of the executable")
 
-# The Makefile used -O2 -g unless a configuration said otherwise.
+option(WARNINGS_AS_ERRORS "Treat all compiler warnings as errors" OFF)
+
+# Features that are switched on or off at build time.
+option(ARTSEXTERN "Take the help and end texts from the graphics file" ON)
+option(DEBUGKEYS "Enable the Tab debug keys" ON)
+option(DEMOSEXTERN "Take the demos from the graphics file" ON)
+option(FIXRAINSNOWLEAKS "Fix leaking ceilings, only needed for maps with rain or snow and ceilings" OFF)
+option(PLAYDEMOLIKEORIGINAL "Do not apply bug fixes while playing or recording demos" ON)
+option(USE_CLOUDSKY "Enable cloud sky support (wl_cloudsky.cpp)" OFF)
+option(USE_DIR3DSPR "Enable directional 3D sprites (wl_dir3dspr.cpp)" OFF)
+option(USE_FEATUREFLAGS "Enable the level feature flags (see the bottom of wl_def.h)" OFF)
+option(USE_FLOORCEILINGTEX "Enable floor and ceiling textures in the third map plane (wl_floorceiling.cpp)" OFF)
+option(USE_HIRES "Enable high resolution textures and sprites (128x128)" OFF)
+option(USE_RAIN "Enable rain support (wl_atmos.cpp)" OFF)
+option(USE_SHADING "Enable shading support (wl_shade.cpp)" OFF)
+option(USE_SNOW "Enable snow support (wl_atmos.cpp)" OFF)
+option(USE_STARSKY "Enable star sky support (wl_atmos.cpp)" OFF)
+set(USE_PARALLAX "" CACHE STRING "Enable the parallax sky with this many textures per sky, for example 16")
+
+# Default to -O2 -g unless a build type or configuration is given.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     add_compile_options(-O2 -g)
 endif()
 
-option(WARNINGS_AS_ERRORS "Treat all compiler warnings as errors" OFF)
-
-# Features that were switched in version.h.
-option(DEBUGKEYS "Enable the Tab debug keys" ON)
-option(ARTSEXTERN "Take the help and end texts from the graphics file" ON)
-option(DEMOSEXTERN "Take the demos from the graphics file" ON)
-option(PLAYDEMOLIKEORIGINAL "Do not apply bug fixes while playing or recording demos" ON)
-
-option(USE_FEATUREFLAGS "Enable the level feature flags (see the bottom of wl_def.h)" OFF)
-option(USE_SHADING "Enable shading support (wl_shade.cpp)" OFF)
-option(USE_DIR3DSPR "Enable directional 3D sprites (wl_dir3dspr.cpp)" OFF)
-option(USE_FLOORCEILINGTEX "Enable floor and ceiling textures in the third map plane (wl_floorceiling.cpp)" OFF)
-option(USE_HIRES "Enable high resolution textures and sprites (128x128)" OFF)
-option(USE_CLOUDSKY "Enable cloud sky support (wl_cloudsky.cpp)" OFF)
-option(USE_STARSKY "Enable star sky support (wl_atmos.cpp)" OFF)
-option(USE_RAIN "Enable rain support (wl_atmos.cpp)" OFF)
-option(USE_SNOW "Enable snow support (wl_atmos.cpp)" OFF)
-option(FIXRAINSNOWLEAKS "Fix leaking ceilings, only needed for maps with rain or snow and ceilings" OFF)
-set(USE_PARALLAX "" CACHE STRING "Enable the parallax sky with this many textures per sky, for example 16")
+# --- Sources ---------------------------------------------------------------
 
 set(SRCS
-    opl3/opl3.c
     datadir.cpp
     id_ca.cpp
     id_in.cpp
@@ -48,7 +52,9 @@ set(SRCS
     id_vh.cpp
     id_vl.cpp
     layouts_gen.cpp
+    opl3/opl3.c
     signon.cpp
+    states.cpp
     wl_act1.cpp
     wl_act2.cpp
     wl_agent.cpp
@@ -61,12 +67,11 @@ set(SRCS
     wl_play.cpp
     wl_state.cpp
     wl_text.cpp
-    states.cpp
 )
 
 # Files that only belong to a feature.
-if(USE_SHADING)
-    list(APPEND SRCS wl_shade.cpp)
+if(USE_CLOUDSKY)
+    list(APPEND SRCS wl_cloudsky.cpp)
 endif()
 if(USE_DIR3DSPR)
     list(APPEND SRCS wl_dir3dspr.cpp)
@@ -77,18 +82,16 @@ endif()
 if(USE_PARALLAX)
     list(APPEND SRCS wl_parallax.cpp)
 endif()
-if(USE_CLOUDSKY)
-    list(APPEND SRCS wl_cloudsky.cpp)
-endif()
-if(USE_STARSKY OR USE_RAIN OR USE_SNOW)
+if(USE_RAIN OR USE_SNOW OR USE_STARSKY)
     list(APPEND SRCS wl_atmos.cpp)
+endif()
+if(USE_SHADING)
+    list(APPEND SRCS wl_shade.cpp)
 endif()
 
 list(TRANSFORM SRCS PREPEND src/)
 
-if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    list(APPEND SRCS dist/intenseflow.rc)
-endif()
+# --- Target ----------------------------------------------------------------
 
 add_executable(intenseflow ${SRCS})
 
@@ -97,6 +100,31 @@ set_target_properties(intenseflow PROPERTIES
     C_STANDARD 99
     C_EXTENSIONS ON
 )
+
+target_include_directories(intenseflow PRIVATE src src/opl3)
+
+# Names and features for the preprocessor.
+target_compile_definitions(intenseflow PRIVATE
+    PROJECT_NAME="${PROJECT_NAME}"
+    PROJECT_VERSION="${PROJECT_VERSION}"
+    PROJECT_STRING="${PROJECT_NAME} ${PROJECT_VERSION}"
+    PROJECT_LOWERNAME="${PROJECT_LOWERNAME}"
+)
+
+foreach(flag IN ITEMS
+        ARTSEXTERN DEBUGKEYS DEMOSEXTERN FIXRAINSNOWLEAKS PLAYDEMOLIKEORIGINAL
+        USE_CLOUDSKY USE_DIR3DSPR USE_FEATUREFLAGS USE_FLOORCEILINGTEX USE_HIRES
+        USE_RAIN USE_SHADING USE_SNOW USE_STARSKY)
+    if(${flag})
+        target_compile_definitions(intenseflow PRIVATE ${flag})
+    endif()
+endforeach()
+
+if(USE_PARALLAX)
+    target_compile_definitions(intenseflow PRIVATE USE_PARALLAX=${USE_PARALLAX})
+endif()
+
+# --- Compiler and linker settings ------------------------------------------
 
 if(MSVC)
     # silence warnings about POSIX functions
@@ -116,7 +144,7 @@ else()
     )
 endif()
 
-if(${WARNINGS_AS_ERRORS})
+if(WARNINGS_AS_ERRORS)
     if(MSVC)
         target_compile_options(intenseflow PRIVATE /WX)
     else()
@@ -125,6 +153,8 @@ if(${WARNINGS_AS_ERRORS})
 endif()
 
 if(WIN32)
+    target_sources(intenseflow PRIVATE dist/intenseflow.rc)
+
     if(MSVC)
         target_link_options(intenseflow PRIVATE
             "/MANIFEST:NO"
@@ -137,7 +167,11 @@ if(WIN32)
     endif()
 endif()
 
-target_include_directories(intenseflow PRIVATE src src/opl3)
+if(MINGW)
+    target_link_options(intenseflow PRIVATE -static-libgcc)
+endif()
+
+# --- Dependencies ----------------------------------------------------------
 
 find_package(SDL2 REQUIRED CONFIG)
 find_package(SDL2_mixer REQUIRED CONFIG)
@@ -148,31 +182,10 @@ target_link_libraries(intenseflow PRIVATE
     $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>
 )
 
-target_compile_definitions(intenseflow PRIVATE PROJECT_NAME="${PROJECT_NAME}")
-target_compile_definitions(intenseflow PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
-target_compile_definitions(intenseflow PRIVATE PROJECT_STRING="${PROJECT_NAME} ${PROJECT_VERSION}")
-
-string(TOLOWER ${PROJECT_NAME} PROJECT_LOWERNAME)
-target_compile_definitions(intenseflow PRIVATE PROJECT_LOWERNAME="${PROJECT_LOWERNAME}")
-
-foreach(flag IN ITEMS
-        DEBUGKEYS ARTSEXTERN DEMOSEXTERN PLAYDEMOLIKEORIGINAL
-        USE_FEATUREFLAGS USE_SHADING USE_DIR3DSPR USE_FLOORCEILINGTEX USE_HIRES
-        USE_CLOUDSKY USE_STARSKY USE_RAIN USE_SNOW FIXRAINSNOWLEAKS)
-    if(${flag})
-        target_compile_definitions(intenseflow PRIVATE ${flag})
-    endif()
-endforeach()
-
-if(USE_PARALLAX)
-    target_compile_definitions(intenseflow PRIVATE USE_PARALLAX=${USE_PARALLAX})
-endif()
-
-if(MINGW)
-    target_link_options(intenseflow PRIVATE -static-libgcc)
-endif()
+# --- Installation ----------------------------------------------------------
 
 include(GNUInstallDirs)
+
 if(WIN32)
     if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.21 AND NOT VCPKG_TOOLCHAIN)
         install(
@@ -188,15 +201,17 @@ if(WIN32)
     endif()
     install(FILES README.md DESTINATION .)
 else()
-    install(FILES dist/intenseflow.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-    install(FILES dist/intenseflow.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
-    install(FILES dist/intenseflow.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
-    install(FILES README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
     install(TARGETS intenseflow
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
     )
+    install(FILES dist/intenseflow.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES dist/intenseflow.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+    install(FILES dist/intenseflow.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
+    install(FILES README.md DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
+
+# --- Packaging -------------------------------------------------------------
 
 set(CPACK_GENERATOR ZIP)
 set(CPACK_PACKAGE_NAME ${PROJECT_LOWERNAME})
