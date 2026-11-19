@@ -1,5 +1,7 @@
 # Intenseflow
 
+[![Intenseflow Icon](https://raw.githubusercontent.com/fabiangreffrath/intenseflow/master/dist/intenseflow.png)](https://github.com/fabiangreffrath/intenseflow)
+
 Intenseflow is an open-source source port of id Software's classic first-person shooters Wolfenstein 3D and Spear of Destiny to the cross-platform multimedia library [Simple DirectMedia Layer](https://www.libsdl.org) (SDL2). It is meant to keep the original feel while taking advantage of some improvements mentioned in the list below.
 
 Intenseflow is the successor of Wolf4SDL, which was written by Moritz "Ripper" Kroll. It was renamed because the code base has changed a lot since the last Wolf4SDL release. The name is an anagram of "Wolfenstein".
