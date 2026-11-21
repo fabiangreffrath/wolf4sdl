@@ -5,7 +5,7 @@ set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
 
 project(
     "Intenseflow"
-    VERSION 20261115
+    VERSION 2026.11.21
     LANGUAGES C CXX
 )
 

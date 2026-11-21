@@ -1,15 +1,19 @@
-# Changes since 20251124
+# 2026.11.21 (2026-11-21)
+
+This is the first release under the new name *Intenseflow*. The last Wolf4SDL release is `20251124`.
 
 ## Rename
 
 - Wolf4SDL is now called Intenseflow, the executable is called `intenseflow`.
+- Added a new icon. It is installed as a 128x128 PNG and built into the Windows
+  executable.
 - The configuration file is called `intenseflow.cfg` for all games instead of
   `config.<extension>`. A file of Wolf4SDL can be renamed to use it.
 - The configuration file and the saved games are stored in the directory given
   by `--configdir`. The default is the user data directory of SDL, for example
   `$HOME/.local/share/intenseflow`, or the directory of the executable on
-  Windows if it is writable. Existing files of Wolf4SDL have to be moved by hand.
-- The `--configdir` option no longer appends a slash to the directory.
+  Windows if it is writable. Existing files of Wolf4SDL have to be moved by hand
+  (e.g. from `~/.wolf4sdl`).
 - The manual page, the desktop file and the icon are part of the repository
   and are installed by CMake.
 - The files are sorted into `src`, `src/opl3`, `dist`, `doc` and `tools`.
@@ -25,6 +29,7 @@
 
 - One binary runs all versions of the game (#41). The version is detected at
   runtime from the data files, `--game` chooses one explicitly.
+- The `--mission` parameter implies `--game sod`.
 - A suffix of the executable name like `intenseflow-sod` selects the game as
   well.
 - The data files are searched in a list of directories that is built at

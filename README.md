@@ -10,7 +10,7 @@ The game data files are **not** part of Intenseflow. You need your own copy of W
 
 ## Main features
 
-- **Cross-platform:** Linux, BSD variants, macOS and Windows (MinGW). The continuous integration builds on Linux, macOS and Windows (MSYS2). Only little endian platforms like x86 and ARM are supported.
+- **Cross-platform:** Linux, BSD variants, macOS and Windows (MinGW and MSVC). The continuous integration builds on Linux, macOS and Windows (MSYS2 and MSVC). Only little endian platforms like x86 and ARM are supported.
 - **One binary for all game versions:** The version of the game is detected at runtime from the data files that are found. There is no need to build a separate binary for each version.
 - **AdLib sounds and music:** This port includes the Nuked OPL3 emulator (Nuked-OPL3-fast), so you can hear the AdLib sounds and music without any AdLib-compatible sound card in near to perfect quality.
 - **Multichannel digitized sounds:** Digitized sounds play on 8 channels, so in a fire fight you will always hear when a guard opens the door behind you.
@@ -94,7 +94,7 @@ A manual page is installed as `intenseflow(6)`.
 
 ## Building
 
-Intenseflow is built with CMake (version 3.13 or newer). It needs a C and a C++ compiler, pkg-config and the development files of SDL2 and SDL2_mixer.
+Intenseflow is built with CMake (version 3.13 or newer). It needs a C and a C++ compiler and the development files of SDL2 and SDL2_mixer, which CMake finds through their CMake config files. With vcpkg, `vcpkg.json` lists the dependencies.
 
 ```sh
 cmake -B build
@@ -111,6 +111,7 @@ The following features are switched on or off with CMake options, for example `c
 | `ARTSEXTERN` | ON | Take the help and end texts from the graphics file |
 | `DEMOSEXTERN` | ON | Take the demos from the graphics file |
 | `PLAYDEMOLIKEORIGINAL` | ON | Do not apply bug fixes while playing or recording demos, so the demos stay in sync |
+| `WARNINGS_AS_ERRORS` | OFF | Treat all compiler warnings as errors |
 | `USE_FEATUREFLAGS` | OFF | Level feature flags, see the end of `src/wl_def.h` |
 | `USE_SHADING` | OFF | Shading |
 | `USE_DIR3DSPR` | OFF | Directional 3D sprites |
@@ -136,7 +137,7 @@ The following features are switched on or off with CMake options, for example `c
 
 ## History
 
-[CHANGELOG.md](CHANGELOG.md) lists the changes since the last tag. [doc/Changes.txt](doc/Changes.txt) holds the history of Wolf4SDL up to its last release.
+[CHANGELOG.md](CHANGELOG.md) lists the changes of each release. [doc/Changes.txt](doc/Changes.txt) holds the history of Wolf4SDL up to its last release.
 
 ## Credits
 
